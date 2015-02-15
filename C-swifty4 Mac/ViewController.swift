@@ -20,9 +20,9 @@ class ViewController: NSViewController {
     private var frames = 0
 
     private let c64: C64 = {
-        C64(kernalData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("kernal", ofType: nil)!)!,
-            basicData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("basic", ofType: nil)!)!,
-            characterData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chargen", ofType: nil)!)!)
+        C64(kernalData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("kernal", ofType: nil, inDirectory:"ROM")!)!,
+            basicData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("basic", ofType: nil, inDirectory:"ROM")!)!,
+            characterData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chargen", ofType: nil, inDirectory:"ROM")!)!)
         }()
     
     override func viewDidLoad() {
