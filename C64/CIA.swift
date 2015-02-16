@@ -12,27 +12,17 @@ internal class CIA {
     
     internal weak var cpu: CPU!
     
-    //MARK: Constants
-    private let kDataPortRegisterAAddress: UInt8 = 0x00
-    private let kDataPortRegisterBAddress: UInt8 = 0x01
-    private let kDataDirectionRegisterAAddress: UInt8 = 0x02
-    private let kDataDirectionRegisterBAddress: UInt8 = 0x03
-    private let kTimerALowAddress: UInt8 = 0x04
-    private let kTimerAHighAddress: UInt8 = 0x05
-    private let kInterruptControlRegisterAddress: UInt8 = 0x0D
-    private let kControlRegisterAAddress: UInt8 = 0x0E
-    private let kControlRegisterBAddress: UInt8 = 0x0F
+    //MARK: Registers
+    private var pra: UInt8 = 0xFF // Data Port Register A
+    private var prb: UInt8 = 0xFF // Data Port Register B
+    private var ddra: UInt8 = 0 // Data Direction Register A
+    private var ddrb: UInt8 = 0 // Data Direction Register B
+    private var imr: UInt8 = 0 // Interrupts Mask Register
+    private var cra: UInt8 = 0 // Control Register A
+    private var crb: UInt8 = 0 // Control Register B
     //MARK: -
     
-    //MARK: Registers
-    private var PRA: UInt8 = 0xFF
-    private var PRB: UInt8 = 0xFF
-    private var DDRA: UInt8 = 0
-    private var DDRB: UInt8 = 0
-    private var IMR: UInt8 = 0
-    private var CRA: UInt8 = 0
-    private var CRB: UInt8 = 0
-    
+    //MARK: Internal Registers
     private var latchA: UInt16 = 0
     private var counterA: UInt16 = 0xFFFF
     //MARK: -
@@ -41,12 +31,12 @@ internal class CIA {
    
     internal func cycle() {
         //TODO: real timer handling
-        if CRA & 0x1 != 0 {
+        if cra & 0x1 != 0 {
             counterA = counterA &- 1
         }
         if counterA == 0 {
             triggerInterrupt()
-            if CRA & 0x8 == 0 {
+            if cra & 0x8 == 0 {
                 counterA = latchA
             }
         }
@@ -54,26 +44,30 @@ internal class CIA {
     
     internal func writeByte(position: UInt8, byte: UInt8) {
         switch position {
-        case kTimerALowAddress:
+        case 0x02:
+            ddra = byte
+        case 0x03:
+            ddrb = byte
+        case 0x04:
             latchA = (latchA & 0xFF00) | UInt16(byte)
-        case kTimerAHighAddress:
+        case 0x05:
             latchA = (UInt16(byte) << 8) | (latchA & 0xFF);
-        case kInterruptControlRegisterAddress:
+        case 0x0D:
             if ((byte & 0x80) != 0) {
-                IMR |= (byte & 0x1F)
+                imr |= (byte & 0x1F)
             } else {
-                IMR &= ~(byte & 0x1F)
+                imr &= ~(byte & 0x1F)
             }
-        case kControlRegisterAAddress:
+        case 0x0E:
             // bit4: force load
             if ((byte & 0x10) != 0) {
                 counterA = latchA
             }
             //TODO: more timer stuff
-            CRA = byte
-        case kControlRegisterBAddress:
+            cra = byte
+        case 0x0F:
             //TODO: Timer stuff
-            CRB = byte
+            crb = byte
         default:
             println("todo cia write address: " + String(position, radix: 16, uppercase: true))
             abort()
@@ -82,11 +76,15 @@ internal class CIA {
     
     internal func readByte(position: UInt8) -> UInt8 {
         switch position {
-        case kInterruptControlRegisterAddress:
+        case 0x02:
+            return ddra
+        case 0x03:
+            return ddrb
+        case 0x0D:
             //TODO: return ICR and set it to 0
             return 0
-        case kControlRegisterAAddress:
-            return CRA & ~0x10
+        case 0x0E:
+            return cra & ~0x10
         default:
             println("todo cia read address: " + String(position, radix: 16, uppercase: true))
             abort()
@@ -100,18 +98,19 @@ final internal class CIA1: CIA {
     
     internal weak var keyboard: Keyboard!
     
+    override init() {
+        super.init()
+        ddra = 0xFF
+    }
+    
     internal override func writeByte(position: UInt8, byte: UInt8) {
         switch position {
-        case kDataPortRegisterAAddress:
-            PRA = byte | ~DDRA
+        case 0x00:
+            pra = byte | ~ddra
             return
-        case kDataPortRegisterBAddress:
-            PRB = byte | ~DDRB
+        case 0x01:
+            prb = byte | ~ddrb
             return
-        case kDataDirectionRegisterAAddress:
-            DDRA = byte
-        case kDataDirectionRegisterBAddress:
-            DDRB = byte
         default:
             super.writeByte(position, byte: byte)
         }
@@ -119,12 +118,12 @@ final internal class CIA1: CIA {
     
     internal override func readByte(position: UInt8) -> UInt8 {
         switch position {
-        case kDataPortRegisterAAddress:
+        case 0x00:
             //TODO: Real joystick
             return 0xFF
-        case kDataPortRegisterBAddress:
-            //TODO: Actually read from kDataPortRegisterAAddress because of joystick that might change bits
-            return keyboard.readMatrix(PRA) & PRB
+        case 0x01:
+            //TODO: Actually read from 0x00 because of joystick that might change bits
+            return keyboard.readMatrix(pra) & prb
         default:
             return super.readByte(position)
         }
@@ -139,17 +138,17 @@ final internal class CIA2: CIA {
     
     internal weak var vic: VIC!
     
+    override init() {
+        super.init()
+        ddra = 0x3F
+    }
+    
     internal override func writeByte(position: UInt8, byte: UInt8) {
         switch position {
-        case kDataPortRegisterAAddress:
-            PRA = byte | ~DDRA
-            vic.setMemoryBank(PRA & 0x3)
+        case 0x00:
+            pra = byte | ~ddra
+            vic.setMemoryBank(pra & 0x3)
             // VIC + IEC stuff
-        case kDataDirectionRegisterAAddress:
-            //TODO: Should this update PRA immediately? Investigate
-            DDRA = byte
-        case kDataDirectionRegisterBAddress:
-            DDRB = byte
         default:
             super.writeByte(position, byte: byte)
         }
@@ -157,9 +156,9 @@ final internal class CIA2: CIA {
     
     internal override func readByte(position: UInt8) -> UInt8 {
         switch position {
-        case kDataPortRegisterAAddress:
+        case 0x00:
             //TODO: implement bit 7-8
-            return (PRA | ~DDRA) & 0x3F
+            return (pra | ~ddra) & 0x3F
         default:
             return super.readByte(position)
         }
