@@ -36,7 +36,7 @@ final internal class VIC {
     private var rc: UInt8 = 0
     private var vmli: UInt16 = 0
     private var displayState = false
-    private var raster: Int = 0
+    private var raster: UInt16 = 0
     private var rasterX: Int = 0x19C // NTSC
     private var mainBorder = false
     private var verticalBorder = false
@@ -74,8 +74,8 @@ final internal class VIC {
     private var screenMemoryAddress: UInt16 = 0
     private var borderLeftComparisonValue: Int = 24
     private var borderRightComparisonValue: Int = 344
-    private var borderTopComparisonValue: Int = 51
-    private var borderBottomComparisonValue: Int = 251
+    private var borderTopComparisonValue: UInt16 = 51
+    private var borderBottomComparisonValue: UInt16 = 251
     private var bufferPosition: Int = 0
     private var badLinesEnabled = false
     private var isBadLine = false
@@ -107,12 +107,16 @@ final internal class VIC {
     internal func readByte(position: UInt8) -> UInt8 {
         switch position {
         case 0x11:
-            return yScroll | (den ? 0x10 : 0) | (bmm ? 0x20 : 0) | (ecm ? 0x40 : 0) //TODO: missing bit registers
+            return yScroll | (den ? 0x10 : 0) | (bmm ? 0x20 : 0) | (ecm ? 0x40 : 0) | UInt8((raster & 0x100) >> 1)
+        case 0x12:
+            return UInt8(truncatingBitPattern: raster)
         case 0x16:
             return (mcm ? 0x10 : 0) //TODO: missing bit registers
         case 0x19:
             //TEMP: force NTSC timing
             return 0x70
+        case 0x20:
+            return ec | 0xF0
         default:
             return 0
         }
