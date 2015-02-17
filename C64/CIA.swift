@@ -18,20 +18,9 @@ internal class CIA {
     private var ddra: UInt8 = 0 // Data Direction Register A
     private var ddrb: UInt8 = 0 // Data Direction Register B
     private var imr: UInt8 = 0 // Interrupts Mask Register
-    private var craStart = false // Control Register A Bit 0
-    private var craPBOn = false // Control Register A Bit 1
-    private var craOutMode = false // Control Register A Bit 2
-    private var craRunMode = false // Control Register A Bit 3
-    private var craInMode = false // Control Register A Bit 5
-    private var craSPMode = false // Control Register A Bit 6
-    private var craTODIn = false // Control Register A Bit 7
-    private var crbStart = false // Control Register B Bit 0
-    private var crbPBOn = false // Control Register B Bit 1
-    private var crbOutMode = false // Control Register B Bit 2
-    private var crbRunMode = false // Control Register B Bit 3
-    private var crbInMode1 = false // Control Register B Bit 5
-    private var crbInMode2 = false // Control Register B Bit 6
-    private var crbAlarm = false // Control Register B Bit 7
+    private var icr: UInt8 = 0 // Interrupts Control Register
+    private var cra: UInt8 = 0 // Control Register A
+    private var crb: UInt8 = 0 // Control Register B
     //MARK: -
     
     //MARK: Internal Registers
@@ -45,19 +34,33 @@ internal class CIA {
    
     internal func cycle() {
         //TODO: real timer handling
-        if craStart {
+        if cra & 0x01 != 0 {
             counterA = counterA &- 1
         }
         if counterA == 0 {
-            triggerInterrupt()
             counterA = latchA
+            if cra & 0x08 != 0 {
+                cra &= ~0x01
+            }
+            icr |= 0x01
+            if imr & 0x01 != 0 {
+                icr |= 0x80
+                triggerInterrupt()
+            }
         }
-        if crbStart {
+        if crb & 0x01 != 0 {
             counterB = counterB &- 1
         }
         if counterB == 0 {
-            triggerInterrupt()
             counterB = latchB
+            if crb & 0x08 != 0 {
+                crb &= ~0x01
+            }
+            icr |= 0x02
+            if imr & 0x02 != 0 {
+                icr |= 0x80
+                triggerInterrupt()
+            }
         }
     }
     
@@ -71,16 +74,19 @@ internal class CIA {
             latchA = (latchA & 0xFF00) | UInt16(byte)
         case 0x05:
             latchA = (UInt16(byte) << 8) | (latchA & 0xFF);
-            if !craStart {
+            if cra & 0x01 == 0 {
                 counterA = latchA
             }
         case 0x06:
             latchB = (latchB & 0xFF00) | UInt16(byte)
         case 0x07:
             latchB = (UInt16(byte) << 8) | (latchB & 0xFF);
-            if !crbStart {
+            if crb & 0x01 == 0 {
                 counterB = latchB
             }
+        case 0x0C:
+            //TODO: serial i/o
+            return
         case 0x0D:
             if ((byte & 0x80) != 0) {
                 imr |= (byte & 0x1F)
@@ -92,26 +98,14 @@ internal class CIA {
             if ((byte & 0x10) != 0) {
                 counterA = latchA
             }
-            craStart = byte & 0x01 != 0
-            craPBOn = byte & 0x02 != 0
-            craOutMode = byte & 0x04 != 0
-            craRunMode = byte & 0x08 != 0
-            craInMode = byte & 0x20 != 0
-            craSPMode = byte & 0x40 != 0
-            craTODIn = byte & 0x80 != 0
+            cra = byte
             //TODO: more timer stuff
         case 0x0F:
             // bit4: force load
             if ((byte & 0x10) != 0) {
                 counterB = latchB
             }
-            crbStart = byte & 0x01 != 0
-            crbPBOn = byte & 0x02 != 0
-            crbOutMode = byte & 0x04 != 0
-            crbRunMode = byte & 0x08 != 0
-            crbInMode1 = byte & 0x20 != 0
-            crbInMode2 = byte & 0x40 != 0
-            crbAlarm = byte & 0x80 != 0
+            crb = byte
             //TODO: more timer stuff
         default:
             println("todo cia write address: " + String(position, radix: 16, uppercase: true))
@@ -133,13 +127,17 @@ internal class CIA {
             return UInt8(truncatingBitPattern: counterB)
         case 0x07:
             return UInt8(truncatingBitPattern: counterB >> 8)
-        case 0x0D:
-            //TODO: return ICR and set it to 0
+        case 0x0C:
+            //TODO: serial i/o
             return 0
+        case 0x0D:
+            let value = icr
+            icr = 0
+            return value
         case 0x0E:
-            return (craStart ? 0x01 : 0) | (craPBOn ? 0x02 : 0) | (craOutMode ? 0x04 : 0) | (craRunMode ? 0x08 : 0) | (craInMode ? 0x20 : 0) | (craSPMode ? 0x40 : 0) | (craTODIn ? 0x80 : 0)
+            return cra & ~0x10
         case 0x0F:
-            return (crbStart ? 0x01 : 0) | (crbPBOn ? 0x02 : 0) | (crbOutMode ? 0x04 : 0) | (crbRunMode ? 0x08 : 0) | (crbInMode1 ? 0x20 : 0) | (crbInMode2 ? 0x40 : 0) | (crbAlarm ? 0x80 : 0)
+            return crb & ~0x10
         default:
             println("todo cia read address: " + String(position, radix: 16, uppercase: true))
             abort()
