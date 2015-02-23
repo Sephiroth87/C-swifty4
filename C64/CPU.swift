@@ -39,7 +39,7 @@ final internal class CPU {
     private var z: Bool = false
     private var i: Bool = false
     private var d: Bool = false
-    private var b: Bool = false
+    private var b: Bool = true
     private var v: Bool = false
     private var n: Bool = false
     
