@@ -126,6 +126,10 @@ final public class C64: NSObject {
         breakpoints[address] = true
     }
     
+    public func removeBreakpoint(address: UInt16) {
+        breakpoints[address] = false
+    }
+    
     public func debugInfo() -> [String: String] {
         return cpu.debugInfo()
     }
