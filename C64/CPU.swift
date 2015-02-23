@@ -1402,7 +1402,6 @@ final internal class CPU {
         z = ((p & 0x02) != 0)
         i = ((p & 0x04) != 0)
         d = ((p & 0x08) != 0)
-        b = ((p & 0x10) != 0)
         v = ((p & 0x40) != 0)
         n = ((p & 0x80) != 0)
         cycle = 0
