@@ -17,8 +17,8 @@ final internal class VIC {
     private var videoMatrix: [UInt8] = [UInt8](count: 40, repeatedValue: 0)
     private var colorLine: [UInt8] = [UInt8](count: 40, repeatedValue: 0)
     
-    private let screenBuffer1 = UnsafeMutablePointer<UInt32>(calloc(512 * 512, UInt(sizeof(UInt32))))
-    private let screenBuffer2 = UnsafeMutablePointer<UInt32>(calloc(512 * 512, UInt(sizeof(UInt32))))
+    private let screenBuffer1 = UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32)))
+    private let screenBuffer2 = UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32)))
     private var currentScreenBuffer: UnsafeMutablePointer<UInt32>
     internal var screenBuffer: UnsafeMutablePointer<UInt32> {
         get {
