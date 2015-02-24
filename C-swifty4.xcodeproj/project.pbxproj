@@ -180,10 +180,10 @@
 			children = (
 				E5065F1B1A6311AC00CECED1 /* C-swifty4 iOS */,
 				E5065E501A63028F00CECED1 /* C-swifty4 Mac */,
+				E52FEA871A9B996700851C83 /* C-swifty4 Tests */,
 				E5065EBF1A6305B200CECED1 /* C64 */,
 				E567E4B11A8D0EC000CF079D /* ROM */,
 				E567E4B71A8D17C200CF079D /* Programs */,
-				E52FEA871A9B996700851C83 /* C-swifty4 Tests */,
 				E5065E321A63024A00CECED1 /* Products */,
 			);
 			sourceTree = "<group>";
