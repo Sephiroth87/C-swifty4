@@ -11,6 +11,7 @@ import Foundation
 internal class CIA {
     
     internal weak var cpu: CPU!
+    internal var crashHandler: C64CrashHandler?
     
     //MARK: Registers
     private var pra: UInt8 = 0xFF // Data Port Register A
@@ -108,8 +109,7 @@ internal class CIA {
             crb = byte
             //TODO: more timer stuff
         default:
-            println("todo cia write address: " + String(position, radix: 16, uppercase: true))
-            abort()
+            crashHandler?("todo cia write address: " + String(position, radix: 16, uppercase: true))
         }
     }
     
@@ -139,8 +139,8 @@ internal class CIA {
         case 0x0F:
             return crb & ~0x10
         default:
-            println("todo cia read address: " + String(position, radix: 16, uppercase: true))
-            abort()
+            crashHandler?("todo cia read address: " + String(position, radix: 16, uppercase: true))
+            return 0
         }
     }
     

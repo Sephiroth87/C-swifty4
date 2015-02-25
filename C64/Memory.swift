@@ -15,6 +15,7 @@ final internal class Memory {
     internal weak var cia2: CIA2!
     internal weak var sid: SID!
     internal weak var vic: VIC!
+    internal var crashHandler: C64CrashHandler?
    
     private var ram: [UInt8] = [UInt8](count: 0x10000, repeatedValue: 0)
     private var rom: [UInt8] = [UInt8](count: 0x10000, repeatedValue: 0)
@@ -85,12 +86,12 @@ final internal class Memory {
                 } else if position >= 0xDD00 && position <= 0xDDFF {
                     return self.cia2.readByte(UInt8(truncatingBitPattern: position & 0xF))
                 } else {
-                    println("Unknown I/O address " + String(position, radix: 16, uppercase: true))
-                    abort()
+                    crashHandler?("Unknown I/O address " + String(position, radix: 16, uppercase: true))
+                    return 0
                 }
             } else if characterRomVisible {
-                println("Unknown character ROM address")
-                abort()
+                crashHandler?("Unknown character ROM address")
+                return 0
             } else {
                 return ram[Int(position)]
             }

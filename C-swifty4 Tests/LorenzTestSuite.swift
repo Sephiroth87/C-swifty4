@@ -67,6 +67,11 @@ extension LorenzTestSuite: C64Delegate {
         }
     }
     
+    func C64DidCrash(c64: C64) {
+        XCTAssert(false, "Crash")
+        expectation.fulfill()
+    }
+    
     func C64VideoFrameReady(c64: C64) {
         
     }

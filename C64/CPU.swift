@@ -11,6 +11,7 @@ import Foundation
 final internal class CPU {
     
     internal weak var memory: Memory!
+    internal var crashHandler: C64CrashHandler?
     
     internal var pc: UInt16 = 0xFCE2
     internal var isAtFetch = false
@@ -507,8 +508,7 @@ final internal class CPU {
         default:
             let opcodeString = String(currentOpcode, radix: 16, uppercase: true)
             let pcString = String((pc - 1), radix: 16, uppercase: true)
-            println("Unknown opcode: " + opcodeString + " pc: " + pcString)
-            abort()
+            crashHandler?("Unknown opcode: " + opcodeString + " pc: " + pcString)
         }
     }
     
@@ -834,8 +834,7 @@ final internal class CPU {
     private func adc(value: UInt8) {
         if d {
             //TODO: bcd mode
-            println("todo")
-            abort()
+            crashHandler?("todo: adc bcd mode")
         } else {
             let tempA = UInt16(a)
             let sum = (tempA + UInt16(value) + (c ? 1 : 0))
@@ -1499,8 +1498,7 @@ final internal class CPU {
     private func sbc(value: UInt8) {
         if d {
             //TODO: bcd mode
-            println("todo")
-            abort()
+            crashHandler?("todo: sbc bcd mode")
         } else {
             let tempA = UInt16(a)
             let sum = (tempA &- UInt16(value) &- (c ? 0 : 1))

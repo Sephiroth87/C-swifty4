@@ -11,7 +11,12 @@ import Foundation
 public protocol C64Delegate: class {
     func C64VideoFrameReady(c64: C64)
     func C64DidBreak(c64: C64)
+    // This is temporary, the emulator itself should not crash, but it's useful for missing features ATM
+    // (and abort/assert/exceptions don't work well with testing...)
+    func C64DidCrash(c64: C64)
 }
+
+internal typealias C64CrashHandler = (String) -> Void
 
 final public class C64: NSObject {
     
@@ -68,6 +73,18 @@ final public class C64: NSObject {
         self.dispatchQueue = dispatch_queue_create("main.loop", DISPATCH_QUEUE_SERIAL)
         
         super.init()
+        
+        let crashHandler: C64CrashHandler = { (reason: String) in
+            println(reason)
+            self.running = false
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                let _ = self.delegate?.C64DidCrash(self)
+            })
+        }
+        self.cpu.crashHandler = crashHandler
+        self.cia1.crashHandler = crashHandler
+        self.cia2.crashHandler = crashHandler
+        self.memory.crashHandler = crashHandler
     }
    
     @objc private func mainLoop() {

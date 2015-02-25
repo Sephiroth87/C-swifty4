@@ -191,5 +191,9 @@ extension ViewController: C64Delegate {
         keyboardTextField.resignFirstResponder()
     }
     
+    func C64DidCrash(c64: C64) {
+        
+    }
+    
 }
 
