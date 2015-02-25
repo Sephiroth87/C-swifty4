@@ -834,8 +834,22 @@ final internal class CPU {
     
     private func adc(value: UInt8) {
         if d {
-            //TODO: bcd mode
-            crashHandler?("todo: adc bcd mode")
+            var lowNybble = (a & 0x0F) &+ (value & 0x0F) &+ (c ? 1 : 0)
+            var highNybble = (a >> 4) &+ (value >> 4)
+            if lowNybble > 9 {
+                lowNybble = lowNybble &+ 6
+            }
+            if lowNybble > 0x0F {
+                highNybble = highNybble &+ 1
+            }
+            z = ((a &+ value &+ (c ? 1 : 0)) & 0xFF == 0)
+            n = (highNybble & 0x08 != 0)
+            v = ((((highNybble << 4) ^ a) & 0x80) != 0 && ((a ^ value) & 0x80) == 0)
+            if highNybble > 9 {
+                highNybble = highNybble &+ 6
+            }
+            c = (highNybble > 0x0F)
+            a = (highNybble << 4) | (lowNybble & 0x0F)
         } else {
             let tempA = UInt16(a)
             let sum = (tempA + UInt16(value) + (c ? 1 : 0))
@@ -1498,13 +1512,27 @@ final internal class CPU {
     
     private func sbc(value: UInt8) {
         if d {
-            //TODO: bcd mode
-            crashHandler?("todo: sbc bcd mode")
+            let tempA = UInt16(a)
+            let sum = (tempA &- UInt16(value) &- (c ? 0 : 1))
+            var lowNybble = (a & 0x0F) &- (value & 0x0F) &- (c ? 0 : 1)
+            var highNybble = (a >> 4) &- (value >> 4)
+            if lowNybble & 0x10 != 0 {
+                lowNybble = lowNybble &- 6
+                highNybble = highNybble &- 1
+            }
+            if highNybble & 0x10 != 0 {
+                highNybble = highNybble &- 6
+            }
+            c = (sum < 0x100)
+            v = (((tempA ^ sum) & 0x80) != 0 && ((tempA ^ UInt16(value)) & 0x80) != 0)
+            z = (UInt8(truncatingBitPattern: sum) == 0)
+            n = (sum & 0x80 != 0)
+            a = (highNybble << 4) | (lowNybble & 0x0F)
         } else {
             let tempA = UInt16(a)
             let sum = (tempA &- UInt16(value) &- (c ? 0 : 1))
             c = (sum <= 0xFF)
-            v = (((tempA ^ sum) & 0x80) != 0 && ((tempA ^ UInt16(value)) & 0x80) != 0)
+            v = (((UInt16(a) ^ sum) & 0x80) != 0 && ((UInt16(a) ^ UInt16(value)) & 0x80) != 0)
             loadA(UInt8(truncatingBitPattern: sum))
         }
     }
