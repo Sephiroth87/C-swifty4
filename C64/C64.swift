@@ -91,7 +91,7 @@ final public class C64: NSObject {
         while running {
             executeOneCycle()
             
-            if cpu.isAtFetch && breakpoints[cpu.pc - 1] == true {
+            if cpu.isAtFetch && breakpoints[cpu.pc &- UInt16(1)] == true {
                 running = false
             }
         }

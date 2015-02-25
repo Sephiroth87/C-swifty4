@@ -507,7 +507,7 @@ final internal class CPU {
                 cycle == 6 ? irq2() : irq3()
         default:
             let opcodeString = String(currentOpcode, radix: 16, uppercase: true)
-            let pcString = String((pc - 1), radix: 16, uppercase: true)
+            let pcString = String((pc &- UInt16(1)), radix: 16, uppercase: true)
             crashHandler?("Unknown opcode: " + opcodeString + " pc: " + pcString)
         }
     }
@@ -642,7 +642,7 @@ final internal class CPU {
             default: return String(format: "Unknown opcode: %02x", self.currentOpcode)
             }
             }()
-        return ["pc": String(format: "%04x", pc - 1),
+        return ["pc": String(format: "%04x", pc &- UInt16(1)),
             "a": String(format: "%02x", a),
             "x": String(format: "%02x", x),
             "y": String(format: "%02x", y),
@@ -693,7 +693,8 @@ final internal class CPU {
             return
         }
         isAtFetch = true
-        currentOpcode = UInt16(memory.readByte(pc++))
+        currentOpcode = UInt16(memory.readByte(pc))
+        pc = pc &+ UInt16(1)
     }
     
     private func pushPch() {
@@ -921,9 +922,9 @@ final internal class CPU {
     
     private func branchOverflow() {
         if data & 0x80 != 0 {
-            memory.readByte(self.pc + 0x100)
+            memory.readByte(self.pc &+ UInt16(0x100))
         } else {
-            memory.readByte(self.pc - 0x100)
+            memory.readByte(self.pc &- UInt16(0x100))
         }
         cycle = 0
     }
