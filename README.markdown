@@ -44,6 +44,10 @@ Then just open the project file, build and run.
 * FPS limiting (runs as fast as it can right now)
 * A lot of things basically...
 
+#### Lorenz Test Suite compatibility
+
+Passing 6/275 tests :(
+
 License
 -----------------------------
 Copyright (c) 2014. [Fabio Ritrovato](https://twitter.com/Sephiroth87)
