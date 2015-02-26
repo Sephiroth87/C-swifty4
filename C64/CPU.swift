@@ -423,11 +423,12 @@ final internal class CPU {
                 cycle == 3 ? zeroPageX() : sbcZeroPage()
         case 0xED:
             cycle == 2 ? absolute() :
-                cycle == 3 ? absoluteX() :
+                cycle == 3 ? absolute2() :
                 cycle == 4 ? sbcAbsolute() : sbcAbsolute2()
         case 0xFD:
             cycle == 2 ? absolute() :
-                cycle == 3 ? absolute2() : sbcAbsolute()
+                cycle == 3 ? absoluteX() :
+                cycle == 4 ? sbcAbsolute() : sbcAbsolute2()
         case 0xF9:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absoluteY() :
