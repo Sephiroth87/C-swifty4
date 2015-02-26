@@ -30,25 +30,28 @@ final internal class VIC {
     private var currentCycle = 1
     private var currentLine: UInt16 = 0
     
-    //MARK: Registers
+    //MARK: Internal Registers
     private var vc: UInt16 = 0
     private var vcbase: UInt16 = 0
     private var rc: UInt8 = 0
     private var vmli: UInt16 = 0
     private var displayState = false
-    private var raster: UInt16 = 0
     private var rasterX: Int = 0x19C // NTSC
     private var mainBorder = false
     private var verticalBorder = false
     private var ref: UInt8 = 0
+    private var mc: [UInt8] = [UInt8](count: 8, repeatedValue: 0)
+    private var mcbase: [UInt8] = [UInt8](count: 8, repeatedValue: 0)
     //MARK: -
     
-    //MARK: Memory Registers Helpers
+    //MARK: Registers
     private var yScroll: UInt8 = 0 // Y Scroll
     private var den = false // Display Enable
     private var bmm = false // Bit Map Mode
     private var ecm = false // Extended Color Mode
     private var mcm = false // Multi Color Mode
+    private var raster: UInt16 = 0 // Raster Counter
+    private var me: UInt8 = 0 // Sprite Enabled
     private var cb13cb12cb11: UInt8 = 0 // Character base address
     private var ec: UInt8 = 0 // Border Color
     private var b0c: UInt8 = 0 // Background Color 0
@@ -62,6 +65,9 @@ final internal class VIC {
     private var graphicsSequencerShiftRegister: UInt8 = 0
     private var graphicsSequencerVideoMatrix: UInt8 = 0
     private var graphicsSequencerColorLine: UInt8 = 0
+    //MARK: -
+    
+    //MARK: Sprite Sequencers
     //MARK: -
     
     //MARK: Bus
@@ -110,6 +116,8 @@ final internal class VIC {
             return yScroll | (den ? 0x10 : 0) | (bmm ? 0x20 : 0) | (ecm ? 0x40 : 0) | UInt8((raster & 0x100) >> 1)
         case 0x12:
             return UInt8(truncatingBitPattern: raster)
+        case 0x15:
+            return me
         case 0x16:
             return (mcm ? 0x10 : 0) //TODO: missing bit registers
         case 0x19:
@@ -129,6 +137,8 @@ final internal class VIC {
             den = byte & 0x10 != 0
             bmm = byte & 0x20 != 0
             ecm = byte & 0x40 != 0
+        case 0x15:
+            me = byte
         case 0x16:
             mcm = byte & 0x10 != 0
         case 0x18:
