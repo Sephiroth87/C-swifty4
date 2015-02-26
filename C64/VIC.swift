@@ -52,7 +52,8 @@ final internal class VIC {
     private var mcm = false // Multi Color Mode
     private var raster: UInt16 = 0 // Raster Counter
     private var me: UInt8 = 0 // Sprite Enabled
-    private var cb13cb12cb11: UInt8 = 0 // Character base address
+    private var vm: UInt8 = 0 // Video matrix base address
+    private var cb: UInt8 = 0 // Character base address
     private var ec: UInt8 = 0 // Border Color
     private var b0c: UInt8 = 0 // Background Color 0
     private var b1c: UInt8 = 0 // Background Color 1
@@ -77,7 +78,6 @@ final internal class VIC {
 
     //MARK: Helpers
     private var memoryBankAddress: UInt16 = 0
-    private var screenMemoryAddress: UInt16 = 0
     private var borderLeftComparisonValue: Int = 24
     private var borderRightComparisonValue: Int = 344
     private var borderTopComparisonValue: UInt16 = 51
@@ -120,6 +120,8 @@ final internal class VIC {
             return me
         case 0x16:
             return (mcm ? 0x10 : 0) //TODO: missing bit registers
+        case 0x18:
+            return vm << 4 | cb << 1 | 0x01
         case 0x19:
             //TEMP: force NTSC timing
             return 0x70
@@ -142,10 +144,8 @@ final internal class VIC {
         case 0x16:
             mcm = byte & 0x10 != 0
         case 0x18:
-            ioMemory[Int(position)] = byte | 0x01
-            cb13cb12cb11 = (byte & 0x0E) >> 1
-            screenMemoryAddress = UInt16(byte & 0xF0) << 6
-            return
+            cb = (byte & 0x0E) >> 1
+            vm = (byte & 0xF0) >> 4
         case 0x20:
             ec = byte & 0x0F
         case 0x21:
@@ -164,8 +164,6 @@ final internal class VIC {
     
     internal func setMemoryBank(bankNumber: UInt8) {
         memoryBankAddress = UInt16(~bankNumber & 0x3) << 14
-        cb13cb12cb11 = (ioMemory[0x18] & 0x0E) >> 1 //TODO: still needed?
-        screenMemoryAddress = UInt16(ioMemory[0x18] & 0xF0) << 6
     }
 
     private func memoryAccess(position: UInt16) -> UInt8 {
@@ -247,7 +245,7 @@ final internal class VIC {
     // Video matrix access
     private func cAccess() {
         if isBadLine {
-            videoMatrix[Int(vmli)] = memoryAccess(screenMemoryAddress &+ vc)
+            videoMatrix[Int(vmli)] = memoryAccess(UInt16(vm) << 10 &+ vc)
             colorLine[Int(vmli)] = memory.readColorRAMByte(vc) & 0x0F
         }
     }
@@ -256,9 +254,9 @@ final internal class VIC {
     private func gAccess() {
         if displayState {
             if bmm {
-                graphicsSequencerData = memoryAccess(UInt16(cb13cb12cb11 & 0x04) << 11 | vc << 3 | UInt16(rc))
+                graphicsSequencerData = memoryAccess(UInt16(cb & 0x04) << 11 | vc << 3 | UInt16(rc))
             } else {
-                graphicsSequencerData = memoryAccess(UInt16(cb13cb12cb11) << 11 | (UInt16(videoMatrix[Int(vmli)]) & (ecm ? 0x3F : 0xFF)) << 3 | UInt16(rc))
+                graphicsSequencerData = memoryAccess(UInt16(cb) << 11 | (UInt16(videoMatrix[Int(vmli)]) & (ecm ? 0x3F : 0xFF)) << 3 | UInt16(rc))
             }
             graphicsSequencerShiftRegister = graphicsSequencerData
             graphicsSequencerVideoMatrix = videoMatrix[Int(vmli)]
