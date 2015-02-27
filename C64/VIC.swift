@@ -16,6 +16,7 @@ final internal class VIC {
     private var ioMemory: [UInt8] = [UInt8](count: 64, repeatedValue: 0)
     private var videoMatrix: [UInt8] = [UInt8](count: 40, repeatedValue: 0)
     private var colorLine: [UInt8] = [UInt8](count: 40, repeatedValue: 0)
+    private var mp: UInt8 = 0 // Sprite Pointer
     
     private let screenBuffer1 = UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32)))
     private let screenBuffer2 = UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32)))
@@ -36,15 +37,18 @@ final internal class VIC {
     private var rc: UInt8 = 0
     private var vmli: UInt16 = 0
     private var displayState = false
-    private var rasterX: Int = 0x19C // NTSC
+    private var rasterX: UInt16 = 0x19C // NTSC
     private var mainBorder = false
     private var verticalBorder = false
     private var ref: UInt8 = 0
     private var mc: [UInt8] = [UInt8](count: 8, repeatedValue: 0)
     private var mcbase: [UInt8] = [UInt8](count: 8, repeatedValue: 0)
+    private var yExpansion: [Bool] = [Bool](count: 8, repeatedValue: true)
     //MARK: -
     
     //MARK: Registers
+    private var m_x: [UInt16] = [UInt16](count: 8, repeatedValue: 0) // X Coordinate Sprite
+    private var m_y: [UInt8] = [UInt8](count: 8, repeatedValue: 0) // Y Coordinate Sprite
     private var yScroll: UInt8 = 0 // Y Scroll
     private var den = false // Display Enable
     private var bmm = false // Bit Map Mode
@@ -52,6 +56,7 @@ final internal class VIC {
     private var mcm = false // Multi Color Mode
     private var raster: UInt16 = 0 // Raster Counter
     private var me: UInt8 = 0 // Sprite Enabled
+    private var mye: UInt8 = 0 // Sprite Y Expansion
     private var vm: UInt8 = 0 // Video matrix base address
     private var cb: UInt8 = 0 // Character base address
     private var ec: UInt8 = 0 // Border Color
@@ -59,6 +64,7 @@ final internal class VIC {
     private var b1c: UInt8 = 0 // Background Color 1
     private var b2c: UInt8 = 0 // Background Color 2
     private var b3c: UInt8 = 0 // Background Color 3
+    private var m_c: [UInt8] = [UInt8](count: 8, repeatedValue: 0) // Color Sprite
     //MARK: -
     
     //MARK: Graphic Sequencer
@@ -69,6 +75,7 @@ final internal class VIC {
     //MARK: -
     
     //MARK: Sprite Sequencers
+    private var spriteSequencerData: [UInt32] = [UInt32](count: 8, repeatedValue: 0)
     //MARK: -
     
     //MARK: Bus
@@ -78,13 +85,18 @@ final internal class VIC {
 
     //MARK: Helpers
     private var memoryBankAddress: UInt16 = 0
-    private var borderLeftComparisonValue: Int = 24
-    private var borderRightComparisonValue: Int = 344
+    private var borderLeftComparisonValue: UInt16 = 24
+    private var borderRightComparisonValue: UInt16 = 344
     private var borderTopComparisonValue: UInt16 = 51
     private var borderBottomComparisonValue: UInt16 = 251
     private var bufferPosition: Int = 0
     private var badLinesEnabled = false
     private var isBadLine = false
+    private var currentSprite: UInt8 = 2
+    private var spriteDma: [Bool] = [Bool](count: 8, repeatedValue: false)
+    private var spriteDisplay: [Bool] = [Bool](count: 8, repeatedValue: false)
+    private var anySpriteDisplaying = false
+    private var spriteShiftRegisterCount: [Int] = [Int](count: 8, repeatedValue: 0)
     //MARK: -
     
     private let colors: [UInt32] = [
@@ -112,6 +124,20 @@ final internal class VIC {
     
     internal func readByte(position: UInt8) -> UInt8 {
         switch position {
+        case 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E:
+            return UInt8(truncatingBitPattern: m_x[Int(position >> 1)])
+        case 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F:
+            return m_y[Int((position - 1) >> 1)]
+        case 0x10:
+            let value = (m_x[0] & 0xFF00) >> 8 |
+                (m_x[1] & 0xFF00) >> 7 |
+                (m_x[2] & 0xFF00) >> 6 |
+                (m_x[3] & 0xFF00) >> 5 |
+                (m_x[4] & 0xFF00) >> 4 |
+                (m_x[5] & 0xFF00) >> 3 |
+                (m_x[6] & 0xFF00) >> 2 |
+                (m_x[7] & 0xFF00) >> 1
+            return UInt8(truncatingBitPattern: value)
         case 0x11:
             return yScroll | (den ? 0x10 : 0) | (bmm ? 0x20 : 0) | (ecm ? 0x40 : 0) | UInt8((raster & 0x100) >> 1)
         case 0x12:
@@ -120,6 +146,8 @@ final internal class VIC {
             return me
         case 0x16:
             return (mcm ? 0x10 : 0) //TODO: missing bit registers
+        case 0x17:
+            return mye
         case 0x18:
             return vm << 4 | cb << 1 | 0x01
         case 0x19:
@@ -127,6 +155,16 @@ final internal class VIC {
             return 0x70
         case 0x20:
             return ec | 0xF0
+        case 0x21:
+            return b0c
+        case 0x22:
+            return b1c
+        case 0x23:
+            return b2c
+        case 0x24:
+            return b3c
+        case 0x27...0x2E:
+            return m_c[Int(position - 0x27)]
         default:
             return 0
         }
@@ -134,6 +172,19 @@ final internal class VIC {
     
     internal func writeByte(position:UInt8, byte: UInt8) {
         switch position {
+        case 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E:
+            m_x[Int(position >> 1)] = UInt16(byte)
+        case 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F:
+            m_y[Int((position - 1) >> 1)] = byte
+        case 0x10:
+            m_x[0] |= UInt16(byte & 0x01) << 8
+            m_x[1] |= UInt16(byte & 0x02) << 7
+            m_x[2] |= UInt16(byte & 0x04) << 6
+            m_x[3] |= UInt16(byte & 0x08) << 5
+            m_x[4] |= UInt16(byte & 0x10) << 4
+            m_x[5] |= UInt16(byte & 0x20) << 3
+            m_x[6] |= UInt16(byte & 0x40) << 2
+            m_x[7] |= UInt16(byte & 0x80) << 1
         case 0x11:
             yScroll = byte & 0x07
             den = byte & 0x10 != 0
@@ -143,6 +194,8 @@ final internal class VIC {
             me = byte
         case 0x16:
             mcm = byte & 0x10 != 0
+        case 0x17:
+            mye = byte
         case 0x18:
             cb = (byte & 0x0E) >> 1
             vm = (byte & 0xF0) >> 4
@@ -156,6 +209,8 @@ final internal class VIC {
             b2c = byte & 0x0F
         case 0x24:
             b3c = byte & 0x0F
+        case 0x27...0x2E:
+            m_c[Int(position - 0x27)] = byte & 0x0F
         default:
             break
         }
@@ -178,6 +233,8 @@ final internal class VIC {
     }
     
     internal func cycle() {
+        
+        // Initial cycle operations
         if raster >= 0x30 && raster <= 0xF7 {
             if currentCycle == 1 {
                 isBadLine = false
@@ -190,7 +247,6 @@ final internal class VIC {
                 displayState = true
             }
         }
-        
         switch currentCycle {
         case 1:
             if raster == 0 {
@@ -221,25 +277,114 @@ final internal class VIC {
                 verticalBorder = false
             }
         case 65:
-            currentCycle = 1
             if ++raster == 263 {
                 raster = 0
                 bufferPosition = 0
                 currentScreenBuffer = currentScreenBuffer == screenBuffer1 ? screenBuffer2 : screenBuffer1
             }
-            return
         default:
             break
         }
-        draw()
-        if currentCycle >= 16 && currentCycle <= 55 {
+        
+        // First half-cycle
+        let cyclesPerRaster = 65 // NTSC
+        if currentCycle != cyclesPerRaster {
+            draw()
+        }
+        switch currentCycle {
+        case 1, 3, 5, 7, 9:
+            pAccess()
+        case 2, 4, 6, 8, 10:
+            if spriteDma[Int(currentSprite)] {
+                sAccess(1)
+            }
+        case 16:
             gAccess()
+            for i in 0...7 {
+                if yExpansion[i] {
+                    //TODO: Some stuff here if yExpansion vas cleared in cycle 15 (VIC addendum)
+                    mcbase[i] = mc[i]
+                }
+                if mcbase[i] == 63 {
+                    spriteDma[i] = false
+                }
+            }
+        case 17...54:
+            gAccess()
+        case 55:
+            gAccess()
+            for i in 0...7 {
+                if mye & UInt8(1 << i) != 0 {
+                    yExpansion[i] = !yExpansion[i]
+                }
+            }
+            fallthrough
+        case 56:
+            for i in 0...7 {
+                if me & UInt8(1 << i) != 0 && m_y[i] == UInt8(truncatingBitPattern: raster) {
+                    spriteDma[i] = true
+                    mcbase[i] = 0
+                    if mye & UInt8(1 << i) != 0 {
+                        yExpansion[i] = false
+                    }
+                }
+            }
+        case cyclesPerRaster - 5:
+            pAccess()
+            for i in 0...7 {
+                mc[i] = mcbase[i]
+                if spriteDma[i] {
+                    if m_y[i] == UInt8(truncatingBitPattern: raster) {
+                        spriteDisplay[i] = true
+                        anySpriteDisplaying = true
+                    }
+                } else {
+                    spriteDisplay[i] = false
+                }
+            }
+            if anySpriteDisplaying && find(spriteDisplay, true) == nil {
+                anySpriteDisplaying = false
+            }
+        case cyclesPerRaster - 3, cyclesPerRaster - 1:
+            pAccess()
+        case cyclesPerRaster - 4, cyclesPerRaster - 2, cyclesPerRaster:
+            if spriteDma[Int(currentSprite)] {
+                sAccess(1)
+            }
+        default:
+            break
         }
-        draw()
-        if currentCycle >= 15 && currentCycle <= 54 {
+        
+        // Second half-cycle
+        if currentCycle != cyclesPerRaster {
+            draw()
+        }
+        switch currentCycle {
+        case 1, 3, 5, 7, 9:
+            if spriteDma[Int(currentSprite)] {
+                sAccess(0)
+            }
+        case 2, 4, 6, 8, 10:
+            if spriteDma[Int(currentSprite)] {
+                sAccess(2)
+            }
+        case 15...54:
             cAccess()
+        case cyclesPerRaster - 5, cyclesPerRaster - 3, cyclesPerRaster - 1:
+            if spriteDma[Int(currentSprite)] {
+                sAccess(0)
+            }
+        case cyclesPerRaster - 4, cyclesPerRaster - 2, cyclesPerRaster:
+            if spriteDma[Int(currentSprite)] {
+                sAccess(2)
+            }
+        default:
+            break
         }
-        ++currentCycle
+
+        if currentCycle++ == cyclesPerRaster {
+            currentCycle = 1
+        }
     }
     
     // Video matrix access
@@ -266,6 +411,19 @@ final internal class VIC {
         } else {
             //TODO: something here
         }
+    }
+    
+    // Sprite data pointers access
+    private func pAccess() {
+        currentSprite = (currentSprite + 1) & 7
+        mp = memoryAccess(UInt16(vm) << 10 | 0x03F8 | UInt16(currentSprite))
+    }
+    
+    // Sprite data access
+    private func sAccess(accessNumber: Int) {
+        let data = memoryAccess(UInt16(mp) << 6 | UInt16(mc[Int(currentSprite)]))
+        spriteSequencerData[Int(currentSprite)] |= UInt32(data) << UInt32(8 * (2 - accessNumber))
+        mc[Int(currentSprite)]++
     }
     
     // DRAM refresh
@@ -345,7 +503,23 @@ final internal class VIC {
                             graphicsSequencerShiftRegister <<= 2
                         }
                     }
-
+                }
+                if anySpriteDisplaying {
+                    //TODO: z priority, multicolor mode, expansion
+                    for i in 0...7 {
+                        if spriteDisplay[i] {
+                            if m_x[i] == rasterX {
+                                spriteShiftRegisterCount[i] = 24
+                            }
+                            if spriteShiftRegisterCount[i] > 0 {
+                                if spriteSequencerData[i] & 0x800000 != 0 {
+                                    currentScreenBuffer[bufferPosition] = colors[Int(m_c[i])]
+                                }
+                                spriteSequencerData[i] <<= 1
+                                spriteShiftRegisterCount[i]--
+                            }
+                        }
+                    }
                 }
                 ++bufferPosition
             }
