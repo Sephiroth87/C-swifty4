@@ -173,18 +173,18 @@ final internal class VIC {
     internal func writeByte(position:UInt8, byte: UInt8) {
         switch position {
         case 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E:
-            m_x[Int(position >> 1)] = UInt16(byte)
+            m_x[Int(position >> 1)] = (m_x[Int(position >> 1)] & 0xFF00) | UInt16(byte)
         case 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F:
             m_y[Int((position - 1) >> 1)] = byte
         case 0x10:
-            m_x[0] |= UInt16(byte & 0x01) << 8
-            m_x[1] |= UInt16(byte & 0x02) << 7
-            m_x[2] |= UInt16(byte & 0x04) << 6
-            m_x[3] |= UInt16(byte & 0x08) << 5
-            m_x[4] |= UInt16(byte & 0x10) << 4
-            m_x[5] |= UInt16(byte & 0x20) << 3
-            m_x[6] |= UInt16(byte & 0x40) << 2
-            m_x[7] |= UInt16(byte & 0x80) << 1
+            m_x[0] = UInt16(byte & 0x01) << 8 | (m_x[0] & 0x00FF)
+            m_x[1] = UInt16(byte & 0x02) << 7 | (m_x[1] & 0x00FF)
+            m_x[2] = UInt16(byte & 0x04) << 6 | (m_x[2] & 0x00FF)
+            m_x[3] = UInt16(byte & 0x08) << 5 | (m_x[3] & 0x00FF)
+            m_x[4] = UInt16(byte & 0x10) << 4 | (m_x[4] & 0x00FF)
+            m_x[5] = UInt16(byte & 0x20) << 3 | (m_x[5] & 0x00FF)
+            m_x[6] = UInt16(byte & 0x40) << 2 | (m_x[6] & 0x00FF)
+            m_x[7] = UInt16(byte & 0x80) << 1 | (m_x[7] & 0x00FF)
         case 0x11:
             yScroll = byte & 0x07
             den = byte & 0x10 != 0
