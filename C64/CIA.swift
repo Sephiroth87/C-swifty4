@@ -150,6 +150,7 @@ internal class CIA {
 final internal class CIA1: CIA {
     
     internal weak var keyboard: Keyboard!
+    internal weak var joystick2: Joystick!
     
     override init() {
         super.init()
@@ -172,8 +173,24 @@ final internal class CIA1: CIA {
     internal override func readByte(position: UInt8) -> UInt8 {
         switch position {
         case 0x00:
-            //TODO: Real joystick
-            return 0xFF
+            var joystick: UInt8 = 0xFF
+            switch joystick2.xAxis {
+            case .Left:
+                joystick &= ~UInt8(0x04)
+            case .Right:
+                joystick &= ~UInt8(0x08)
+            case .None:
+                break
+            }
+            switch joystick2.yAxis {
+            case .Up:
+                joystick &= ~UInt8(0x01)
+            case .Down:
+                joystick &= ~UInt8(0x02)
+            case .None:
+                break
+            }
+            return pra & joystick
         case 0x01:
             //TODO: Actually read from 0x00 because of joystick that might change bits
             return keyboard.readMatrix(pra) & prb

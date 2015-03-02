@@ -86,6 +86,14 @@ class ViewController: NSViewController {
             c64.pressSpecialKey(.Return)
         case 51:
             c64.pressSpecialKey(.Backspace)
+        case 123:
+            c64.setJoystick2XAxis(.Left)
+        case 124:
+            c64.setJoystick2XAxis(.Right)
+        case 125:
+            c64.setJoystick2YAxis(.Down)
+        case 126:
+            c64.setJoystick2YAxis(.Up)
         default:
             if let characters = theEvent.characters?.utf8 {
                 c64.pressKey(characters[characters.startIndex])
@@ -99,6 +107,10 @@ class ViewController: NSViewController {
             c64.releaseSpecialKey(.Return)
         case 51:
             c64.releaseSpecialKey(.Backspace)
+        case 123, 124:
+            c64.setJoystick2XAxis(.None)
+        case 125, 126:
+            c64.setJoystick2YAxis(.None)
         default:
             if let characters = theEvent.characters?.utf8 {
                 c64.releaseKey(characters[characters.startIndex])

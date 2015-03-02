@@ -33,6 +33,8 @@ final public class C64: NSObject {
     private let sid: SID
     private let vic: VIC
     private let keyboard: Keyboard
+    private let joystick1: Joystick
+    private let joystick2: Joystick
     
     private var cycles = 0
     private var lines = 0
@@ -53,6 +55,8 @@ final public class C64: NSObject {
         self.sid = SID()
         self.vic = VIC()
         self.keyboard = Keyboard()
+        self.joystick1 = Joystick()
+        self.joystick2 = Joystick()
         
         self.memory.writeKernalData(UnsafePointer<UInt8>(kernalData.bytes))
         self.memory.writeBasicData(UnsafePointer<UInt8>(basicData.bytes))
@@ -66,6 +70,7 @@ final public class C64: NSObject {
         self.memory.vic = self.vic
         self.cia1.cpu = self.cpu
         self.cia1.keyboard = self.keyboard
+        self.cia1.joystick2 = self.joystick2
         self.cia2.cpu = self.cpu
         self.cia2.vic = self.vic
         self.vic.memory = self.memory
@@ -175,6 +180,16 @@ final public class C64: NSObject {
     
     public func releaseSpecialKey(key: SpecialKey) {
         keyboard.releaseSpecialKey(key)
+    }
+    
+    //MARK: Joystick
+    
+    public func setJoystick2XAxis(status: JoystickXAxisStatus) {
+        joystick2.xAxis = status
+    }
+    
+    public func setJoystick2YAxis(status: JoystickYAxisStatus) {
+        joystick2.yAxis = status
     }
     
     //MARK: Files
