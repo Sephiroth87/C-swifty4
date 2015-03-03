@@ -236,6 +236,9 @@ final internal class CPU {
             eorImmediate()
         case 0x45:
             cycle == 2 ? zeroPage() : eorZeroPage()
+        case 0x4D:
+            cycle == 2 ? absolute() :
+                cycle == 3 ? absolute2() : eorAbsolute()
         case 0x5D:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absoluteX() :
@@ -565,6 +568,7 @@ final internal class CPU {
             case 0x88: return "DEY"
             case 0x49: return String(format: "EOR #%02x", self.memory.readByte(self.pc))
             case 0x45: return String(format: "EOR %02x", self.memory.readByte(self.pc))
+            case 0x4D: return String(format: "EOR %04x", self.memory.readWord(self.pc))
             case 0x5D: return String(format: "EOR %04x,X", self.memory.readWord(self.pc))
             case 0xE6: return String(format: "INC %02x", self.memory.readByte(self.pc))
             case 0xEE: return String(format: "INC %04x", self.memory.readWord(self.pc))
