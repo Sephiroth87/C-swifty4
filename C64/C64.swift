@@ -192,6 +192,14 @@ final public class C64: NSObject {
         joystick2.yAxis = status
     }
     
+    public func pressJoystick2Button() {
+        joystick2.button = .Pressed
+    }
+    
+    public func releaseJoystick2Button() {
+        joystick2.button = .Released
+    }
+    
     //MARK: Files
     
     public func loadPRGFile(data: NSData) {

@@ -118,6 +118,14 @@ class ViewController: NSViewController {
         }
     }
     
+    override func flagsChanged(theEvent: NSEvent) {
+        if theEvent.modifierFlags & .ControlKeyMask != nil {
+            c64.pressJoystick2Button()
+        } else {
+            c64.releaseJoystick2Button()
+        }
+    }
+    
 }
 
 extension ViewController: NSWindowDelegate {

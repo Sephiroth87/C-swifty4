@@ -18,9 +18,15 @@ public enum JoystickYAxisStatus {
     case Down
 }
 
+public enum JoystickButtonStatus {
+    case Released
+    case Pressed
+}
+
 final internal class Joystick {
     
     internal var xAxis: JoystickXAxisStatus = .None
     internal var yAxis: JoystickYAxisStatus = .None
+    internal var button: JoystickButtonStatus = .Released
     
 }

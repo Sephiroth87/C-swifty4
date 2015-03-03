@@ -30,12 +30,13 @@ Then just open the project file, build and run.
 * BASIC (unless some instructions I haven’t tested need the missing opcodes)
 * Video (all video modes, but no sprites yet)
 * Keyboard (not all keys)
+* Joystick 2
 * Loading files (Supported *.prg files will be dumped in memory directly atm, so you’ll just need to type `RUN` to start them, *.txt files will be typed in as text)
 
 #### What doesn’t work
 
 * Sound
-* Joystick
+* Joystick 1
 * Timers
 * VIC interrupts
 * Loading tapes/disks

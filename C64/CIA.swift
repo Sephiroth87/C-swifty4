@@ -190,6 +190,9 @@ final internal class CIA1: CIA {
             case .None:
                 break
             }
+            if joystick2.button == .Pressed {
+                joystick &= ~UInt8(0x10)
+            }
             return pra & joystick
         case 0x01:
             //TODO: Actually read from 0x00 because of joystick that might change bits
@@ -202,6 +205,7 @@ final internal class CIA1: CIA {
     private override func triggerInterrupt() {
         cpu.setIRQLine()
     }
+    
 }
 
 final internal class CIA2: CIA {
