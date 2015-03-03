@@ -60,10 +60,13 @@ final internal class VIC {
     private var vm: UInt8 = 0 // Video matrix base address
     private var cb: UInt8 = 0 // Character base address
     private var ec: UInt8 = 0 // Border Color
+    private var mmc: UInt8 = 0 // Sprite Multicolor
     private var b0c: UInt8 = 0 // Background Color 0
     private var b1c: UInt8 = 0 // Background Color 1
     private var b2c: UInt8 = 0 // Background Color 2
     private var b3c: UInt8 = 0 // Background Color 3
+    private var mm0: UInt8 = 0 // Sprite Multicolor 0
+    private var mm1: UInt8 = 0 // Sprite Multicolor 1
     private var m_c: [UInt8] = [UInt8](count: 8, repeatedValue: 0) // Color Sprite
     //MARK: -
     
@@ -153,6 +156,8 @@ final internal class VIC {
         case 0x19:
             //TEMP: force NTSC timing
             return 0x70
+        case 0x1C:
+            return mmc
         case 0x20:
             return ec | 0xF0
         case 0x21:
@@ -163,6 +168,10 @@ final internal class VIC {
             return b2c
         case 0x24:
             return b3c
+        case 0x25:
+            return mm0
+        case 0x26:
+            return mm1
         case 0x27...0x2E:
             return m_c[Int(position - 0x27)]
         default:
@@ -199,6 +208,8 @@ final internal class VIC {
         case 0x18:
             cb = (byte & 0x0E) >> 1
             vm = (byte & 0xF0) >> 4
+        case 0x1C:
+            mmc = byte
         case 0x20:
             ec = byte & 0x0F
         case 0x21:
@@ -209,6 +220,10 @@ final internal class VIC {
             b2c = byte & 0x0F
         case 0x24:
             b3c = byte & 0x0F
+        case 0x25:
+            mm0 = byte & 0x0F
+        case 0x26:
+            mm1 = byte & 0x0F
         case 0x27...0x2E:
             m_c[Int(position - 0x27)] = byte & 0x0F
         default:
@@ -503,18 +518,35 @@ final internal class VIC {
                     }
                 }
                 if anySpriteDisplaying {
-                    //TODO: z priority, multicolor mode, expansion
-                    for i in 0...7 {
-                        if spriteDisplay[i] {
-                            if m_x[i] == rasterX {
-                                spriteShiftRegisterCount[i] = 24
+                    //TODO: z priority, expansion, collisions
+                    for spriteIndex in 0...7 {
+                        if spriteDisplay[spriteIndex] {
+                            if m_x[spriteIndex] == rasterX {
+                                spriteShiftRegisterCount[spriteIndex] = 24
                             }
-                            if spriteShiftRegisterCount[i] > 0 {
-                                if spriteSequencerData[i] & 0x800000 != 0 {
-                                    currentScreenBuffer[bufferPosition] = colors[Int(m_c[i])]
+                            if spriteShiftRegisterCount[spriteIndex] > 0 {
+                                if mmc & UInt8(1 << spriteIndex) != 0 {
+                                    switch (spriteSequencerData[spriteIndex] >> 22) & 0x03 {
+                                    case 1:
+                                        currentScreenBuffer[bufferPosition] = colors[Int(mm0)]
+                                    case 2:
+                                        currentScreenBuffer[bufferPosition] = colors[Int(m_c[spriteIndex])]
+                                    case 3:
+                                        currentScreenBuffer[bufferPosition] = colors[Int(mm1)]
+                                    default:
+                                        break
+                                    }
+                                    if i % 2 == 1 {
+                                        spriteSequencerData[spriteIndex] <<= 2
+                                        spriteShiftRegisterCount[spriteIndex] -= 2
+                                    }
+                                } else {
+                                    if spriteSequencerData[spriteIndex] & 0x800000 != 0 {
+                                        currentScreenBuffer[bufferPosition] = colors[Int(m_c[spriteIndex])]
+                                    }
+                                    spriteSequencerData[spriteIndex] <<= 1
+                                    spriteShiftRegisterCount[spriteIndex]--
                                 }
-                                spriteSequencerData[i] <<= 1
-                                spriteShiftRegisterCount[i]--
                             }
                         }
                     }

@@ -28,7 +28,7 @@ Then just open the project file, build and run.
 #### What works
 
 * BASIC (unless some instructions I haven’t tested need the missing opcodes)
-* Video (all video modes, but no sprites yet)
+* Video (all video modes, some sprites functionalities)
 * Keyboard (not all keys)
 * Joystick 2
 * Loading files (Supported *.prg files will be dumped in memory directly atm, so you’ll just need to type `RUN` to start them, *.txt files will be typed in as text)
