@@ -436,9 +436,7 @@ final internal class VIC {
     private func draw() {
         for i in 0...3 {
             if (rasterX >= 0x1E8 || rasterX < 0x18C) && raster >= 28 { // 0x1E8 first visible X coord. 0x18C last visible NTSC
-                if mainBorder || verticalBorder {
-                    currentScreenBuffer[bufferPosition] = colors[Int(ec)]
-                } else {
+                if !mainBorder && !verticalBorder {
                     if (!mcm && !bmm) || (mcm && graphicsSequencerColorLine & 0x08 == 0) {
                         if graphicsSequencerShiftRegister >> 7 != 0 {
                             currentScreenBuffer[bufferPosition] = colors[Int(graphicsSequencerColorLine)]
@@ -520,6 +518,9 @@ final internal class VIC {
                             }
                         }
                     }
+                }
+                if mainBorder || verticalBorder {
+                    currentScreenBuffer[bufferPosition] = colors[Int(ec)]
                 }
                 ++bufferPosition
             }
