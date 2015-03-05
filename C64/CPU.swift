@@ -359,6 +359,8 @@ final internal class CPU {
             nop()
         case 0x44:
             cycle == 2 ? zeroPage() : nopZeroPage()
+        case 0x82:
+            nopImmediate()
             // ORA
         case 0x09:
             oraImmediate()
@@ -610,6 +612,7 @@ final internal class CPU {
             case 0x5A: return "NOP*"
             case 0x7A: return "NOP*"
             case 0x44: return "NOP*"
+            case 0x82: return "NOP*"
             case 0x09: return String(format: "ORA #%02x", self.memory.readByte(self.pc))
             case 0x05: return String(format: "ORA %02x", self.memory.readByte(self.pc))
             case 0x0D: return String(format: "ORA %04x", self.memory.readWord(self.pc))
@@ -1382,6 +1385,11 @@ final internal class CPU {
     
     private func nopZeroPage() {
         data = memory.readByte(UInt16(addressLow))
+        cycle = 0
+    }
+    
+    private func nopImmediate() {
+        data = memory.readByte(pc++)
         cycle = 0
     }
     
