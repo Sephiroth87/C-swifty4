@@ -359,6 +359,9 @@ final internal class CPU {
             nop()
         case 0x44:
             cycle == 2 ? zeroPage() : nopZeroPage()
+        case 0x14:
+            cycle == 2 ? zeroPage() :
+                cycle == 3 ? zeroPageX() : nopZeroPage()
         case 0x82:
             nopImmediate()
             // ORA
@@ -611,8 +614,9 @@ final internal class CPU {
             case 0xEA: return "NOP"
             case 0x5A: return "NOP*"
             case 0x7A: return "NOP*"
-            case 0x44: return "NOP*"
-            case 0x82: return "NOP*"
+            case 0x44: return String(format: "NOP* %02x", self.memory.readByte(self.pc))
+            case 0x14: return String(format: "NOP* %02x,X", self.memory.readByte(self.pc))
+            case 0x82: return String(format: "NOP* #%02x", self.memory.readByte(self.pc))
             case 0x09: return String(format: "ORA #%02x", self.memory.readByte(self.pc))
             case 0x05: return String(format: "ORA %02x", self.memory.readByte(self.pc))
             case 0x0D: return String(format: "ORA %04x", self.memory.readWord(self.pc))
