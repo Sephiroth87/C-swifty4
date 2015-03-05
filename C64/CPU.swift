@@ -108,6 +108,10 @@ final internal class CPU {
         case 0x2D:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absolute2() : andAbsolute()
+        case 0x3D:
+            cycle == 2 ? absolute() :
+                cycle == 3 ? absoluteX() :
+                cycle == 4 ? andPageBoundary() : andAbsolute()
             // ASL
         case 0x0A:
             aslAccumulator()
@@ -532,6 +536,7 @@ final internal class CPU {
             case 0x29: return String(format: "AND #%02x", self.memory.readByte(self.pc))
             case 0x25: return String(format: "AND %02x", self.memory.readByte(self.pc))
             case 0x2D: return String(format: "AND %04x", self.memory.readWord(self.pc))
+            case 0x3D: return String(format: "AND %04x,X", self.memory.readWord(self.pc))
             case 0x0A: return "ASL"
             case 0x06: return String(format: "ASL %02x", self.memory.readByte(self.pc))
             case 0x16: return String(format: "ASL %02x,X", self.memory.readByte(self.pc))
@@ -904,6 +909,16 @@ final internal class CPU {
         data = memory.readByte(UInt16(addressLow))
         loadA(a & data)
         cycle = 0
+    }
+    
+    private func andPageBoundary() {
+        data = memory.readByte(address)
+        if pageBoundaryCrossed {
+            addressHigh = addressHigh &+ 1
+        } else {
+            loadA(a & data)
+            cycle = 0
+        }
     }
     
     private func andAbsolute() {
