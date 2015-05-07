@@ -176,6 +176,9 @@ final internal class CPU {
             cmpImmediate()
         case 0xC5:
             cycle == 2 ? zeroPage() : cmpZeroPage()
+        case 0xD5:
+            cycle == 2 ? zeroPage() :
+                cycle == 3 ? zeroPageX() : cmpZeroPage()
         case 0xCD:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absolute2() : cmpAbsolute()
@@ -213,11 +216,6 @@ final internal class CPU {
             cycle == 2 ? zeroPage() :
                 cycle == 3 ? zeroPage2() :
                 cycle == 4 ? decZeroPage() : zeroPageWriteUpdateNZ()
-        case 0xF6:
-            cycle == 2 ? zeroPage() :
-                cycle == 3 ? zeroPageX() :
-                cycle == 4 ? zeroPage2() :
-                cycle == 5 ? decZeroPage() : zeroPageWriteUpdateNZ()
         case 0xCE:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absolute2() :
@@ -252,6 +250,11 @@ final internal class CPU {
             cycle == 2 ? zeroPage() :
                 cycle == 3 ? zeroPage2() :
                 cycle == 4 ? incZeroPage() : zeroPageWriteUpdateNZ()
+        case 0xF6:
+            cycle == 2 ? zeroPage() :
+                cycle == 3 ? zeroPageX() :
+                cycle == 4 ? zeroPage2() :
+                cycle == 5 ? incZeroPage() : zeroPageWriteUpdateNZ()
         case 0xEE:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absolute2() :
@@ -562,6 +565,7 @@ final internal class CPU {
             case 0x58: return "CLI"
             case 0xC9: return String(format: "CMP #%02x", self.memory.readByte(self.pc))
             case 0xC5: return String(format: "CMP %02x", self.memory.readByte(self.pc))
+            case 0xD5: return String(format: "CMP %02x,X", self.memory.readByte(self.pc))
             case 0xCD: return String(format: "CMP %04x", self.memory.readWord(self.pc))
             case 0xDD: return String(format: "CMP %04x,X", self.memory.readWord(self.pc))
             case 0xD9: return String(format: "CMP %04x,Y", self.memory.readWord(self.pc))
@@ -573,7 +577,6 @@ final internal class CPU {
             case 0xC4: return String(format: "CPY %02x", self.memory.readByte(self.pc))
             case 0xCC: return String(format: "CPY %04x", self.memory.readWord(self.pc))
             case 0xC6: return String(format: "DEC %02x", self.memory.readByte(self.pc))
-            case 0xF6: return String(format: "DEC %02x,X", self.memory.readByte(self.pc))
             case 0xCE: return String(format: "DEC %04x", self.memory.readWord(self.pc))
             case 0xDE: return String(format: "DEC %04x,X", self.memory.readWord(self.pc))
             case 0xCA: return "DEX"
@@ -583,6 +586,7 @@ final internal class CPU {
             case 0x4D: return String(format: "EOR %04x", self.memory.readWord(self.pc))
             case 0x5D: return String(format: "EOR %04x,X", self.memory.readWord(self.pc))
             case 0xE6: return String(format: "INC %02x", self.memory.readByte(self.pc))
+            case 0xF6: return String(format: "INC %02x,X", self.memory.readByte(self.pc))
             case 0xEE: return String(format: "INC %04x", self.memory.readWord(self.pc))
             case 0xFE: return String(format: "INC %04x,X", self.memory.readWord(self.pc))
             case 0xE8: return "INX"
