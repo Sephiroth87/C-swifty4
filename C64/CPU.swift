@@ -245,6 +245,11 @@ final internal class CPU {
             cycle == 2 ? absolute() :
                 cycle == 3 ? absoluteX() :
                 cycle == 4 ? eorPageBoundary() : eorAbsolute()
+        case 0x51:
+            cycle == 2 ? indirectIndex() :
+                cycle == 3 ? indirectIndex2() :
+                cycle == 4 ? indirectY() :
+                cycle == 5 ? eorPageBoundary() : eorAbsolute()
             // INC
         case 0xE6:
             cycle == 2 ? zeroPage() :
@@ -585,6 +590,7 @@ final internal class CPU {
             case 0x45: return String(format: "EOR %02x", self.memory.readByte(self.pc))
             case 0x4D: return String(format: "EOR %04x", self.memory.readWord(self.pc))
             case 0x5D: return String(format: "EOR %04x,X", self.memory.readWord(self.pc))
+            case 0x51: return String(format: "EOR (%02x),Y", self.memory.readByte(self.pc))
             case 0xE6: return String(format: "INC %02x", self.memory.readByte(self.pc))
             case 0xF6: return String(format: "INC %02x,X", self.memory.readByte(self.pc))
             case 0xEE: return String(format: "INC %04x", self.memory.readWord(self.pc))
@@ -1218,7 +1224,7 @@ final internal class CPU {
         if pageBoundaryCrossed {
             addressHigh = addressHigh &+ 1
         } else {
-            loadA(data)
+            loadA(a ^ data)
             cycle = 0
         }
     }
