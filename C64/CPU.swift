@@ -190,6 +190,11 @@ final internal class CPU {
             cycle == 2 ? absolute() :
                 cycle == 3 ? absoluteY() :
                 cycle == 4 ? cmpPageBoundary() : cmpAbsolute()
+        case 0xC1:
+            cycle == 2 ? indirectIndex() :
+                cycle == 3 ? indirectX() :
+                cycle == 4 ? indirectIndex2() :
+                cycle == 5 ? indirectX2() : cmpAbsolute()
         case 0xD1:
             cycle == 2 ? indirectIndex() :
                 cycle == 3 ? indirectIndex2() :
@@ -574,6 +579,7 @@ final internal class CPU {
             case 0xCD: return String(format: "CMP %04x", self.memory.readWord(self.pc))
             case 0xDD: return String(format: "CMP %04x,X", self.memory.readWord(self.pc))
             case 0xD9: return String(format: "CMP %04x,Y", self.memory.readWord(self.pc))
+            case 0xC1: return String(format: "CMP (%02x,X)", self.memory.readByte(self.pc))
             case 0xD1: return String(format: "CMP (%02x),Y", self.memory.readByte(self.pc))
             case 0xE0: return String(format: "CPX #%02x", self.memory.readByte(self.pc))
             case 0xE4: return String(format: "CPX %02x", self.memory.readByte(self.pc))
@@ -835,7 +841,7 @@ final internal class CPU {
     }
     
     private func indirectIndex2() {
-        addressLow = memory.readByte(UInt16(pointer))
+        addressLow = memory.readByte(UInt16(pointer++))
     }
     
     private func indirectX() {
@@ -844,11 +850,11 @@ final internal class CPU {
     }
     
     private func indirectX2() {
-        addressHigh = memory.readByte(UInt16(pointer + 1))
+        addressHigh = memory.readByte(UInt16(pointer++))
     }
     
     private func indirectY() {
-        addressHigh = memory.readByte(UInt16(pointer + 1))
+        addressHigh = memory.readByte(UInt16(pointer++))
         pageBoundaryCrossed = (UInt16(addressLow) &+ y >= 0x100)
         addressLow = addressLow &+ y
     }
