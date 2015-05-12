@@ -468,6 +468,8 @@ final internal class CPU {
             // SEC
         case 0x38:
             secImplied()
+        case 0xF8:
+            sedImplied()
             // SEI
         case 0x78:
             seiImplied()
@@ -658,6 +660,7 @@ final internal class CPU {
             case 0xF9: return String(format: "SBC %04x,Y", self.memory.readWord(self.pc))
             case 0xF1: return String(format: "SBC (%02x),Y", self.memory.readByte(self.pc))
             case 0x38: return "SEC"
+            case 0xF8: return "SED"
             case 0x78: return "SEI"
             case 0x85: return String(format: "STA %02x", self.memory.readByte(self.pc))
             case 0x95: return String(format: "STA %02x,X", self.memory.readByte(self.pc))
@@ -1627,6 +1630,14 @@ final internal class CPU {
     private func secImplied() {
         memory.readByte(pc)
         c = true
+        cycle = 0
+    }
+    
+    //MARK: SED
+    
+    private func sedImplied() {
+        memory.readByte(pc)
+        d = true
         cycle = 0
     }
     
