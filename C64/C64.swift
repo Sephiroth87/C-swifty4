@@ -27,7 +27,7 @@ final public class C64: NSObject {
     private var breakpoints: [UInt16: Bool] = [UInt16: Bool]()
     
     private let cpu: CPU
-    private let memory: Memory
+    private let memory: C64Memory
     private let cia1: CIA1
     private let cia2: CIA2
     private let sid: SID
@@ -35,6 +35,7 @@ final public class C64: NSObject {
     private let keyboard: Keyboard
     private let joystick1: Joystick
     private let joystick2: Joystick
+    public let c1541: C1541
     
     private var cycles = 0
     private var lines = 0
@@ -43,13 +44,13 @@ final public class C64: NSObject {
     private var lastTime: CFTimeInterval = 0
     private var instructions: Double = 0
     
-    public init(kernalData: NSData, basicData: NSData, characterData: NSData) {
-        if (kernalData.length != 8192 || basicData.length != 8192 || characterData.length != 4096) {
+    public init(kernalData: NSData, basicData: NSData, characterData: NSData, c1541Data: NSData) {
+        if (kernalData.length != 8192 || basicData.length != 8192 || characterData.length != 4096 || c1541Data.length != 16384) {
             assertionFailure("Wrong data found");
         }
         
-        self.cpu = CPU()
-        self.memory = Memory()
+        self.cpu = CPU(pc: 0xFCE2)
+        self.memory = C64Memory()
         self.cia1 = CIA1()
         self.cia2 = CIA2()
         self.sid = SID()
@@ -57,6 +58,7 @@ final public class C64: NSObject {
         self.keyboard = Keyboard()
         self.joystick1 = Joystick()
         self.joystick2 = Joystick()
+        self.c1541 = C1541(c1541Data: c1541Data)
         
         self.memory.writeKernalData(UnsafePointer<UInt8>(kernalData.bytes))
         self.memory.writeBasicData(UnsafePointer<UInt8>(basicData.bytes))
@@ -110,6 +112,7 @@ final public class C64: NSObject {
         cia1.cycle()
         cia2.cycle()
         cpu.executeInstruction()
+        c1541.cycle()
         
         if ++cycles == 65 {
             cycles = 0

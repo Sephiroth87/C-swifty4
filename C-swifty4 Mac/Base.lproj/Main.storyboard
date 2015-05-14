@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="7515.2" systemVersion="14D72i" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="7531" systemVersion="14E11f" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7515.2"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7531"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
@@ -182,6 +182,14 @@
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Gj5-7O-QKZ">
+                                        <rect key="frame" x="70" y="2" width="21" height="17"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="⚪️" id="kAu-6r-IPZ">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="22" id="46u-Tq-ITS"/>
@@ -190,7 +198,9 @@
                                     <constraint firstAttribute="centerY" secondItem="kDC-Ob-JhV" secondAttribute="centerY" id="67O-SZ-sXg"/>
                                     <constraint firstItem="M7R-G1-j56" firstAttribute="top" secondItem="cQO-qd-B8E" secondAttribute="top" id="FJj-kv-59k"/>
                                     <constraint firstAttribute="trailing" secondItem="kDC-Ob-JhV" secondAttribute="trailing" constant="10" id="FYf-yJ-En0"/>
+                                    <constraint firstAttribute="centerY" secondItem="Gj5-7O-QKZ" secondAttribute="centerY" constant="-0.5" id="O8E-B3-jla"/>
                                     <constraint firstItem="t7m-E7-aHh" firstAttribute="top" secondItem="cQO-qd-B8E" secondAttribute="top" id="Vac-hV-ziB"/>
+                                    <constraint firstItem="Gj5-7O-QKZ" firstAttribute="leading" secondItem="aX9-Rn-yLy" secondAttribute="trailing" constant="4" id="bDJ-XR-LRA"/>
                                     <constraint firstItem="aX9-Rn-yLy" firstAttribute="top" secondItem="cQO-qd-B8E" secondAttribute="top" id="hvI-T4-Seb"/>
                                     <constraint firstItem="t7m-E7-aHh" firstAttribute="leading" secondItem="cQO-qd-B8E" secondAttribute="leading" id="hyH-An-n75"/>
                                     <constraint firstAttribute="bottom" secondItem="M7R-G1-j56" secondAttribute="bottom" id="kEo-V8-yn9"/>
@@ -210,6 +220,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="driveLedLabel" destination="Gj5-7O-QKZ" id="bPn-6X-ZNt"/>
                         <outlet property="fpsLabel" destination="kDC-Ob-JhV" id="8es-nz-MO7"/>
                         <outlet property="graphicsView" destination="viV-Kk-Ag9" id="omN-6k-dSG"/>
                         <outlet property="playButton" destination="t7m-E7-aHh" id="bCb-Rz-YaX"/>

@@ -15,6 +15,7 @@ class ViewController: NSViewController {
     @IBOutlet private var playButton: NSButton!
     @IBOutlet private var stepButton: NSButton!
     @IBOutlet private var fpsLabel: NSTextField!
+    @IBOutlet private var driveLedLabel: NSTextField!
     
     private var startTime: CFTimeInterval = 0
     private var frames = 0
@@ -22,13 +23,15 @@ class ViewController: NSViewController {
     private let c64: C64 = {
         C64(kernalData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("kernal", ofType: nil, inDirectory:"ROM")!)!,
             basicData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("basic", ofType: nil, inDirectory:"ROM")!)!,
-            characterData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chargen", ofType: nil, inDirectory:"ROM")!)!)
+            characterData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chargen", ofType: nil, inDirectory:"ROM")!)!,
+            c1541Data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("1541", ofType: nil, inDirectory:"ROM")!)!)
         }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         c64.delegate = self
+        c64.c1541.delegate = self
         onPlayButton(self)
     }
     
@@ -172,6 +175,14 @@ extension ViewController: C64Delegate {
     
     func C64DidCrash(c64: C64) {
         
+    }
+    
+}
+
+extension ViewController: C1541Delegate {
+    
+    func C1541UpdateLedStatus(c1541: C1541, ledOn: Bool) {
+        driveLedLabel.stringValue = ledOn ? "🔴" : "⚪️"
     }
     
 }

@@ -8,7 +8,15 @@
 
 import Foundation
 
-final internal class Memory {
+internal protocol Memory: class {
+    
+    func readByte(position: UInt16) -> UInt8
+    func readWord(position: UInt16) -> UInt16
+    func writeByte(position: UInt16, byte: UInt8)
+    
+}
+
+final internal class C64Memory: Memory {
     
     internal weak var cpu: CPU!
     internal weak var cia1: CIA1!

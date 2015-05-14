@@ -10,7 +10,7 @@ import Foundation
 
 final internal class VIC {
     
-    internal weak var memory: Memory!
+    internal weak var memory: C64Memory!
     
     //MARK: Memory
     private var ioMemory: [UInt8] = [UInt8](count: 64, repeatedValue: 0)

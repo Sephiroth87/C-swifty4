@@ -13,7 +13,7 @@ final internal class CPU {
     internal weak var memory: Memory!
     internal var crashHandler: C64CrashHandler?
     
-    internal var pc: UInt16 = 0xFCE2
+    internal var pc: UInt16
     internal var isAtFetch = false
     private var pcl: UInt8 {
         set {
@@ -70,7 +70,9 @@ final internal class CPU {
     private var pointer: UInt8 = 0
     private var pageBoundaryCrossed = false
     
-    init() {}
+    internal init(pc: UInt16) {
+        self.pc = pc
+    }
     
     internal func executeInstruction() {
         if cycle++ == 0 {

@@ -26,7 +26,8 @@ class LorenzTestSuite: XCTestCase {
         super.setUp()
         c64 = C64(kernalData: NSData(contentsOfFile: NSBundle(forClass: self.classForCoder).pathForResource("kernal", ofType: nil, inDirectory:"ROM")!)!,
             basicData: NSData(contentsOfFile: NSBundle(forClass: self.classForCoder).pathForResource("basic", ofType: nil, inDirectory:"ROM")!)!,
-            characterData: NSData(contentsOfFile: NSBundle(forClass: self.classForCoder).pathForResource("chargen", ofType: nil, inDirectory:"ROM")!)!)
+            characterData: NSData(contentsOfFile: NSBundle(forClass: self.classForCoder).pathForResource("chargen", ofType: nil, inDirectory:"ROM")!)!,
+            c1541Data: NSData(contentsOfFile: NSBundle(forClass: self.classForCoder).pathForResource("1541", ofType: nil, inDirectory:"ROM")!)!)
         c64.delegate = self
         c64.setBreakpoint(0xE5CD)
         c64.setBreakpoint(0xFFE4)
