@@ -31,7 +31,9 @@ final public class C1541 {
         self.memory.via1 = self.via1
         self.memory.via2 = self.via2
         self.via1.c1541 = self
+        self.via1.cpu = self.cpu
         self.via2.c1541 = self
+        self.via2.cpu = self.cpu
         
         self.memory.writeC1541Data(UnsafePointer<UInt8>(c1541Data.bytes))
     }

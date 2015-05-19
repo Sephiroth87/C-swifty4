@@ -9,6 +9,7 @@
 internal class VIA {
     
     internal weak var c1541: C1541!
+    internal weak var cpu: CPU!
     
     //MARK: Registers
     private var orb: UInt8 = 0 // Output Register B
@@ -17,12 +18,10 @@ internal class VIA {
     private var ira: UInt8 = 0 // Input Register A
     private var ddrb: UInt8 = 0 // Data Direction Register B
     private var ddra: UInt8 = 0 // Data Direction Register A
-    private var t1cl: UInt8 = 0 // Timer 1 Low-Order Counter
-    private var t1ch: UInt8 = 0 // Timer 1 High-Order Counter
+    private var t1c: UInt16 = 0 // Timer 1 Counter
     private var t1ll: UInt8 = 0 // Timer 1 Low-Order Latch
     private var t1lh: UInt8 = 0 // Timer 1 High-Order Latch
-    private var t2cl: UInt8 = 0 // Timer 2 Low-Order Counter
-    private var t2ch: UInt8 = 0 // Timer 2 High-Order Counter
+    private var t2c: UInt16 = 0 // Timer 2 Counter
     private var t2ll: UInt8 = 0 // Timer 2 Low-Order Latch
     private var acr: UInt8 = 0 // Auxiliary Control Register
     private var pcr: UInt8 = 0 // Peripheral Control Register
@@ -30,8 +29,42 @@ internal class VIA {
     private var ier: UInt8 = 0 // Interrupt Enable Register
     //MARK: -
     
+    //MARK: Helpers
+    private var timer1Fired = true // We default to true so we don't fire until the counter is loaded from the latch
+    private var timer2Fired = true
+    //MARK: -
+    
     internal func cycle() {
-        
+        //TODO: timing is not accurate, but it should be enough for now
+        t1c = t1c &- 1
+        if t1c == 0 && !timer1Fired {
+            // Other emulators always reload timer 1 counter from latch, but the datasheet seems to imply that happens only in free-run mode, investigate later
+            if acr & 0x40 != 0 {
+                t1c = UInt16(t1lh) << 8 | UInt16(t1ll)
+            } else {
+                timer1Fired = true
+            }
+            ifr |= 0x40
+            //TODO: handle PB7
+            if ier & 0x40 != 0 {
+                //TODO: better IRQ handling
+                cpu.setIRQLine()
+            }
+        }
+        if acr & 0x10 == 0 {
+            t2c = t2c &- 1
+        } else {
+            //TODO: pulse counting mode
+        }
+        if t2c == 0 && !timer2Fired {
+            timer2Fired = true
+            ifr |= 0x20
+            //TODO: handle PB7
+            if ier & 0x20 != 0 {
+                //TODO: better IRQ handling
+                cpu.setIRQLine()
+            }
+        }
     }
     
     internal func writeByte(position: UInt8, byte: UInt8) {
@@ -53,19 +86,20 @@ internal class VIA {
             t1ll = byte
         case 0x05:
             t1lh = byte
-            t1cl = t1ll
-            t1ch = t1lh
+            t1c = UInt16(t1lh) << 8 | UInt16(t1ll)
             ifr &= ~0x40
+            timer1Fired = false
         case 0x06:
             t1ll = byte
         case 0x07:
+            // No mention of flag being cleared here in the datasheet, but other emulators do it...
             t1lh = byte
         case 0x08:
             t2ll = byte
         case 0x09:
-            t2ch = byte
-            t2cl = t2ll
+            t2c = UInt16(byte) << 8 | UInt16(t2ll)
             ifr &= ~0x20
+            timer2Fired = false
         case 0x0B:
             acr = byte
         case 0x0C:
@@ -92,18 +126,18 @@ internal class VIA {
             return ddrb & orb
         case 0x04:
             ifr &= ~0x40
-            return t1cl
+            return UInt8(truncatingBitPattern: t1c)
         case 0x05:
-            return t1ch
+            return UInt8(truncatingBitPattern: t1c >> 8)
         case 0x06:
             return t1ll
         case 0x07:
             return t1lh
         case 0x08:
             ifr &= ~0x20
-            return t2cl
+            return UInt8(truncatingBitPattern: t2c)
         case 0x09:
-            return t2ch
+            return UInt8(truncatingBitPattern: t2c >> 8)
         case 0x0B:
             return acr
         case 0x0C:
