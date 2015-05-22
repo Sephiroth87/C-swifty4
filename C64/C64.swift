@@ -35,6 +35,7 @@ final public class C64: NSObject {
     private let keyboard: Keyboard
     private let joystick1: Joystick
     private let joystick2: Joystick
+    private let iec: IEC
     public let c1541: C1541
     
     private var cycles = 0
@@ -58,6 +59,7 @@ final public class C64: NSObject {
         self.keyboard = Keyboard()
         self.joystick1 = Joystick()
         self.joystick2 = Joystick()
+        self.iec = IEC()
         self.c1541 = C1541(c1541Data: c1541Data)
         
         self.memory.writeKernalData(UnsafePointer<UInt8>(kernalData.bytes))
@@ -75,6 +77,7 @@ final public class C64: NSObject {
         self.cia1.joystick2 = self.joystick2
         self.cia2.cpu = self.cpu
         self.cia2.vic = self.vic
+        self.cia2.iec = self.iec
         self.vic.memory = self.memory
 
         self.dispatchQueue = dispatch_queue_create("main.loop", DISPATCH_QUEUE_SERIAL)

@@ -48,6 +48,8 @@
 		E574E3581AE11D5000398071 /* C1541.swift in Sources */ = {isa = PBXBuildFile; fileRef = E574E3561AE11D5000398071 /* C1541.swift */; };
 		E574E35D1AE131FE00398071 /* C1541Memory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E574E35C1AE131FE00398071 /* C1541Memory.swift */; };
 		E574E35E1AE131FE00398071 /* C1541Memory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E574E35C1AE131FE00398071 /* C1541Memory.swift */; };
+		E5937A311B0CEC7C00B1A241 /* IEC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5937A301B0CEC7C00B1A241 /* IEC.swift */; };
+		E5937A321B0CEC7C00B1A241 /* IEC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5937A301B0CEC7C00B1A241 /* IEC.swift */; };
 		E59AD4B71A6344530081F81F /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5065EBE1A6305B200CECED1 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E5C691DC1A656D4700272888 /* Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C691DB1A656D4700272888 /* Keyboard.swift */; };
 		E5C691DD1A656D4700272888 /* Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C691DB1A656D4700272888 /* Keyboard.swift */; };
@@ -140,6 +142,7 @@
 		E567E4BA1A8D197E00CF079D /* FilePickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilePickerViewController.swift; sourceTree = "<group>"; };
 		E574E3561AE11D5000398071 /* C1541.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = C1541.swift; sourceTree = "<group>"; };
 		E574E35C1AE131FE00398071 /* C1541Memory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = C1541Memory.swift; sourceTree = "<group>"; };
+		E5937A301B0CEC7C00B1A241 /* IEC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IEC.swift; sourceTree = "<group>"; };
 		E5C691DB1A656D4700272888 /* Keyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Keyboard.swift; sourceTree = "<group>"; };
 		E5DEFB991A9CE60E00A76AE3 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
 		E5DEFB9B1A9CE63500A76AE3 /* LorenzTestSuite.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LorenzTestSuite.swift; sourceTree = "<group>"; };
@@ -246,6 +249,7 @@
 				E5065EE31A6305E700CECED1 /* VIC.swift */,
 				E5C691DB1A656D4700272888 /* Keyboard.swift */,
 				E53D73381AA4D60000A94266 /* Joystick.swift */,
+				E5937A301B0CEC7C00B1A241 /* IEC.swift */,
 				E5065EC01A6305B200CECED1 /* Supporting Files */,
 			);
 			path = C64;
@@ -536,6 +540,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5937A321B0CEC7C00B1A241 /* IEC.swift in Sources */,
 				E5E52A6D1AEA7B2400ECAFFD /* VIA.swift in Sources */,
 				E53D733A1AA4D60000A94266 /* Joystick.swift in Sources */,
 				E5065EE91A6305E700CECED1 /* SID.swift in Sources */,
@@ -555,6 +560,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5937A311B0CEC7C00B1A241 /* IEC.swift in Sources */,
 				E5E52A6C1AEA7B2400ECAFFD /* VIA.swift in Sources */,
 				E53D73391AA4D60000A94266 /* Joystick.swift in Sources */,
 				E5065F141A63113500CECED1 /* SID.swift in Sources */,

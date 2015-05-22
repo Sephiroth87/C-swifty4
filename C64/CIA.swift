@@ -211,6 +211,7 @@ final internal class CIA1: CIA {
 final internal class CIA2: CIA {
     
     internal weak var vic: VIC!
+    internal weak var iec: IEC!
     
     override init() {
         super.init()
@@ -222,7 +223,7 @@ final internal class CIA2: CIA {
         case 0x00:
             pra = byte | ~ddra
             vic.setMemoryBank(pra & 0x3)
-            // VIC + IEC stuff
+            iec.updateCiaPins(atnPin: pra & 0x08 != 0, clkPin: pra & 0x10 != 0, dataPin: pra & 0x20 != 0)
         default:
             super.writeByte(position, byte: byte)
         }
@@ -231,8 +232,7 @@ final internal class CIA2: CIA {
     internal override func readByte(position: UInt8) -> UInt8 {
         switch position {
         case 0x00:
-            //TODO: implement bit 7-8
-            return (pra | ~ddra) & 0x3F
+            return ((pra | ~ddra) & 0x3F) | (iec.clkLine ? 0x40 : 0x00) | (iec.dataLine ? 0x80 : 0x00)
         default:
             return super.readByte(position)
         }
