@@ -15,6 +15,11 @@ public protocol C1541Delegate: class {
 final public class C1541 {
     
     public weak var delegate: C1541Delegate?
+    internal var crashHandler: C64CrashHandler? {
+        didSet {
+            self.cpu.crashHandler = crashHandler
+        }
+    }
     
     private let cpu: CPU
     private let memory: C1541Memory

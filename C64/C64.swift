@@ -95,6 +95,7 @@ final public class C64: NSObject {
         self.cia1.crashHandler = crashHandler
         self.cia2.crashHandler = crashHandler
         self.memory.crashHandler = crashHandler
+        self.c1541.crashHandler = crashHandler
     }
    
     @objc private func mainLoop() {
