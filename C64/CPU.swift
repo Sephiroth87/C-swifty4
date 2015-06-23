@@ -335,6 +335,9 @@ final internal class CPU {
             ldxImmediate()
         case 0xA6:
             cycle == 2 ? zeroPage() : ldxZeroPage()
+        case 0xB6:
+            cycle == 2 ? zeroPage() :
+                cycle == 3 ? zeroPageY() : ldxZeroPage()
         case 0xAE:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absolute2() : ldxAbsolute()
@@ -626,6 +629,7 @@ final internal class CPU {
             case 0xB1: return String(format: "LDA (%02x),Y", self.memory.readByte(self.pc))
             case 0xA2: return String(format: "LDX #%02x", self.memory.readByte(self.pc))
             case 0xA6: return String(format: "LDX %02x", self.memory.readByte(self.pc))
+            case 0xB6: return String(format: "LDX %02x,Y", self.memory.readByte(self.pc))
             case 0xAE: return String(format: "LDX %04x", self.memory.readWord(self.pc))
             case 0xBE: return String(format: "LDX %04x,Y", self.memory.readWord(self.pc))
             case 0xA0: return String(format: "LDY #%02x", self.memory.readByte(self.pc))
@@ -803,6 +807,11 @@ final internal class CPU {
     private func zeroPageX() {
         data = memory.readByte(UInt16(addressLow))
         addressLow = addressLow &+ x
+    }
+    
+    private func zeroPageY() {
+        data = memory.readByte(UInt16(addressLow))
+        addressLow = addressLow &+ y
     }
     
     private func absolute() {
