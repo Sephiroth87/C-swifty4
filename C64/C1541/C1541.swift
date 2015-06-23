@@ -26,6 +26,13 @@ final public class C1541 {
     private let via1: VIA1
     private let via2: VIA2
     
+    internal weak var iec: IEC! {
+        didSet {
+            self.via1.iec = iec
+            self.iec.connectDevice(self.via1)
+        }
+    }
+    
     internal init(c1541Data: NSData) {
         self.cpu = CPU(pc: 0xEAA0)
         self.memory = C1541Memory()

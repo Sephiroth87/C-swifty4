@@ -69,11 +69,10 @@ internal class VIA {
     
     internal func writeByte(position: UInt8, byte: UInt8) {
         switch position {
-        case 0x00:
-            orb = byte
-            //TODO: update pins logic
         case 0x01:
             ora = byte
+            // CA2 has some different clearing rules, but it's not used for now
+            ifr &= ~0x03
             //TODO: update pins logic
         case 0x02:
             ddrb = byte
@@ -103,7 +102,6 @@ internal class VIA {
         case 0x0B:
             acr = byte
         case 0x0C:
-            //TODO: do something with this?
             pcr = byte
         case 0x0D:
             ifr &= ~(byte & 0x7F)
@@ -121,9 +119,6 @@ internal class VIA {
     
     internal func readByte(position: UInt8) -> UInt8 {
         switch position {
-        case 0x00:
-            //TODO: handle pin levels and latching
-            return ddrb & orb
         case 0x04:
             ifr &= ~0x40
             return UInt8(truncatingBitPattern: t1c)
@@ -154,7 +149,78 @@ internal class VIA {
     
 }
 
-final internal class VIA1: VIA {
+final internal class VIA1: VIA, IECDevice {
+    
+    internal weak var iec: IEC!
+    
+    //MARK: IECDevice
+    internal var atnPin: Bool? {
+        get {
+            return nil
+        }
+    }
+    internal var clkPin = true
+    internal var dataPin = true
+    //MARK: -
+    
+    //MARK: Helpers
+    private var atnaPin = false
+    //MARK: -
+    
+    override func writeByte(position: UInt8, byte: UInt8) {
+        switch position {
+        case 0x00:
+            // Only set pins if data direction is 1 (output)
+            // Should it update only if level has changed?
+            clkPin = ddrb & 0x08 != 0 ? byte & 0x08 == 0 : clkPin
+            dataPin = ddrb & 0x02 != 0 ? byte & 0x02 == 0 : dataPin
+            atnaPin = ddrb & 0x10 != 0 ? byte & 0x10 != 0 : atnaPin
+            updatePins()
+            orb = byte
+        default:
+            super.writeByte(position, byte: byte)
+        }
+    }
+    
+    override func readByte(position: UInt8) -> UInt8 {
+        switch position {
+        case 0x00:
+            // CB1 isn't connected on VIA1 so latching shouldn't be happening
+            return (ddrb & orb) | (~ddrb & ((iec.clkLine ? 0x00 : 0x04) | (iec.dataLine ? 0x00 : 0x01) | (iec.atnLine ? 0x00: 0x80))) & 0x9F
+        case 0x01:
+            // CA2 has some different clearing rules, but it's not used for now
+            ifr &= ~0x03
+            // PA is not connected on VIA1 so let's not do anything
+            return 0xFF
+        default:
+            return super.readByte(position)
+        }
+    }
+    
+    func updatePins() {
+        let oldDataPin = dataPin
+        if (iec.dataLine || dataPin) && !iec.atnLine && !atnaPin {
+            // Auto acknowledge
+            dataPin = false
+        }
+        iec.updatePins(self)
+        // We just want to pull down the line, but keep the actual pin level
+        dataPin = oldDataPin
+    }
+    
+    func iecUpdatedLines(#atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) {
+        updatePins()
+        if atnLineUpdated {
+            // CA1 interrupt, ATN is inverted so a positive edge will be seen here as negative
+            if iec.atnLine == (pcr & 0x01 == 0) {
+                ifr |= 0x02
+                if ier & 0x02 != 0 {
+                    //TODOr: better IRQ handling
+                    cpu.setIRQLine()
+                }
+            }
+        }
+    }
     
 }
 
@@ -171,6 +237,16 @@ final internal class VIA2: VIA {
             orb = byte
         default:
             super.writeByte(position, byte: byte)
+        }
+    }
+    
+    override func readByte(position: UInt8) -> UInt8 {
+        switch position {
+        case 0x00:
+            //TODO: Implement actual pins
+            return (ddrb & orb) | (~ddrb & ((/* SYNC pin*/ false ? 0x00 : 0x80) | (/* Write protect pin*/ false ? 0x00 : 0x10)))
+        default:
+            return super.readByte(position)
         }
     }
     

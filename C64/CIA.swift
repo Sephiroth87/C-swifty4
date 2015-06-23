@@ -208,10 +208,16 @@ final internal class CIA1: CIA {
     
 }
 
-final internal class CIA2: CIA {
+final internal class CIA2: CIA, IECDevice {
     
     internal weak var vic: VIC!
     internal weak var iec: IEC!
+    
+    //MARK: IECDevice
+    internal var atnPin: Bool? = true
+    internal var clkPin = true
+    internal var dataPin = true
+    //MARK: -
     
     override init() {
         super.init()
@@ -223,7 +229,10 @@ final internal class CIA2: CIA {
         case 0x00:
             pra = byte | ~ddra
             vic.setMemoryBank(pra & 0x3)
-            iec.updateCiaPins(atnPin: pra & 0x08 != 0, clkPin: pra & 0x10 != 0, dataPin: pra & 0x20 != 0)
+            atnPin = pra & 0x08 == 0
+            clkPin = pra & 0x10 == 0
+            dataPin = pra & 0x20 == 0
+            iec.updatePins(self)
         default:
             super.writeByte(position, byte: byte)
         }
@@ -237,5 +246,7 @@ final internal class CIA2: CIA {
             return super.readByte(position)
         }
     }
+    
+    func iecUpdatedLines(#atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) { }
+    
 }
-

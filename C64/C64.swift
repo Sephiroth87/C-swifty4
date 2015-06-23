@@ -79,6 +79,9 @@ final public class C64: NSObject {
         self.cia2.vic = self.vic
         self.cia2.iec = self.iec
         self.vic.memory = self.memory
+        
+        self.iec.connectDevice(self.cia2)
+        self.c1541.iec = self.iec
 
         self.dispatchQueue = dispatch_queue_create("main.loop", DISPATCH_QUEUE_SERIAL)
         
