@@ -492,6 +492,11 @@ final internal class CPU {
             cycle == 2 ? absolute() :
                 cycle == 3 ? absoluteY() :
                 cycle == 4 ? absoluteFixPage() : staAbsolute()
+        case 0x81:
+            cycle == 2 ? indirectIndex() :
+                cycle == 3 ? indirectX() :
+                cycle == 4 ? indirectIndex2() :
+                cycle == 5 ? indirectX2() : staAbsolute()
         case 0x91:
             cycle == 2 ? indirectIndex() :
                 cycle == 3 ? indirectIndex2() :
@@ -669,6 +674,7 @@ final internal class CPU {
             case 0x8D: return String(format: "STA %04x", self.memory.readWord(self.pc))
             case 0x9D: return String(format: "STA %04x,X", self.memory.readWord(self.pc))
             case 0x99: return String(format: "STA %04x,Y", self.memory.readWord(self.pc))
+            case 0x81: return String(format: "STA (%02x,X)", self.memory.readByte(self.pc))
             case 0x91: return String(format: "STA (%02x),Y", self.memory.readByte(self.pc))
             case 0x86: return String(format: "STX %02x", self.memory.readByte(self.pc))
             case 0x8E: return String(format: "STX %04x", self.memory.readWord(self.pc))
