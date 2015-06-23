@@ -173,6 +173,9 @@ final internal class CPU {
             // CLI
         case 0x58:
             cliImplied()
+            // CLV
+        case 0xB8:
+            clvImplied()
             // CMP
         case 0xC9:
             cmpImmediate()
@@ -585,6 +588,7 @@ final internal class CPU {
             case 0x18: return "CLC"
             case 0xD8: return "CLD"
             case 0x58: return "CLI"
+            case 0xB8: return "CLV"
             case 0xC9: return String(format: "CMP #%02x", self.memory.readByte(self.pc))
             case 0xC5: return String(format: "CMP %02x", self.memory.readByte(self.pc))
             case 0xD5: return String(format: "CMP %02x,X", self.memory.readByte(self.pc))
@@ -1119,6 +1123,14 @@ final internal class CPU {
     private func cliImplied() {
         memory.readByte(pc)
         i = false
+        cycle = 0
+    }
+    
+    //MARK: CLV
+    
+    private func clvImplied() {
+        memory.readByte(pc)
+        v = false
         cycle = 0
     }
     
