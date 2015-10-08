@@ -247,6 +247,6 @@ final internal class CIA2: CIA, IECDevice {
         }
     }
     
-    func iecUpdatedLines(#atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) { }
+    func iecUpdatedLines(atnLineUpdated atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) { }
     
 }

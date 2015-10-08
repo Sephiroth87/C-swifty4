@@ -10,7 +10,7 @@ internal protocol IECDevice: class {
     var atnPin: Bool? { get }
     var clkPin: Bool { get }
     var dataPin: Bool { get }
-    func iecUpdatedLines(#atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool)
+    func iecUpdatedLines(atnLineUpdated atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool)
 }
 
 final internal class IEC {

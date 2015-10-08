@@ -50,7 +50,7 @@ class ViewController: NSViewController {
     
     //MARK: Actions
     
-    @IBAction func onPlayButton(AnyObject) {
+    @IBAction func onPlayButton(sender: AnyObject) {
         if c64.running {
             c64.step()
             playButton.title = "▶︎"
@@ -62,18 +62,20 @@ class ViewController: NSViewController {
         }
     }
     
-    @IBAction func onStepButton(AnyObject) {
+    @IBAction func onStepButton(sender: AnyObject) {
         c64.step()
     }
     
-    @IBAction func onDiskButton(AnyObject) {
+    @IBAction func onDiskButton(sender: AnyObject) {
         let panel = NSOpenPanel()
         panel.allowedFileTypes = ["prg", "txt"]
         panel.beginSheetModalForWindow(self.view.window!, completionHandler: { (result) -> Void in
-            if let url = panel.URLs.first as? NSURL where result == NSFileHandlingPanelOKButton {
+            if let url = panel.URLs.first where result == NSFileHandlingPanelOKButton {
                 switch String(url.pathExtension!).lowercaseString {
                 case "txt":
-                    self.c64.loadString(String(contentsOfURL: url, encoding: NSUTF8StringEncoding, error: nil)!)
+                    if let string = try? String(contentsOfURL: url, encoding: NSUTF8StringEncoding) {
+                        self.c64.loadString(string)
+                    }
                 case "prg":
                     self.c64.loadPRGFile(NSData(contentsOfURL: url)!)
                 default:
@@ -122,7 +124,7 @@ class ViewController: NSViewController {
     }
     
     override func flagsChanged(theEvent: NSEvent) {
-        if theEvent.modifierFlags & .ControlKeyMask != nil {
+        if theEvent.modifierFlags.intersect(.ControlKeyMask) != [] {
             c64.pressJoystick2Button()
         } else {
             c64.releaseJoystick2Button()
@@ -166,7 +168,7 @@ extension ViewController: C64Delegate {
     }
     
     func C64DidBreak(c64: C64) {
-        println(c64.debugInfo())
+        print(c64.debugInfo())
         
         stepButton.enabled = true
         stepButton.alphaValue = 1.0

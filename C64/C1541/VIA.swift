@@ -112,7 +112,7 @@ internal class VIA {
                 ier &= ~(byte & 0x7F)
             }
         default:
-            println("todo via write address: " + String(position, radix: 16, uppercase: true))
+            print("todo via write address: " + String(position, radix: 16, uppercase: true))
             break
         }
     }
@@ -142,7 +142,7 @@ internal class VIA {
         case 0x0E:
             return ier | 0x80
         default:
-            println("todo via read address: " + String(position, radix: 16, uppercase: true))
+            print("todo via read address: " + String(position, radix: 16, uppercase: true))
             return 0
         }
     }
@@ -208,7 +208,7 @@ final internal class VIA1: VIA, IECDevice {
         dataPin = oldDataPin
     }
     
-    func iecUpdatedLines(#atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) {
+    func iecUpdatedLines(atnLineUpdated atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) {
         updatePins()
         if atnLineUpdated {
             // CA1 interrupt, ATN is inverted so a positive edge will be seen here as negative

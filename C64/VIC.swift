@@ -357,7 +357,7 @@ final internal class VIC {
                     spriteDisplay[i] = false
                 }
             }
-            if anySpriteDisplaying && find(spriteDisplay, true) == nil {
+            if anySpriteDisplaying && spriteDisplay.indexOf(true) == nil {
                 anySpriteDisplaying = false
             }
         case cyclesPerRaster - 3, cyclesPerRaster - 1:

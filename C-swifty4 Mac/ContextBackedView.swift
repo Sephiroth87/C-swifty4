@@ -12,9 +12,9 @@ private class ContextBackedLayer: CALayer {
     
     private var context: CGContextRef
     
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGBitmapContextCreate(nil, 420, 235, 8, 1680, colorSpace, CGBitmapInfo(CGImageAlphaInfo.PremultipliedLast.rawValue))
+        context = CGBitmapContextCreate(nil, 420, 235, 8, 1680, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
         super.init(coder: aDecoder)
         self.actions = ["contents": NSNull()]
         self.backgroundColor = NSColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0).CGColor
@@ -22,14 +22,14 @@ private class ContextBackedLayer: CALayer {
     
     override init() {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGBitmapContextCreate(nil, 420, 235, 8, 1680, colorSpace, CGBitmapInfo(CGImageAlphaInfo.PremultipliedLast.rawValue))
+        context = CGBitmapContextCreate(nil, 420, 235, 8, 1680, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
         super.init()
         self.actions = ["contents": NSNull()]
         self.backgroundColor = NSColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0).CGColor
     }
     
     override func display() {
-        var CGImage = CGBitmapContextCreateImage(context)
+        let CGImage = CGBitmapContextCreateImage(context)
         self.contents = CGImage
     }
     

@@ -88,7 +88,7 @@ final public class C64: NSObject {
         super.init()
         
         let crashHandler: C64CrashHandler = { (reason: String) in
-            println(reason)
+            print(reason)
             self.running = false
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 let _ = self.delegate?.C64DidCrash(self)
@@ -224,14 +224,14 @@ final public class C64: NSObject {
             memory.writeByte(0x31, byte: UInt8(truncatingBitPattern: end))
             memory.writeByte(0x32, byte: UInt8(truncatingBitPattern: end >> 8))
         } else {
-            println("Unsupported file format")
+            print("Unsupported file format")
         }
     }
     
     public func loadString(string: String) {
         let string = String(string)
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
-            for char in string.lowercaseString {
+            for char in string.lowercaseString.characters {
                 let key = String(char).utf8[String(char).utf8.startIndex]
                 dispatch_sync(dispatch_get_main_queue(), { () -> Void in
                     if key == 10 {

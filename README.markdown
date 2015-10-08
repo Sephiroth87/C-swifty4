@@ -16,7 +16,7 @@ FAQ
 
 #### How do I build it?
 
-C-swifty4 requires Swift 1.2, so you’ll need to use Xcode Version 6.3 or higher to build it.
+C-swifty4 requires Swift 2.0, so you’ll need to use Xcode 7 or higher to build it.
 Works on OS X 10.10 and iOS8 mostly because it’s the only place I tested, so it might work with older versions...
 
 You’ll need to provide your own C64 ROM dumps to make it work, so replace the files in the `ROM` folder with the appropriate ones (kernal and basic need to be 8192 bytes, chargen is 4096, 1541 is 16384).
