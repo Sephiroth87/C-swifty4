@@ -103,22 +103,22 @@ final internal class VIC {
     //MARK: -
     
     private let colors: [UInt32] = [
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFF101010)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFFFFFFFF)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFF4040E0)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFFFFFF60)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFFE060E0)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFF40E040)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFFE04040)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFF40FFFF)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFF40A0E0)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFF48749C)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFFA0A0FF)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFF545454)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFF888888)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFFA0FFA0)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFFFFA0A0)),
-        UInt32(bitPattern: Int32(truncatingBitPattern: 0xFFC0C0C0)),
+        UInt32(truncatingBitPattern: (0xFF101010 as UInt64)),
+        UInt32(truncatingBitPattern: (0xFFFFFFFF as UInt64)),
+        UInt32(truncatingBitPattern: (0xFF4040E0 as UInt64)),
+        UInt32(truncatingBitPattern: (0xFFFFFF60 as UInt64)),
+        UInt32(truncatingBitPattern: (0xFFE060E0 as UInt64)),
+        UInt32(truncatingBitPattern: (0xFF40E040 as UInt64)),
+        UInt32(truncatingBitPattern: (0xFFE04040 as UInt64)),
+        UInt32(truncatingBitPattern: (0xFF40FFFF as UInt64)),
+        UInt32(truncatingBitPattern: (0xFF40A0E0 as UInt64)),
+        UInt32(truncatingBitPattern: (0xFF48749C as UInt64)),
+        UInt32(truncatingBitPattern: (0xFFA0A0FF as UInt64)),
+        UInt32(truncatingBitPattern: (0xFF545454 as UInt64)),
+        UInt32(truncatingBitPattern: (0xFF888888 as UInt64)),
+        UInt32(truncatingBitPattern: (0xFFA0FFA0 as UInt64)),
+        UInt32(truncatingBitPattern: (0xFFFFA0A0 as UInt64)),
+        UInt32(truncatingBitPattern: (0xFFC0C0C0 as UInt64)),
     ]
     
     init() {
