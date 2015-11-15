@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0700"
+   LastUpgradeVersion = "0710"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,23 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E5065F191A6311AC00CECED1"
-               BuildableName = "C-swifty4.app"
-               BlueprintName = "C-swifty4 iOS"
-               ReferencedContainer = "container:C-swifty4.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E5065F2D1A6311AC00CECED1"
-               BuildableName = "C-swifty4 iOSTests.xctest"
-               BlueprintName = "C-swifty4 iOSTests"
+               BlueprintIdentifier = "E5EE30C71BF917A300404BE0"
+               BuildableName = "C-swifty4 tvOS.app"
+               BlueprintName = "C-swifty4 tvOS"
                ReferencedContainer = "container:C-swifty4.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -42,23 +28,13 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E5065F2D1A6311AC00CECED1"
-               BuildableName = "C-swifty4 iOSTests.xctest"
-               BlueprintName = "C-swifty4 iOSTests"
-               ReferencedContainer = "container:C-swifty4.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E5065F191A6311AC00CECED1"
-            BuildableName = "C-swifty4.app"
-            BlueprintName = "C-swifty4 iOS"
+            BlueprintIdentifier = "E5EE30C71BF917A300404BE0"
+            BuildableName = "C-swifty4 tvOS.app"
+            BlueprintName = "C-swifty4 tvOS"
             ReferencedContainer = "container:C-swifty4.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -79,9 +55,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E5065F191A6311AC00CECED1"
-            BuildableName = "C-swifty4.app"
-            BlueprintName = "C-swifty4 iOS"
+            BlueprintIdentifier = "E5EE30C71BF917A300404BE0"
+            BuildableName = "C-swifty4 tvOS.app"
+            BlueprintName = "C-swifty4 tvOS"
             ReferencedContainer = "container:C-swifty4.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -98,9 +74,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E5065F191A6311AC00CECED1"
-            BuildableName = "C-swifty4.app"
-            BlueprintName = "C-swifty4 iOS"
+            BlueprintIdentifier = "E5EE30C71BF917A300404BE0"
+            BuildableName = "C-swifty4 tvOS.app"
+            BlueprintName = "C-swifty4 tvOS"
             ReferencedContainer = "container:C-swifty4.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
