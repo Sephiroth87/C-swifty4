@@ -12,22 +12,22 @@ private class ContextBackedLayer: CALayer {
     
     private var context: CGContextRef
     
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGBitmapContextCreate(nil, 420, 235, 8, 1680, colorSpace, CGBitmapInfo(CGImageAlphaInfo.PremultipliedLast.rawValue))
+        context = CGBitmapContextCreate(nil, 420, 235, 8, 1680, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
         super.init(coder: aDecoder)
         self.actions = ["contents": NSNull()]
     }
     
     override init() {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGBitmapContextCreate(nil, 420, 235, 8, 1680, colorSpace, CGBitmapInfo(CGImageAlphaInfo.PremultipliedLast.rawValue))
+        context = CGBitmapContextCreate(nil, 420, 235, 8, 1680, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
         super.init()
         self.actions = ["contents": NSNull()]
     }
     
     override func display() {
-        var CGImage = CGBitmapContextCreateImage(context)
+        let CGImage = CGBitmapContextCreateImage(context)
         self.contents = CGImage
     }
     

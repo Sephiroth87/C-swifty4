@@ -14,11 +14,11 @@ class FilePickerViewController: UITableViewController {
 
     private let dataSource: [NSURL] = {
         var files =  [NSURL]()
-        if let txtFiles = NSBundle.mainBundle().URLsForResourcesWithExtension("txt", subdirectory: "Programs") as? [NSURL] {
-            files.extend(txtFiles)
+        if let txtFiles = NSBundle.mainBundle().URLsForResourcesWithExtension("txt", subdirectory: "Programs") {
+            files.appendContentsOf(txtFiles)
         }
-        if let prgFiles = NSBundle.mainBundle().URLsForResourcesWithExtension("prg", subdirectory: "Programs") as? [NSURL] {
-            files.extend(prgFiles)
+        if let prgFiles = NSBundle.mainBundle().URLsForResourcesWithExtension("prg", subdirectory: "Programs") {
+            files.appendContentsOf(prgFiles)
         }
         return files
     }()
@@ -29,24 +29,16 @@ class FilePickerViewController: UITableViewController {
         dismissViewControllerAnimated(true, completion: nil)
     }
 
-}
-
-extension FilePickerViewController: UITableViewDataSource {
-    
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return dataSource.count
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("FileCell") as! UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("FileCell")!
         cell.textLabel?.text = dataSource[indexPath.row].lastPathComponent
         return cell
     }
-    
-}
-
-extension FilePickerViewController: UITableViewDelegate {
-    
+   
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         dismissViewControllerAnimated(true, completion: { () -> Void in
             self.completionBlock?(url: self.dataSource[indexPath.row])

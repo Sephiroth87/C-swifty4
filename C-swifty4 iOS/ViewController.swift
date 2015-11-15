@@ -65,11 +65,13 @@ class ViewController: UIViewController {
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "FilePickerSegue" {
-            if let filePicker = segue.destinationViewController.topViewController as? FilePickerViewController {
+            if let filePicker = (segue.destinationViewController as? UINavigationController)?.topViewController as? FilePickerViewController {
                 filePicker.completionBlock = { (url) -> Void in
                     switch String(url.pathExtension!).lowercaseString {
                     case "txt":
-                        self.c64.loadString(String(contentsOfURL: url, encoding: NSUTF8StringEncoding, error: nil)!)
+                        if let string = try? String(contentsOfURL: url, encoding: NSUTF8StringEncoding) {
+                            self.c64.loadString(string)
+                        }
                     case "prg":
                         self.c64.loadPRGFile(NSData(contentsOfURL: url)!)
                     default:
@@ -108,12 +110,14 @@ class ViewController: UIViewController {
             textField.keyboardType = .NamePhonePad
         }
         let action = UIAlertAction(title: "Ok", style: .Default) { (action) -> Void in
-            let scanner = NSScanner(string: (alert.textFields as! [UITextField])[0].text)
-            var address: UInt32 = 0
-            if scanner.scanHexInt(&address) {
-                let outAlert = UIAlertController(title: String(format: "%02x", self.c64.peek(UInt16(truncatingBitPattern: address))), message: nil, preferredStyle: .Alert)
-                outAlert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
-                self.presentViewController(outAlert, animated: true, completion: nil)
+            if let string = alert.textFields?[0].text{
+                let scanner = NSScanner(string: string)
+                var address: UInt32 = 0
+                if scanner.scanHexInt(&address) {
+                    let outAlert = UIAlertController(title: String(format: "%02x", self.c64.peek(UInt16(truncatingBitPattern: address))), message: nil, preferredStyle: .Alert)
+                    outAlert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
+                    self.presentViewController(outAlert, animated: true, completion: nil)
+                }
             }
         }
         alert.addAction(action)
@@ -138,7 +142,7 @@ extension ViewController: UITextFieldDelegate {
     }
     
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-        if count(string) == 0 {
+        if string.isEmpty {
             c64.pressSpecialKey(.Backspace)
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 70000000), dispatch_get_main_queue()) { () -> Void in
                 self.c64.releaseSpecialKey(.Backspace)

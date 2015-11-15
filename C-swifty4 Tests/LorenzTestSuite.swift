@@ -16,7 +16,7 @@ class LorenzTestSuite: XCTestCase {
     private var expectation: XCTestExpectation!
     private var fileName: String!
     
-    static let block : @objc_block (LorenzTestSuite) -> Void = { (test: LorenzTestSuite) -> Void in
+    static let block : @convention(block) (LorenzTestSuite) -> Void = { (test: LorenzTestSuite) -> Void in
         test.expectation = test.expectationWithDescription(test.name)
         test.c64.run()
         test.waitForExpectationsWithTimeout(100, handler: nil)
@@ -33,11 +33,11 @@ class LorenzTestSuite: XCTestCase {
         c64.setBreakpoint(0xFFE4)
     }
     
-    override class func defaultTestSuite() -> XCTestSuite! {
+    override class func defaultTestSuite() -> XCTestSuite {
         let suite = XCTestSuite(name: "Lorenz Test Suite")
-        if let testFiles = NSBundle(forClass: self.self).URLsForResourcesWithExtension("prg", subdirectory: "Resources/Lorenz 2.15") as? [NSURL] {
+        if let testFiles = NSBundle(forClass: self.self).URLsForResourcesWithExtension("prg", subdirectory: "Resources/Lorenz 2.15") {
             for fileUrl in testFiles {
-                let testName = fileUrl.lastPathComponent!.stringByDeletingPathExtension
+                let testName = (fileUrl.lastPathComponent! as NSString).stringByDeletingPathExtension
                 let selector = NSSelectorFromString(testName)
                 class_addMethod(self.self, selector, imp_implementationWithBlock(unsafeBitCast(block, AnyObject.self)), "v16@0:8")
                 let test = LorenzTestSuite(selector: selector)
