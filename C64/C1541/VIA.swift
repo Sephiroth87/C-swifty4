@@ -127,14 +127,14 @@ internal class VIA {
             } else if pcr & 0x0E == 0x0C {
                 ca2 = false
             } else {
-                print("Unsupported CA2 operation mode")
+                // Unsupported CA2 operation mode
             }
             if pcr & 0xE0 == 0xE0 {
                 cb2 = true
             } else if pcr & 0xE0 == 0xC0 {
                 cb2 = false
             } else {
-                print("Unsupported CB2 operation mode")
+                // Unsupported CB2 operation mode
             }
         case 0x0D:
             ifr &= ~(byte & 0x7F)
