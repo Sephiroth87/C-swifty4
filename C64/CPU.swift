@@ -107,6 +107,9 @@ final internal class CPU {
             andImmediate()
         case 0x25:
             cycle == 2 ? zeroPage() : andZeroPage()
+        case 0x35:
+            cycle == 2 ? zeroPage() :
+                cycle == 3 ? zeroPageX() : andZeroPage()
         case 0x2D:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absolute2() : andAbsolute()
@@ -226,6 +229,11 @@ final internal class CPU {
             cycle == 2 ? zeroPage() :
                 cycle == 3 ? zeroPage2() :
                 cycle == 4 ? decZeroPage() : zeroPageWriteUpdateNZ()
+        case 0xD6:
+            cycle == 2 ? zeroPage() :
+                cycle == 3 ? zeroPageX() :
+                cycle == 4 ? zeroPage2() :
+                cycle == 5 ? decZeroPage() : zeroPageWriteUpdateNZ()
         case 0xCE:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absolute2() :
@@ -248,12 +256,19 @@ final internal class CPU {
             eorImmediate()
         case 0x45:
             cycle == 2 ? zeroPage() : eorZeroPage()
+        case 0x55:
+            cycle == 2 ? zeroPage() :
+                cycle == 3 ? zeroPageX() : eorZeroPage()
         case 0x4D:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absolute2() : eorAbsolute()
         case 0x5D:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absoluteX() :
+                cycle == 4 ? eorPageBoundary() : eorAbsolute()
+        case 0x59:
+            cycle == 2 ? absolute() :
+                cycle == 3 ? absoluteY() :
                 cycle == 4 ? eorPageBoundary() : eorAbsolute()
         case 0x51:
             cycle == 2 ? indirectIndex() :
@@ -393,6 +408,10 @@ final internal class CPU {
         case 0x0D:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absolute2() : oraAbsolute()
+        case 0x1D:
+            cycle == 2 ? absolute() :
+                cycle == 3 ? absoluteX() :
+                cycle == 4 ? oraPageBoundary() : oraAbsolute()
             // PHA
         case 0x48:
             cycle == 2 ? implied() : phaImplied()
@@ -511,6 +530,9 @@ final internal class CPU {
             // STX
         case 0x86:
             cycle == 2 ? zeroPage() : stxZeroPage()
+        case 0x96:
+            cycle == 2 ? zeroPage() :
+                cycle == 3 ? zeroPageY() : styZeroPage()
         case 0x8E:
             cycle == 2 ? absolute() :
                 cycle == 3 ? absolute2() : stxAbsolute()
@@ -559,6 +581,10 @@ final internal class CPU {
         irqTriggered = true
     }
     
+    internal func setOverflow() {
+        v = true
+    }
+    
     internal func debugInfo() -> [String: String] {
         let description: String = {
             switch self.currentOpcode {
@@ -570,6 +596,7 @@ final internal class CPU {
             case 0x71: return String(format: "ADC (%02x),Y", self.memory.readByte(self.pc))
             case 0x29: return String(format: "AND #%02x", self.memory.readByte(self.pc))
             case 0x25: return String(format: "AND %02x", self.memory.readByte(self.pc))
+            case 0x35: return String(format: "AND %02x,X", self.memory.readByte(self.pc))
             case 0x2D: return String(format: "AND %04x", self.memory.readWord(self.pc))
             case 0x3D: return String(format: "AND %04x,X", self.memory.readWord(self.pc))
             case 0x0A: return "ASL"
@@ -604,14 +631,17 @@ final internal class CPU {
             case 0xC4: return String(format: "CPY %02x", self.memory.readByte(self.pc))
             case 0xCC: return String(format: "CPY %04x", self.memory.readWord(self.pc))
             case 0xC6: return String(format: "DEC %02x", self.memory.readByte(self.pc))
+            case 0xD6: return String(format: "DEC %02x,X", self.memory.readByte(self.pc))
             case 0xCE: return String(format: "DEC %04x", self.memory.readWord(self.pc))
             case 0xDE: return String(format: "DEC %04x,X", self.memory.readWord(self.pc))
             case 0xCA: return "DEX"
             case 0x88: return "DEY"
             case 0x49: return String(format: "EOR #%02x", self.memory.readByte(self.pc))
             case 0x45: return String(format: "EOR %02x", self.memory.readByte(self.pc))
+            case 0x55: return String(format: "EOR %02x,X", self.memory.readByte(self.pc))
             case 0x4D: return String(format: "EOR %04x", self.memory.readWord(self.pc))
             case 0x5D: return String(format: "EOR %04x,X", self.memory.readWord(self.pc))
+            case 0x59: return String(format: "EOR %04x,Y", self.memory.readWord(self.pc))
             case 0x51: return String(format: "EOR (%02x),Y", self.memory.readByte(self.pc))
             case 0xE6: return String(format: "INC %02x", self.memory.readByte(self.pc))
             case 0xF6: return String(format: "INC %02x,X", self.memory.readByte(self.pc))
@@ -654,6 +684,7 @@ final internal class CPU {
             case 0x09: return String(format: "ORA #%02x", self.memory.readByte(self.pc))
             case 0x05: return String(format: "ORA %02x", self.memory.readByte(self.pc))
             case 0x0D: return String(format: "ORA %04x", self.memory.readWord(self.pc))
+            case 0x3D: return String(format: "ORA %04x,X", self.memory.readWord(self.pc))
             case 0x48: return "PHA"
             case 0x08: return "PHP"
             case 0x68: return "PLA"
@@ -685,6 +716,7 @@ final internal class CPU {
             case 0x81: return String(format: "STA (%02x,X)", self.memory.readByte(self.pc))
             case 0x91: return String(format: "STA (%02x),Y", self.memory.readByte(self.pc))
             case 0x86: return String(format: "STX %02x", self.memory.readByte(self.pc))
+            case 0x96: return String(format: "STX %02x,Y", self.memory.readByte(self.pc))
             case 0x8E: return String(format: "STX %04x", self.memory.readWord(self.pc))
             case 0x84: return String(format: "STY %02x", self.memory.readByte(self.pc))
             case 0x94: return String(format: "STY %02x,X", self.memory.readByte(self.pc))
@@ -1458,6 +1490,16 @@ final internal class CPU {
         data = memory.readByte(UInt16(addressLow))
         loadA(a | data)
         cycle = 0
+    }
+    
+    private func oraPageBoundary() {
+        data = memory.readByte(address)
+        if pageBoundaryCrossed {
+            addressHigh = addressHigh &+ 1
+        } else {
+            loadA(a | data)
+            cycle = 0
+        }
     }
 
     private func oraAbsolute() {
