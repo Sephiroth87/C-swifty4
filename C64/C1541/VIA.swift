@@ -29,6 +29,25 @@ internal class VIA {
     private var ier: UInt8 = 0 // Interrupt Enable Register
     //MARK: -
     
+    //MARK: Lines
+    internal var ca1: Bool = false {
+        didSet {
+            if ca1 != oldValue {
+                if (pcr & 0x01 == 0x00 && ca1 == false) || (pcr & 0x01 == 0x01 && ca1 == true) {
+                    latchPA()
+                    ifr |= 0x02
+                    if ier & 0x02 != 0 {
+                        //TODO: better IRQ handling
+                        cpu.setIRQLine()
+                    }
+                }
+            }
+        }
+    }
+    internal var ca2: Bool = false
+    internal var cb2: Bool = false
+    //MARK: -
+    
     //MARK: Helpers
     private var timer1Fired = true // We default to true so we don't fire until the counter is loaded from the latch
     private var timer2Fired = true
@@ -103,6 +122,20 @@ internal class VIA {
             acr = byte
         case 0x0C:
             pcr = byte
+            if pcr & 0x0E == 0x0E {
+                ca2 = true
+            } else if pcr & 0x0E == 0x0C {
+                ca2 = false
+            } else {
+                print("Unsupported CA2 operation mode")
+            }
+            if pcr & 0xE0 == 0xE0 {
+                cb2 = true
+            } else if pcr & 0xE0 == 0xC0 {
+                cb2 = false
+            } else {
+                print("Unsupported CB2 operation mode")
+            }
         case 0x0D:
             ifr &= ~(byte & 0x7F)
         case 0x0E:
@@ -138,7 +171,7 @@ internal class VIA {
         case 0x0C:
             return pcr
         case 0x0D:
-            return ifr | UInt8(ifr & ier != 0 ? 0x80 : 0)
+            return ifr | UInt8(ifr & ier != 0x00 ? 0x80 : 0x00)
         case 0x0E:
             return ier | 0x80
         default:
@@ -146,6 +179,8 @@ internal class VIA {
             return 0
         }
     }
+    
+    func latchPA() { }
     
 }
 
@@ -185,7 +220,7 @@ final internal class VIA1: VIA, IECDevice {
     override func readByte(position: UInt8) -> UInt8 {
         switch position {
         case 0x00:
-            // CB1 isn't connected on VIA1 so latching shouldn't be happening
+            // Latching?
             return (ddrb & orb) | (~ddrb & ((iec.clkLine ? 0x00 : 0x04) | (iec.dataLine ? 0x00 : 0x01) | (iec.atnLine ? 0x00: 0x80))) & 0x9F
         case 0x01:
             // CA2 has some different clearing rules, but it's not used for now
@@ -226,13 +261,25 @@ final internal class VIA1: VIA, IECDevice {
 
 final internal class VIA2: VIA {
     
+    internal var pb7: Bool = false
+
     override func writeByte(position: UInt8, byte: UInt8) {
         switch position {
         case 0x00:
             // Only set pins if data direction is 1 (output)
             // Should it update only if level has changed?
+            if ddrb & 0x04 != 0 {
+                c1541.rotating = byte & 0x04 != 0
+            }
             if ddrb & 0x08 != 0 {
                 c1541.updateLedStatus(byte & 0x08 != 0)
+            }
+            c1541.setSpeedZone(Int((((orb & ~ddrb) | (byte & ddrb)) & 0x60) >> 5))
+            let newStp = (byte & 0x03) & ddrb
+            if newStp == (orb &+ 1) & 0x03 { // This should actually be read from pin level, since it's not always orb, but maybe it doesn't matter
+                c1541.moveHeadUp()
+            } else if newStp == (orb &- 1) & 0x03 {
+                c1541.moveHeadDown()
             }
             orb = byte
         default:
@@ -244,10 +291,25 @@ final internal class VIA2: VIA {
         switch position {
         case 0x00:
             //TODO: Implement actual pins
-            return (ddrb & orb) | (~ddrb & ((/* SYNC pin*/ false ? 0x00 : 0x80) | (/* Write protect pin*/ false ? 0x00 : 0x10)))
+            //TODO: Latching?
+            return (ddrb & orb) | (~ddrb & ((c1541.rotating ? 0x04 : 0x00) | (pb7 ? 0x00 : 0x80) | (/* Write protect pin*/ false ? 0x00 : 0x10)))
+        case 0x01, 0x0F:
+            // CA2 has some different clearing rules, but it's not used for now
+            ifr &= ~0x03
+            if acr & 0x01 == 0x00 {
+                // Latching disabled, return PA pins
+                return c1541.shiftRegister
+            } else {
+                // Latching enabled, return IRA
+                return ira
+            }
         default:
             return super.readByte(position)
         }
+    }
+    
+    override func latchPA() {
+        ira = c1541.shiftRegister
     }
     
 }

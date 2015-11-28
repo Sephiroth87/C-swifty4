@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E5C06FB11BFD386E0002245F /* Disk.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C06FB01BFD386E0002245F /* Disk.swift */; };
 		E5EE30641BF8E8AE00404BE0 /* C1541.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30561BF8E8AE00404BE0 /* C1541.swift */; };
 		E5EE30651BF8E8AE00404BE0 /* C1541Memory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30571BF8E8AE00404BE0 /* C1541Memory.swift */; };
 		E5EE30661BF8E8AE00404BE0 /* VIA.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30581BF8E8AE00404BE0 /* VIA.swift */; };
@@ -23,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E5C06FB01BFD386E0002245F /* Disk.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disk.swift; sourceTree = "<group>"; };
 		E5EE30441BF8E5CD00404BE0 /* C64.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = C64.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5EE30491BF8E5CD00404BE0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E5EE30561BF8E8AE00404BE0 /* C1541.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = C1541.swift; sourceTree = "<group>"; };
@@ -100,6 +102,7 @@
 				E5EE30561BF8E8AE00404BE0 /* C1541.swift */,
 				E5EE30571BF8E8AE00404BE0 /* C1541Memory.swift */,
 				E5EE30581BF8E8AE00404BE0 /* VIA.swift */,
+				E5C06FB01BFD386E0002245F /* Disk.swift */,
 			);
 			path = C1541;
 			sourceTree = "<group>";
@@ -181,6 +184,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5C06FB11BFD386E0002245F /* Disk.swift in Sources */,
 				E5EE30701BF8E8AE00404BE0 /* IEC.swift in Sources */,
 				E5EE306B1BF8E8AE00404BE0 /* Memory.swift in Sources */,
 				E5EE30661BF8E8AE00404BE0 /* VIA.swift in Sources */,

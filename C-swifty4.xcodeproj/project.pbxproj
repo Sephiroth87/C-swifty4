@@ -988,6 +988,7 @@
 				E5EE30D51BF917A300404BE0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

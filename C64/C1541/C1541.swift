@@ -32,6 +32,17 @@ final public class C1541 {
             self.iec.connectDevice(self.via1)
         }
     }
+    internal var rotating = false
+    
+    private var disk: Disk?
+    private var halftrack: Int = 41
+    private var track: Int = 21
+    private var bitOffset: UInt = 0
+    private var bitCounter: Int = 0
+    private var byteCounter: Int = 0
+    internal var shiftRegister: UInt8 = 0
+    private var syncCounter: Int = 0
+    private var speedZone: Int = 0
     
     internal init(c1541Data: NSData) {
         self.cpu = CPU(pc: 0xEAA0)
@@ -54,12 +65,72 @@ final public class C1541 {
         via1.cycle()
         via2.cycle()
         cpu.executeInstruction()
+        if rotating {
+            if bitCounter > 0 {
+                bitCounter -= 16
+            } else {
+                //TODO: implement read/write logic
+                shiftRegister <<= 1
+                let bit = (disk?.tracks[track].readBit(bitOffset) ?? 0)
+                shiftRegister |= bit
+                if ++bitOffset >= disk?.tracks[track].length {
+                    bitOffset = 0
+                }
+                if bit == 0x01 {
+                    if ++syncCounter >= 10 {
+                        via2.pb7 = true
+                    }
+                } else {
+                    syncCounter = 0
+                    if via2.pb7 == true {
+                        byteCounter = 0
+                        via2.pb7 = false
+                    }
+                }
+                if ++byteCounter == 8 {
+                    if via2.cb2 && !via2.pb7 { // Read mode and no SYNC
+                        if via2.ca2 { // Byte ready enabled
+                            via2.ca1 = false
+                            cpu.setOverflow()
+                        }
+                    }
+                    byteCounter = 0
+                } else {
+                    via2.ca1 = true
+                }
+                bitCounter += (13 + speedZone) * 4
+            }
+        }
+    }
+    
+    internal func insertDisk(disk: Disk) {
+        self.disk = disk
     }
     
     internal func updateLedStatus(ledOn: Bool) {
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
             let _ = self.delegate?.C1541UpdateLedStatus(self, ledOn: ledOn)
         })
+    }
+    
+    internal func moveHeadUp() {
+        if halftrack < 84 {
+            ++halftrack
+            track = (halftrack + 1) / 2
+        }
+    }
+    
+    internal func moveHeadDown() {
+        if halftrack > 1 {
+            --halftrack
+            track = (halftrack + 1) / 2
+        }
+    }
+    
+    internal func setSpeedZone(speedZone: Int) {
+        if speedZone != self.speedZone {
+            self.speedZone = speedZone
+        }
     }
     
 }

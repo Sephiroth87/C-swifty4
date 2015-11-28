@@ -4,7 +4,7 @@ C-swifty4
 
 ![Hello world](https://raw.githubusercontent.com/Sephiroth87/C-swifty4/master/Images/hello.png)
 
-C-swifty4 is a cycle accurate Commodore 64 emulator for OS X and iOS, written entirely in Swift.
+C-swifty4 is a cycle accurate Commodore 64 emulator for OS X, iOS and tvOS, written entirely in Swift.
 
 This is a side project I started for a bunch of reasons, mostly because I was interested in building an emulator from scratch (and the C64 being my first computer I always wanted to take a deeper look on how it actually worked), and to learn some Swift along the way... This means that this project is not meant to be a “professional” emulator, it might not even be finished ever, but some people might find it interesting (and I needed some place to host my repo anyway).
 Also, code structure, commenting and stuff is going to change a lot...
@@ -32,6 +32,7 @@ Then just open the project file, build and run.
 * Keyboard (not all keys)
 * Joystick 2
 * Loading files (Supported *.prg files will be dumped in memory directly atm, so you’ll just need to type `RUN` to start them, *.txt files will be typed in as text)
+* Standard .d64 disk files
 
 #### What doesn’t work
 

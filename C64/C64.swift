@@ -228,6 +228,10 @@ final public class C64: NSObject {
         }
     }
     
+    public func loadD64File(data: NSData) {
+        c1541.insertDisk(Disk(d64Data: UnsafeBufferPointer<UInt8>(start: UnsafePointer<UInt8>(data.bytes), count: data.length)))
+    }
+    
     public func loadString(string: String) {
         let string = String(string)
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
