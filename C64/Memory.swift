@@ -103,7 +103,7 @@ final internal class C64Memory: Memory {
             } else {
                 return ram[Int(position)]
             }
-        case let position where position > 0xE000: // was 0xE000...0xFFFF but crashes
+        case let position where position >= 0xE000: // was 0xE000...0xFFFF but crashes
             if kernalRomVisible {
                 return rom[Int(position)]
             }
