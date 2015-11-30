@@ -2,7 +2,10 @@ C-swifty4
 ============================
 **This project is a work in progress and is no way near complete!**
 
-![Hello world](https://raw.githubusercontent.com/Sephiroth87/C-swifty4/master/Images/hello.png)
+<p align="center">
+	<img src="https://raw.githubusercontent.com/Sephiroth87/C-swifty4/master/Images/hello.png" alt="Hello world" />
+	<a href="https://gitter.im/Sephiroth87/C-swifty4?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/Sephiroth87/C-swifty4" /></a>
+</p>
 
 C-swifty4 is a cycle accurate Commodore 64 emulator for OS X, iOS and tvOS, written entirely in Swift.
 
