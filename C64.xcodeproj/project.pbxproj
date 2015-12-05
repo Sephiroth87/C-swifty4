@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E58F4D8B1C110070000F3976 /* Component.swift in Sources */ = {isa = PBXBuildFile; fileRef = E58F4D8A1C110070000F3976 /* Component.swift */; };
 		E5C06FB11BFD386E0002245F /* Disk.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C06FB01BFD386E0002245F /* Disk.swift */; };
+		E5DFEDAB1C0D06E5003AA5B9 /* CircularBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */; };
 		E5EE30641BF8E8AE00404BE0 /* C1541.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30561BF8E8AE00404BE0 /* C1541.swift */; };
 		E5EE30651BF8E8AE00404BE0 /* C1541Memory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30571BF8E8AE00404BE0 /* C1541Memory.swift */; };
 		E5EE30661BF8E8AE00404BE0 /* VIA.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30581BF8E8AE00404BE0 /* VIA.swift */; };
@@ -24,7 +26,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E58F4D8A1C110070000F3976 /* Component.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Component.swift; sourceTree = "<group>"; };
 		E5C06FB01BFD386E0002245F /* Disk.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disk.swift; sourceTree = "<group>"; };
+		E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularBuffer.swift; sourceTree = "<group>"; };
 		E5EE30441BF8E5CD00404BE0 /* C64.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = C64.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5EE30491BF8E5CD00404BE0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E5EE30561BF8E8AE00404BE0 /* C1541.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = C1541.swift; sourceTree = "<group>"; };
@@ -53,6 +57,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E5DFEDA91C0D06DC003AA5B9 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				E58F4D8A1C110070000F3976 /* Component.swift */,
+				E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		E5EE303A1BF8E5CD00404BE0 = {
 			isa = PBXGroup;
 			children = (
@@ -73,6 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				E5EE30591BF8E8AE00404BE0 /* C1541 */,
+				E5DFEDA91C0D06DC003AA5B9 /* Utils */,
 				E5EE305A1BF8E8AE00404BE0 /* C64.swift */,
 				E5EE305B1BF8E8AE00404BE0 /* CPU.swift */,
 				E5EE305C1BF8E8AE00404BE0 /* CIA.swift */,
@@ -194,8 +208,10 @@
 				E5EE30681BF8E8AE00404BE0 /* CPU.swift in Sources */,
 				E5EE306A1BF8E8AE00404BE0 /* Math.swift in Sources */,
 				E5EE30641BF8E8AE00404BE0 /* C1541.swift in Sources */,
+				E5DFEDAB1C0D06E5003AA5B9 /* CircularBuffer.swift in Sources */,
 				E5EE306C1BF8E8AE00404BE0 /* SID.swift in Sources */,
 				E5EE306F1BF8E8AE00404BE0 /* Joystick.swift in Sources */,
+				E58F4D8B1C110070000F3976 /* Component.swift in Sources */,
 				E5EE30651BF8E8AE00404BE0 /* C1541Memory.swift in Sources */,
 				E5EE30691BF8E8AE00404BE0 /* CIA.swift in Sources */,
 			);
@@ -312,6 +328,7 @@
 				INFOPLIST_FILE = C64/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orangeinaday.C64;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -330,6 +347,7 @@
 				INFOPLIST_FILE = C64/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orangeinaday.C64;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

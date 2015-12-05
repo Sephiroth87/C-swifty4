@@ -41,10 +41,6 @@ final public class C64: NSObject {
     private var cycles = 0
     private var lines = 0
     
-    private var time: CFTimeInterval = 0
-    private var lastTime: CFTimeInterval = 0
-    private var instructions: Double = 0
-    
     public init(kernalData: NSData, basicData: NSData, characterData: NSData, c1541Data: NSData) {
         if (kernalData.length != 8192 || basicData.length != 8192 || characterData.length != 4096 || c1541Data.length != 16384) {
             assertionFailure("Wrong data found");
@@ -105,7 +101,7 @@ final public class C64: NSObject {
         while running {
             executeOneCycle()
             
-            if cpu.isAtFetch && breakpoints[cpu.pc &- UInt16(1)] == true {
+            if cpu.state.isAtFetch && breakpoints[cpu.state.pc &- UInt16(1)] == true {
                 running = false
             }
         }
@@ -145,7 +141,7 @@ final public class C64: NSObject {
         running = false
         dispatch_async(dispatchQueue, { () -> Void in
             self.executeOneCycle()
-            while !self.cpu.isAtFetch {
+            while !self.cpu.state.isAtFetch {
                 self.executeOneCycle()
             }
             dispatch_async(dispatch_get_main_queue(), { () -> Void in
