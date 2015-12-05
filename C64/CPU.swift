@@ -136,6 +136,10 @@ final internal class CPU: Component {
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absoluteX() :
                 state.cycle == 4 ? andPageBoundary() : andAbsolute()
+        case 0x39:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteY() :
+                state.cycle == 4 ? andPageBoundary() : andAbsolute()
             // ASL
         case 0x0A:
             aslAccumulator()
@@ -618,6 +622,7 @@ final internal class CPU: Component {
             case 0x35: return String(format: "AND %02x,X", self.memory.readByte(state.pc))
             case 0x2D: return String(format: "AND %04x", self.memory.readWord(state.pc))
             case 0x3D: return String(format: "AND %04x,X", self.memory.readWord(state.pc))
+            case 0x39: return String(format: "AND %04x,Y", self.memory.readWord(state.pc))
             case 0x0A: return "ASL"
             case 0x06: return String(format: "ASL %02x", self.memory.readByte(state.pc))
             case 0x16: return String(format: "ASL %02x,X", self.memory.readByte(state.pc))
