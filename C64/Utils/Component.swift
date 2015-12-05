@@ -12,7 +12,8 @@ extension ComponentState {
     
     var description: String {
         let m = Mirror(reflecting: self)
-        return m.children.flatMap({ $0 }).description
+        let descriptions = m.children.map({ ($0.label ?? "_") + ": \($0.value)" })
+        return "[" + descriptions.joinWithSeparator(", ") + "]"
     }
     
 }
