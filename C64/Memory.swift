@@ -98,8 +98,7 @@ final internal class C64Memory: Memory {
                     return 0
                 }
             } else if characterRomVisible {
-                crashHandler?("Unknown character ROM address")
-                return 0
+                return rom[Int(position)]
             } else {
                 return ram[Int(position)]
             }
