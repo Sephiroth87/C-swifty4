@@ -55,6 +55,23 @@
                                     </items>
                                 </menu>
                             </menuItem>
+                            <menuItem title="File" id="Qo1-E0-dfj">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="File" id="kFb-5h-xis">
+                                    <items>
+                                        <menuItem title="Save state" keyEquivalent="s" id="szu-Ib-GFk">
+                                            <connections>
+                                                <action selector="saveState:" target="Ady-hI-5gd" id="G7k-cw-GRv"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Load state" keyEquivalent="o" id="JbE-uc-4dd">
+                                            <connections>
+                                                <action selector="loadState:" target="Ady-hI-5gd" id="Peu-eF-ldd"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
                             <menuItem title="Window" id="aUF-d1-5bR">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Window" systemMenu="window" id="Td7-aD-5lo">

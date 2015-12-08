@@ -87,6 +87,32 @@ class ViewController: NSViewController {
         })
     }
     
+    @IBAction func saveState(sender: AnyObject) {
+        c64.pause()
+        let panel = NSSavePanel()
+        panel.allowedFileTypes = ["json"]
+        panel.title = "Save state"
+        panel.extensionHidden = false
+        let formatter = NSDateFormatter()
+        formatter.dateFormat = "yyyyMMddHHmmss"
+        panel.nameFieldStringValue = formatter.stringFromDate(NSDate()) + ".json"
+        panel.beginSheetModalForWindow(self.view.window!) { result in
+            if let url = panel.URL where result == NSFileHandlingPanelOKButton {
+                self.c64.saveState({ (data) -> Void in
+                    data.writeToURL(url, atomically: true)
+                    self.c64.run()
+                })
+            } else {
+                self.c64.run()
+            }
+        }
+        
+    }
+    
+    @IBAction func loadState(sender: AnyObject) {
+        
+    }
+    
     override func keyDown(theEvent: NSEvent) {
         switch theEvent.keyCode {
         case 36:
