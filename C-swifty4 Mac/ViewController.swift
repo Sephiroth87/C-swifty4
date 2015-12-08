@@ -96,6 +96,9 @@ class ViewController: NSViewController {
         let formatter = NSDateFormatter()
         formatter.dateFormat = "yyyyMMddHHmmss"
         panel.nameFieldStringValue = formatter.stringFromDate(NSDate()) + ".json"
+        if let iCloudFolder = NSFileManager.defaultManager().URLForUbiquityContainerIdentifier(nil) {
+            panel.directoryURL = iCloudFolder.URLByAppendingPathComponent("Documents")
+        }
         panel.beginSheetModalForWindow(self.view.window!) { result in
             if let url = panel.URL where result == NSFileHandlingPanelOKButton {
                 self.c64.saveState({ (data) -> Void in
