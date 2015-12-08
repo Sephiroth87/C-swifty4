@@ -103,11 +103,11 @@ final public class C64: NSObject {
             
             if cpu.state.isAtFetch && breakpoints[cpu.state.pc &- UInt16(1)] == true {
                 running = false
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    let _ = self.delegate?.C64DidBreak(self)
+                })
             }
         }
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            let _ = self.delegate?.C64DidBreak(self)
-        })
     }
     
     private func executeOneCycle() {
@@ -130,6 +130,17 @@ final public class C64: NSObject {
         }
     }
     
+    private func executeToNextFetch(completion: () -> Void) {
+        running = false
+        dispatch_async(dispatchQueue, { () -> Void in
+            self.executeOneCycle()
+            while !self.cpu.state.isAtFetch {
+                self.executeOneCycle()
+            }
+            dispatch_async(dispatch_get_main_queue(), completion)
+        })
+    }
+    
     public func run() {
         if !running {
             running = true
@@ -137,17 +148,14 @@ final public class C64: NSObject {
         }
     }
     
+    public func pause() {
+        executeToNextFetch {}
+    }
+    
     public func step() {
-        running = false
-        dispatch_async(dispatchQueue, { () -> Void in
-            self.executeOneCycle()
-            while !self.cpu.state.isAtFetch {
-                self.executeOneCycle()
-            }
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                let _ = self.delegate?.C64DidBreak(self)
-            })
-        })
+        executeToNextFetch {
+            let _ = self.delegate?.C64DidBreak(self)
+        }
     }
     
     public func setBreakpoint(address: UInt16) {
@@ -207,6 +215,27 @@ final public class C64: NSObject {
     }
     
     //MARK: Files
+    
+    public func saveState(completion: (NSData) -> Void) {
+        let saveBlock = {
+            let components: [(String, Component)] = [("cpu", self.cpu), ("cia1", self.cia1), ("cia2", self.cia2), ("vic", self.vic)]
+            let dict = components.reduce([:]) { (var dict, value) -> [String: AnyObject] in
+                dict[value.0] = value.1.componentState().toDictionary()
+                return dict
+            }
+            let data = try? NSJSONSerialization.dataWithJSONObject(dict, options: [])
+            completion(data ?? NSData())
+            self.run()
+        }
+        if running {
+            executeToNextFetch {
+                saveBlock()
+                self.run()
+            }
+        } else {
+            saveBlock()
+        }
+    }
     
     public func loadPRGFile(data: NSData) {
         if UnsafePointer<UInt8>(data.bytes)[0] == 0x01 && UnsafePointer<UInt8>(data.bytes)[1] == 0x08 {
