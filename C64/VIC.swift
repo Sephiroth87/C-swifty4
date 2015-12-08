@@ -15,8 +15,7 @@ private struct VICState: ComponentState {
     private var videoMatrix: [UInt8] = [UInt8](count: 40, repeatedValue: 0)
     private var colorLine: [UInt8] = [UInt8](count: 40, repeatedValue: 0)
     private var mp: UInt8 = 0 // Sprite Pointer
-    private let screenBuffer1 = UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32)))
-    private let screenBuffer2 = UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32)))
+    private var screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: UnsafeMutablePointer(nilLiteral: ()), count: 0)
     //MARK: -
     
     private var currentCycle = 1
@@ -100,10 +99,11 @@ final internal class VIC: Component {
     
     internal weak var memory: C64Memory!
     
-    private var currentScreenBuffer: UnsafeMutablePointer<UInt32>
+    private let screenBuffer1 = UnsafeMutableBufferPointer<UInt32>(start: UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32))), count: 512 * 512)
+    private let screenBuffer2 = UnsafeMutableBufferPointer<UInt32>(start: UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32))), count: 512 * 512)
     internal var screenBuffer: UnsafeMutablePointer<UInt32> {
         get {
-            return currentScreenBuffer == state.screenBuffer1 ? state.screenBuffer2 : state.screenBuffer1
+            return state.screenBuffer.baseAddress == screenBuffer1.baseAddress ? screenBuffer2.baseAddress : screenBuffer1.baseAddress
         }
     }
     
@@ -132,7 +132,7 @@ final internal class VIC: Component {
     ]
     
     init() {
-        self.currentScreenBuffer = state.screenBuffer1
+        state.screenBuffer = screenBuffer1
     }
     
     internal func readByte(position: UInt8) -> UInt8 {
@@ -305,7 +305,7 @@ final internal class VIC: Component {
             if ++state.raster == 263 {
                 state.raster = 0
                 state.bufferPosition = 0
-                currentScreenBuffer = currentScreenBuffer == state.screenBuffer1 ? state.screenBuffer2 : state.screenBuffer1
+                state.screenBuffer = state.screenBuffer.baseAddress == screenBuffer1.baseAddress ? screenBuffer2 : screenBuffer1
             }
         default:
             break
@@ -464,23 +464,23 @@ final internal class VIC: Component {
                 if !state.mainBorder && !state.verticalBorder {
                     if (!state.mcm && !state.bmm) || (state.mcm && state.graphicsSequencerColorLine & 0x08 == 0) {
                         if state.graphicsSequencerShiftRegister >> 7 != 0 {
-                            currentScreenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine)]
+                            state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine)]
                         } else {
                             if state.ecm {
                                 switch (state.graphicsSequencerVideoMatrix & 0xC0) >> 6 {
                                 case 0:
-                                    currentScreenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
+                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
                                 case 1:
-                                    currentScreenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
+                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
                                 case 2:
-                                    currentScreenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
+                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
                                 case 3:
-                                    currentScreenBuffer[state.bufferPosition] = colors[Int(state.b3c)]
+                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b3c)]
                                 default:
                                     break
                                 }
                             } else {
-                                currentScreenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
+                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
                             }
                         }
                         state.graphicsSequencerShiftRegister <<= 1
@@ -488,13 +488,13 @@ final internal class VIC: Component {
                         if state.mcm {
                             switch (state.graphicsSequencerShiftRegister & 0xC0) >> 6 {
                             case 0:
-                                currentScreenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
+                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
                             case 1:
-                                currentScreenBuffer[state.bufferPosition] = colors[Int((state.graphicsSequencerVideoMatrix & 0xF0) >> 4)]
+                                state.screenBuffer[state.bufferPosition] = colors[Int((state.graphicsSequencerVideoMatrix & 0xF0) >> 4)]
                             case 2:
-                                currentScreenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerVideoMatrix & 0x0F)]
+                                state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerVideoMatrix & 0x0F)]
                             case 3:
-                                currentScreenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine)]
+                                state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine)]
                             default:
                                 break
                             }
@@ -503,22 +503,22 @@ final internal class VIC: Component {
                             }
                         } else {
                             if state.graphicsSequencerShiftRegister >> 7 != 0 {
-                                currentScreenBuffer[state.bufferPosition] = colors[Int((state.graphicsSequencerVideoMatrix & 0xF0) >> 4)]
+                                state.screenBuffer[state.bufferPosition] = colors[Int((state.graphicsSequencerVideoMatrix & 0xF0) >> 4)]
                             } else {
-                                currentScreenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerVideoMatrix & 0x0F)]
+                                state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerVideoMatrix & 0x0F)]
                             }
                             state.graphicsSequencerShiftRegister <<= 1
                         }
                     } else {
                         switch (state.graphicsSequencerShiftRegister & 0xC0) >> 6 {
                         case 0:
-                            currentScreenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
+                            state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
                         case 1:
-                            currentScreenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
+                            state.screenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
                         case 2:
-                            currentScreenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
+                            state.screenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
                         case 3:
-                            currentScreenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine) & 0x07]
+                            state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine) & 0x07]
                         default:
                             break
                         }
@@ -538,11 +538,11 @@ final internal class VIC: Component {
                                 if state.mmc & UInt8(1 << spriteIndex) != 0 {
                                     switch (state.spriteSequencerData[spriteIndex] >> 22) & 0x03 {
                                     case 1:
-                                        currentScreenBuffer[state.bufferPosition] = colors[Int(state.mm0)]
+                                        state.screenBuffer[state.bufferPosition] = colors[Int(state.mm0)]
                                     case 2:
-                                        currentScreenBuffer[state.bufferPosition] = colors[Int(state.m_c[spriteIndex])]
+                                        state.screenBuffer[state.bufferPosition] = colors[Int(state.m_c[spriteIndex])]
                                     case 3:
-                                        currentScreenBuffer[state.bufferPosition] = colors[Int(state.mm1)]
+                                        state.screenBuffer[state.bufferPosition] = colors[Int(state.mm1)]
                                     default:
                                         break
                                     }
@@ -552,7 +552,7 @@ final internal class VIC: Component {
                                     }
                                 } else {
                                     if state.spriteSequencerData[spriteIndex] & 0x800000 != 0 {
-                                        currentScreenBuffer[state.bufferPosition] = colors[Int(state.m_c[spriteIndex])]
+                                        state.screenBuffer[state.bufferPosition] = colors[Int(state.m_c[spriteIndex])]
                                     }
                                     state.spriteSequencerData[spriteIndex] <<= 1
                                     state.spriteShiftRegisterCount[spriteIndex]--
@@ -562,7 +562,7 @@ final internal class VIC: Component {
                     }
                 }
                 if state.mainBorder || state.verticalBorder {
-                    currentScreenBuffer[state.bufferPosition] = colors[Int(state.ec)]
+                    state.screenBuffer[state.bufferPosition] = colors[Int(state.ec)]
                 }
                 ++state.bufferPosition
             }

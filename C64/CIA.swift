@@ -29,7 +29,7 @@ private struct CIAState: ComponentState {
     //MARK: -
     
     //MARK: IECDevice lines for CIA2
-    private var atnPin: Bool? = true
+    private var atnPin: Bool = true
     private var clkPin = true
     private var dataPin = true
     //MARK: -
