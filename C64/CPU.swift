@@ -36,16 +36,39 @@ internal struct CPUState: ComponentState {
     var addressHigh: UInt8 = 0
     var pointer: UInt8 = 0
     var pageBoundaryCrossed = false
+    
+    mutating func update(dictionary: [String: AnyObject]) {
+        pc = UInt16(dictionary["pc"] as! UInt)
+        isAtFetch = dictionary["isAtFetch"] as! Bool
+        a = UInt8(dictionary["a"] as! UInt)
+        x = UInt8(dictionary["x"] as! UInt)
+        y = UInt8(dictionary["y"] as! UInt)
+        sp = UInt8(dictionary["sp"] as! UInt)
+        c = dictionary["c"] as! Bool
+        z = dictionary["z"] as! Bool
+        i = dictionary["i"] as! Bool
+        d = dictionary["d"] as! Bool
+        b = dictionary["b"] as! Bool
+        v = dictionary["v"] as! Bool
+        n = dictionary["n"] as! Bool
+        portDirection = UInt8(dictionary["portDirection"] as! UInt)
+        port = UInt8(dictionary["port"] as! UInt)
+        irqTriggered = dictionary["irqTriggered"] as! Bool
+        currentOpcode = UInt16(dictionary["currentOpcode"] as! UInt)
+        cycle = dictionary["cycle"] as! Int
+        data = UInt8(dictionary["data"] as! UInt)
+        addressLow = UInt8(dictionary["addressLow"] as! UInt)
+        addressHigh = UInt8(dictionary["addressHigh"] as! UInt)
+        pointer = UInt8(dictionary["pointer"] as! UInt)
+        pageBoundaryCrossed = dictionary["pageBoundaryCrossed"] as! Bool
+    }
 
 }
 
 final internal class CPU: Component {
     
     var state = CPUState()
-    func componentState() -> ComponentState {
-        return state
-    }
-    
+
     internal weak var memory: Memory!
     internal var crashHandler: C64CrashHandler?
 

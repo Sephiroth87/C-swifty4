@@ -9,6 +9,7 @@
 internal protocol ComponentState: CustomStringConvertible {
     
     func toDictionary() -> [String: AnyObject]
+    mutating func update(dictionary: [String: AnyObject])
     
 }
 
@@ -47,8 +48,18 @@ extension ComponentState {
     
 }
 
-internal protocol Component {
+internal protocol Component: class {
     
-    func componentState() -> ComponentState
+    typealias StateType: ComponentState
+    var state: StateType { get set }
+    func updateState(dictionary: [String: AnyObject])
+    
+}
+
+extension Component {
+    
+    func updateState(dictionary: [String: AnyObject]) {
+        state.update(dictionary)
+    }
     
 }

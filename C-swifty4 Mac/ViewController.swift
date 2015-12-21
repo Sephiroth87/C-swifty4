@@ -113,7 +113,15 @@ class ViewController: NSViewController {
     }
     
     @IBAction func loadState(sender: AnyObject) {
-        
+        c64.pause()
+        let panel = NSOpenPanel()
+        panel.allowedFileTypes = ["json"]
+        panel.beginSheetModalForWindow(self.view.window!, completionHandler: { (result) -> Void in
+            if let url = panel.URLs.first where result == NSFileHandlingPanelOKButton {
+                self.c64.loadState(NSData(contentsOfURL: url)!)
+            }
+            self.c64.run()
+        })
     }
     
     override func keyDown(theEvent: NSEvent) {

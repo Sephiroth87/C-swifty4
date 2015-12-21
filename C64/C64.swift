@@ -218,12 +218,13 @@ final public class C64: NSObject {
     
     public func saveState(completion: (NSData) -> Void) {
         let saveBlock = {
-            let components: [(String, Component)] = [("cpu", self.cpu), ("cia1", self.cia1), ("cia2", self.cia2), ("vic", self.vic)]
-            let dict = components.reduce([:]) { (var dict, value) -> [String: AnyObject] in
-                dict[value.0] = value.1.componentState().toDictionary()
-                return dict
-            }
-            let data = try? NSJSONSerialization.dataWithJSONObject(dict, options: [])
+            var dictionary = [String: [String: AnyObject]]()
+            dictionary["cpu"] = self.cpu.state.toDictionary()
+            dictionary["cia1"] = self.cia1.state.toDictionary()
+            dictionary["cia2"] = self.cia2.state.toDictionary()
+            dictionary["vic"] = self.vic.state.toDictionary()
+            dictionary["memory"] = self.memory.state.toDictionary()
+            let data = try? NSJSONSerialization.dataWithJSONObject(dictionary, options: [])
             completion(data ?? NSData())
             self.run()
         }
@@ -234,6 +235,19 @@ final public class C64: NSObject {
             }
         } else {
             saveBlock()
+        }
+    }
+    
+    public func loadState(data: NSData) {
+        executeToNextFetch {
+            guard let json = try? NSJSONSerialization.JSONObjectWithData(data, options: []), dictionary = json as? [String: [String: AnyObject]] else { return }
+            guard let cpuState = dictionary["cpu"], cia1State = dictionary["cia1"], cia2state = dictionary["cia2"], vicState = dictionary["vic"], memoryState = dictionary["memory"] else { return }
+            self.cpu.updateState(cpuState)
+            self.cia1.updateState(cia1State)
+            self.cia2.updateState(cia2state)
+            self.vic.updateState(vicState)
+            self.memory.updateState(memoryState)
+            self.run()
         }
     }
     

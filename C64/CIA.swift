@@ -8,7 +8,7 @@
 
 import Foundation
 
-private struct CIAState: ComponentState {
+internal struct CIAState: ComponentState {
     
     //MARK: Registers
     private var pra: UInt8 = 0xFF // Data Port Register A
@@ -30,19 +30,34 @@ private struct CIAState: ComponentState {
     
     //MARK: IECDevice lines for CIA2
     private var atnPin: Bool = true
-    private var clkPin = true
-    private var dataPin = true
+    private var clkPin: Bool = true
+    private var dataPin: Bool = true
     //MARK: -
+    
+    mutating func update(dictionary: [String: AnyObject]) {
+        pra = UInt8(dictionary["pra"] as! UInt)
+        prb = UInt8(dictionary["prb"] as! UInt)
+        ddra = UInt8(dictionary["ddra"] as! UInt)
+        ddrb = UInt8(dictionary["ddrb"] as! UInt)
+        imr = UInt8(dictionary["imr"] as! UInt)
+        icr = UInt8(dictionary["icr"] as! UInt)
+        cra = UInt8(dictionary["cra"] as! UInt)
+        crb = UInt8(dictionary["crb"] as! UInt)
+        latchA = UInt16(dictionary["latchA"] as! UInt)
+        counterA = UInt16(dictionary["counterA"] as! UInt)
+        latchB = UInt16(dictionary["latchB"] as! UInt)
+        counterB = UInt16(dictionary["counterB"] as! UInt)
+        atnPin = dictionary["atnPin"] as! Bool
+        clkPin = dictionary["clkPin"] as! Bool
+        dataPin = dictionary["dataPin"] as! Bool
+    }
     
 }
 
 internal class CIA: Component {
     
-    private var state = CIAState()
-    func componentState() -> ComponentState {
-        return state
-    }
-    
+    internal var state = CIAState()
+
     internal weak var cpu: CPU!
     internal var crashHandler: C64CrashHandler?
    

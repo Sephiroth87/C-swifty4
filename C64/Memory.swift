@@ -16,7 +16,7 @@ internal protocol Memory: class {
     
 }
 
-private struct C64MemoryState: ComponentState {
+internal struct C64MemoryState: ComponentState {
     
     private var ram: [UInt8] = [UInt8](count: 0x10000, repeatedValue: 0)
     private var colorRam: [UInt8] = [UInt8](count: 1024, repeatedValue: 0)
@@ -27,14 +27,26 @@ private struct C64MemoryState: ComponentState {
     private var basicRomVisible = true
     private var ioVisible = true
     //MARK: -
+    
+    mutating func update(dictionary: [String: AnyObject]) {
+        ram = (dictionary["ram"] as! [UInt]).map({ UInt8($0) })
+        colorRam = (dictionary["colorRam"] as! [UInt]).map({ UInt8($0) })
+        characterRomVisible = dictionary["characterRomVisible"] as! Bool
+        kernalRomVisible = dictionary["kernalRomVisible"] as! Bool
+        basicRomVisible = dictionary["basicRomVisible"] as! Bool
+        ioVisible = dictionary["ioVisible"] as! Bool
+    }
+    
+    init() {}
+    
+    init(dictionary: [String: AnyObject]) {
+    }
+    
 }
 
 final internal class C64Memory: Memory , Component {
     
-    private var state = C64MemoryState()
-    func componentState() -> ComponentState {
-        return state
-    }
+    internal var state = C64MemoryState()
     
     private var rom: [UInt8] = [UInt8](count: 0x10000, repeatedValue: 0)
     
