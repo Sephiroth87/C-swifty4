@@ -28,6 +28,8 @@ internal struct CPUState: ComponentState {
     var port: UInt8 = 0x37
     
     var irqTriggered = false
+    var nmiTriggered = false //TODO: see below
+    var nmiLine = true
     var currentOpcode: UInt16 = 0
     var cycle = 0
     
@@ -54,6 +56,7 @@ internal struct CPUState: ComponentState {
         portDirection = UInt8(dictionary["portDirection"] as! UInt)
         port = UInt8(dictionary["port"] as! UInt)
         irqTriggered = dictionary["irqTriggered"] as! Bool
+        nmiTriggered = dictionary["nmiTriggered"] as! Bool
         currentOpcode = UInt16(dictionary["currentOpcode"] as! UInt)
         cycle = dictionary["cycle"] as! Int
         data = UInt8(dictionary["data"] as! UInt)
@@ -610,12 +613,18 @@ final internal class CPU: Component {
         case 0x98:
             tyaImplied()
             // IRQ
+        case 0xFFFE:
+            state.cycle == 2 ? implied() :
+                state.cycle == 3 ? pushPch() :
+                state.cycle == 4 ? pushPcl() :
+                state.cycle == 5 ? interrupt() :
+                state.cycle == 6 ? nmi() : nmi2()
         case 0xFFFF:
             state.cycle == 2 ? implied() :
                 state.cycle == 3 ? pushPch() :
                 state.cycle == 4 ? pushPcl() :
-                state.cycle == 5 ? irq() :
-                state.cycle == 6 ? irq2() : irq3()
+                state.cycle == 5 ? interrupt() :
+                state.cycle == 6 ? irq() : irq2()
         default:
             let opcodeString = String(state.currentOpcode, radix: 16, uppercase: true)
             let pcString = String((state.pc &- UInt16(1)), radix: 16, uppercase: true)
@@ -625,6 +634,14 @@ final internal class CPU: Component {
     
     internal func setIRQLine() {
         state.irqTriggered = true
+    }
+
+    //TODO: NMI is connected to multiple sources so it should be treated like an actual line (like IEC)
+    internal func setNMILine(line: Bool) {
+        if !line && state.nmiLine {
+            state.nmiTriggered = true
+        }
+        state.nmiLine = line
     }
     
     internal func setOverflow() {
@@ -822,6 +839,11 @@ final internal class CPU: Component {
     }
     
     private func fetch() {
+        if state.nmiTriggered {
+            state.nmiTriggered = false
+            state.currentOpcode = 0xFFFE
+            return
+        }
         if state.irqTriggered && !state.i {
             state.irqTriggered = false
             state.currentOpcode = 0xFFFF
@@ -842,9 +864,9 @@ final internal class CPU: Component {
         state.sp = state.sp &- 1
     }
     
-    //MARK: IRQ
+    //MARK: Interrupts
 
-    private func irq() {
+    private func interrupt() {
         let p = UInt8((state.c ? 0x01 : 0) |
             (state.z ? 0x02 : 0) |
             (state.i ? 0x04 : 0) |
@@ -858,13 +880,23 @@ final internal class CPU: Component {
         state.i = true
     }
 
-    private func irq2() {
+    private func irq() {
         state.data = memory.readByte(0xFFFE)
     }
     
-    private func irq3() {
+    private func irq2() {
         pcl = state.data
         pch = memory.readByte(0xFFFF)
+        state.cycle = 0
+    }
+    
+    private func nmi() {
+        state.data = memory.readByte(0xFFFA)
+    }
+    
+    private func nmi2() {
+        pcl = state.data
+        pch = memory.readByte(0xFFFB)
         state.cycle = 0
     }
     

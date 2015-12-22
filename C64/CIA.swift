@@ -159,6 +159,7 @@ internal class CIA: Component {
             //TODO: serial i/o
             return 0
         case 0x0D:
+            clearInterrupt()
             let value = state.icr
             state.icr = 0
             return value
@@ -173,6 +174,8 @@ internal class CIA: Component {
     }
     
     private func triggerInterrupt() {}
+    private func clearInterrupt() {}
+    
 }
 
 final internal class CIA1: CIA {
@@ -279,6 +282,14 @@ final internal class CIA2: CIA, IECDevice {
         default:
             return super.readByte(position)
         }
+    }
+    
+    private override func triggerInterrupt() {
+        cpu.setNMILine(false)
+    }
+    
+    private override func clearInterrupt() {
+        cpu.setNMILine(true)
     }
     
     func iecUpdatedLines(atnLineUpdated atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) { }
