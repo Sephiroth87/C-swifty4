@@ -10,6 +10,7 @@
 		E58F4D8B1C110070000F3976 /* Component.swift in Sources */ = {isa = PBXBuildFile; fileRef = E58F4D8A1C110070000F3976 /* Component.swift */; };
 		E5C06FB11BFD386E0002245F /* Disk.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C06FB01BFD386E0002245F /* Disk.swift */; };
 		E5DFEDAB1C0D06E5003AA5B9 /* CircularBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */; };
+		E5E0E3CD1C2AF6750062E0DD /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E0E3CC1C2AF6750062E0DD /* Line.swift */; };
 		E5EE30641BF8E8AE00404BE0 /* C1541.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30561BF8E8AE00404BE0 /* C1541.swift */; };
 		E5EE30651BF8E8AE00404BE0 /* C1541Memory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30571BF8E8AE00404BE0 /* C1541Memory.swift */; };
 		E5EE30661BF8E8AE00404BE0 /* VIA.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30581BF8E8AE00404BE0 /* VIA.swift */; };
@@ -29,6 +30,7 @@
 		E58F4D8A1C110070000F3976 /* Component.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Component.swift; sourceTree = "<group>"; };
 		E5C06FB01BFD386E0002245F /* Disk.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disk.swift; sourceTree = "<group>"; };
 		E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularBuffer.swift; sourceTree = "<group>"; };
+		E5E0E3CC1C2AF6750062E0DD /* Line.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		E5EE30441BF8E5CD00404BE0 /* C64.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = C64.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5EE30491BF8E5CD00404BE0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E5EE30561BF8E8AE00404BE0 /* C1541.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = C1541.swift; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 				E5EE30611BF8E8AE00404BE0 /* Keyboard.swift */,
 				E5EE30621BF8E8AE00404BE0 /* Joystick.swift */,
 				E5EE30631BF8E8AE00404BE0 /* IEC.swift */,
+				E5E0E3CC1C2AF6750062E0DD /* Line.swift */,
 				E5EE30551BF8E8A100404BE0 /* Supporting Files */,
 			);
 			path = C64;
@@ -200,6 +203,7 @@
 			files = (
 				E5C06FB11BFD386E0002245F /* Disk.swift in Sources */,
 				E5EE30701BF8E8AE00404BE0 /* IEC.swift in Sources */,
+				E5E0E3CD1C2AF6750062E0DD /* Line.swift in Sources */,
 				E5EE306B1BF8E8AE00404BE0 /* Memory.swift in Sources */,
 				E5EE30661BF8E8AE00404BE0 /* VIA.swift in Sources */,
 				E5EE306D1BF8E8AE00404BE0 /* VIC.swift in Sources */,

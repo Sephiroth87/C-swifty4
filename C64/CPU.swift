@@ -27,7 +27,7 @@ internal struct CPUState: ComponentState {
     var portDirection: UInt8 = 0x2F
     var port: UInt8 = 0x37
     
-    var irqTriggered = false
+    @available(*, deprecated) var irqTriggered = false //TODO: maybe we still need to keep track if the IRQ has been triggered?
     var nmiTriggered = false //TODO: see below
     var nmiLine = true
     var currentOpcode: UInt16 = 0
@@ -68,10 +68,11 @@ internal struct CPUState: ComponentState {
 
 }
 
-final internal class CPU: Component {
+final internal class CPU: Component, IRQLineComponent {
     
     var state = CPUState()
 
+    internal weak var irqLine: Line!
     internal weak var memory: Memory!
     internal var crashHandler: C64CrashHandler?
 
@@ -118,6 +119,13 @@ final internal class CPU: Component {
     internal init(pc: UInt16) {
         self.state.pc = pc
     }
+    
+    //MARK: LineComponent
+    
+    func lineChanged(line: Line) {
+    }
+    
+    //MARK: Running
     
     internal func executeInstruction() {
         if state.cycle++ == 0 {
@@ -632,7 +640,7 @@ final internal class CPU: Component {
         }
     }
     
-    internal func setIRQLine() {
+    @available(*, deprecated) internal func setIRQLine() {
         state.irqTriggered = true
     }
 
@@ -842,6 +850,11 @@ final internal class CPU: Component {
         if state.nmiTriggered {
             state.nmiTriggered = false
             state.currentOpcode = 0xFFFE
+            return
+        }
+        //IRQ is level sensitive, so it's always trigger as long as the line is pulled down
+        if !irqLine.state && !state.i {
+            state.currentOpcode = 0xFFFF
             return
         }
         if state.irqTriggered && !state.i {

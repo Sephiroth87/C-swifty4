@@ -28,6 +28,10 @@ internal struct CIAState: ComponentState {
     private var counterB: UInt16 = 0xFFFF
     //MARK: -
     
+    //MARK: Helpers
+    private var interruptPin: Bool = true
+    //MARK: -
+    
     //MARK: IECDevice lines for CIA2
     private var atnPin: Bool = true
     private var clkPin: Bool = true
@@ -47,6 +51,7 @@ internal struct CIAState: ComponentState {
         counterA = UInt16(dictionary["counterA"] as! UInt)
         latchB = UInt16(dictionary["latchB"] as! UInt)
         counterB = UInt16(dictionary["counterB"] as! UInt)
+        interruptPin = dictionary["interruptPin"] as! Bool
         atnPin = dictionary["atnPin"] as! Bool
         clkPin = dictionary["clkPin"] as! Bool
         dataPin = dictionary["dataPin"] as! Bool
@@ -173,15 +178,27 @@ internal class CIA: Component {
         }
     }
     
-    private func triggerInterrupt() {}
-    private func clearInterrupt() {}
+    private func triggerInterrupt() {
+        state.interruptPin = false
+    }
+    
+    private func clearInterrupt() {
+        state.interruptPin = true
+    }
     
 }
 
-final internal class CIA1: CIA {
+final internal class CIA1: CIA, IRQLineComponent {
     
+    internal weak var irqLine: Line!
     internal weak var keyboard: Keyboard!
     internal weak var joystick2: Joystick!
+    
+    //MARK: IRQLineComponent
+    var irqPin: Bool {
+        return state.interruptPin
+    }
+    //MARK: -
     
     override init() {
         super.init()
@@ -234,7 +251,13 @@ final internal class CIA1: CIA {
     }
     
     private override func triggerInterrupt() {
-        cpu.setIRQLine()
+        super.triggerInterrupt()
+        irqLine.update(self)
+    }
+    
+    private override func clearInterrupt() {
+        super.clearInterrupt()
+        irqLine.update(self)
     }
     
 }

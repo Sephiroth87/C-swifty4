@@ -26,6 +26,8 @@ final public class C1541 {
     private let via1: VIA1
     private let via2: VIA2
     
+    private let irqLine: Line
+    
     internal weak var iec: IEC! {
         didSet {
             self.via1.iec = iec
@@ -53,10 +55,14 @@ final public class C1541 {
         self.cpu.memory = self.memory
         self.memory.via1 = self.via1
         self.memory.via2 = self.via2
-        self.via1.c1541 = self
         self.via1.cpu = self.cpu
-        self.via2.c1541 = self
         self.via2.cpu = self.cpu
+        
+        irqLine = Line()
+        cpu.irqLine = irqLine
+        
+        self.via1.c1541 = self
+        self.via2.c1541 = self
         
         self.memory.writeC1541Data(UnsafePointer<UInt8>(c1541Data.bytes))
     }

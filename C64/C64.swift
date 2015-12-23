@@ -38,6 +38,8 @@ final public class C64: NSObject {
     private let iec: IEC
     public let c1541: C1541
     
+    private let irqLine: Line
+    
     private var cycles = 0
     private var lines = 0
     
@@ -46,40 +48,45 @@ final public class C64: NSObject {
             assertionFailure("Wrong data found");
         }
         
-        self.cpu = CPU(pc: 0xFCE2)
-        self.memory = C64Memory()
-        self.cia1 = CIA1()
-        self.cia2 = CIA2()
-        self.sid = SID()
-        self.vic = VIC()
-        self.keyboard = Keyboard()
-        self.joystick1 = Joystick()
-        self.joystick2 = Joystick()
-        self.iec = IEC()
-        self.c1541 = C1541(c1541Data: c1541Data)
+        cpu = CPU(pc: 0xFCE2)
+        memory = C64Memory()
+        cia1 = CIA1()
+        cia2 = CIA2()
+        sid = SID()
+        vic = VIC()
+        keyboard = Keyboard()
+        joystick1 = Joystick()
+        joystick2 = Joystick()
+        iec = IEC()
+        irqLine = Line()
+        c1541 = C1541(c1541Data: c1541Data)
         
-        self.memory.writeKernalData(UnsafePointer<UInt8>(kernalData.bytes))
-        self.memory.writeBasicData(UnsafePointer<UInt8>(basicData.bytes))
-        self.memory.writeCharacterData(UnsafePointer<UInt8>(characterData.bytes))
+        memory.writeKernalData(UnsafePointer<UInt8>(kernalData.bytes))
+        memory.writeBasicData(UnsafePointer<UInt8>(basicData.bytes))
+        memory.writeCharacterData(UnsafePointer<UInt8>(characterData.bytes))
         
-        self.cpu.memory = self.memory
-        self.memory.cpu = self.cpu
-        self.memory.cia1 = self.cia1
-        self.memory.cia2 = self.cia2
-        self.memory.sid = self.sid
-        self.memory.vic = self.vic
-        self.cia1.cpu = self.cpu
-        self.cia1.keyboard = self.keyboard
-        self.cia1.joystick2 = self.joystick2
-        self.cia2.cpu = self.cpu
-        self.cia2.vic = self.vic
-        self.cia2.iec = self.iec
-        self.vic.memory = self.memory
+        cpu.memory = memory
+        memory.cpu = cpu
+        memory.cia1 = cia1
+        memory.cia2 = cia2
+        memory.sid = sid
+        memory.vic = vic
+        cia1.cpu = cpu
+        cia1.keyboard = keyboard
+        cia1.joystick2 = joystick2
+        cia2.cpu = cpu
+        cia2.vic = vic
+        cia2.iec = iec
+        vic.memory = memory
         
-        self.iec.connectDevice(self.cia2)
-        self.c1541.iec = self.iec
+        cia1.irqLine = irqLine
+        cpu.irqLine = irqLine
+        irqLine.addComponents([cpu, cia1])
+        
+        iec.connectDevice(cia2)
+        c1541.iec = iec
 
-        self.dispatchQueue = dispatch_queue_create("main.loop", DISPATCH_QUEUE_SERIAL)
+        dispatchQueue = dispatch_queue_create("main.loop", DISPATCH_QUEUE_SERIAL)
         
         super.init()
         
@@ -90,11 +97,11 @@ final public class C64: NSObject {
                 let _ = self.delegate?.C64DidCrash(self)
             })
         }
-        self.cpu.crashHandler = crashHandler
-        self.cia1.crashHandler = crashHandler
-        self.cia2.crashHandler = crashHandler
-        self.memory.crashHandler = crashHandler
-        self.c1541.crashHandler = crashHandler
+        cpu.crashHandler = crashHandler
+        cia1.crashHandler = crashHandler
+        cia2.crashHandler = crashHandler
+        memory.crashHandler = crashHandler
+        c1541.crashHandler = crashHandler
     }
    
     @objc private func mainLoop() {
