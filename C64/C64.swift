@@ -81,7 +81,8 @@ final public class C64: NSObject {
         
         cia1.irqLine = irqLine
         cpu.irqLine = irqLine
-        irqLine.addComponents([cpu, cia1])
+        vic.irqLine = irqLine
+        irqLine.addComponents([cpu, cia1, vic])
         
         iec.connectDevice(cia2)
         c1541.iec = iec

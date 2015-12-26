@@ -21,21 +21,6 @@ internal struct VICState: ComponentState {
     private var currentCycle = 1
     private var currentLine: UInt16 = 0
     
-    //MARK: Internal Registers
-    private var vc: UInt16 = 0
-    private var vcbase: UInt16 = 0
-    private var rc: UInt8 = 0
-    private var vmli: UInt16 = 0
-    private var displayState = false
-    private var rasterX: UInt16 = 0x19C // NTSC
-    private var mainBorder = false
-    private var verticalBorder = false
-    private var ref: UInt8 = 0
-    private var mc: [UInt8] = [UInt8](count: 8, repeatedValue: 0)
-    private var mcbase: [UInt8] = [UInt8](count: 8, repeatedValue: 0)
-    private var yExpansion: [Bool] = [Bool](count: 8, repeatedValue: true)
-    //MARK: -
-    
     //MARK: Registers
     private var m_x: [UInt16] = [UInt16](count: 8, repeatedValue: 0) // X Coordinate Sprite
     private var m_y: [UInt8] = [UInt8](count: 8, repeatedValue: 0) // Y Coordinate Sprite
@@ -49,6 +34,8 @@ internal struct VICState: ComponentState {
     private var mye: UInt8 = 0 // Sprite Y Expansion
     private var vm: UInt8 = 0 // Video matrix base address
     private var cb: UInt8 = 0 // Character base address
+    private var ir: UInt8 = 0 // Interrupt register
+    private var ier: UInt8 = 0 // Interrupt enable register
     private var ec: UInt8 = 0 // Border Color
     private var mmc: UInt8 = 0 // Sprite Multicolor
     private var b0c: UInt8 = 0 // Background Color 0
@@ -58,6 +45,22 @@ internal struct VICState: ComponentState {
     private var mm0: UInt8 = 0 // Sprite Multicolor 0
     private var mm1: UInt8 = 0 // Sprite Multicolor 1
     private var m_c: [UInt8] = [UInt8](count: 8, repeatedValue: 0) // Color Sprite
+    //MARK: -
+    
+    //MARK: Internal Registers
+    private var vc: UInt16 = 0
+    private var vcbase: UInt16 = 0
+    private var rc: UInt8 = 0
+    private var vmli: UInt16 = 0
+    private var displayState = false
+    private var rasterX: UInt16 = 0x19C // NTSC
+    private var rasterInterruptLine: UInt16 = 0
+    private var mainBorder = false
+    private var verticalBorder = false
+    private var ref: UInt8 = 0
+    private var mc: [UInt8] = [UInt8](count: 8, repeatedValue: 0)
+    private var mcbase: [UInt8] = [UInt8](count: 8, repeatedValue: 0)
+    private var yExpansion: [Bool] = [Bool](count: 8, repeatedValue: true)
     //MARK: -
     
     //MARK: Graphic Sequencer
@@ -121,6 +124,8 @@ internal struct VICState: ComponentState {
         mye = UInt8(dictionary["mye"] as! UInt)
         vm = UInt8(dictionary["vm"] as! UInt)
         cb = UInt8(dictionary["cb"] as! UInt)
+        ir = UInt8(dictionary["ir"] as! UInt)
+        ier = UInt8(dictionary["ier"] as! UInt)
         ec = UInt8(dictionary["ec"] as! UInt)
         mmc = UInt8(dictionary["mmc"] as! UInt)
         b0c = UInt8(dictionary["b0c"] as! UInt)
@@ -150,11 +155,12 @@ internal struct VICState: ComponentState {
     
 }
 
-final internal class VIC: Component {
+final internal class VIC: Component, IRQLineComponent {
     
     internal var state = VICState()
-
+    
     internal weak var memory: C64Memory!
+    internal weak var irqLine: Line!
     
     private let screenBuffer1 = UnsafeMutableBufferPointer<UInt32>(start: UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32))), count: 512 * 512)
     private let screenBuffer2 = UnsafeMutableBufferPointer<UInt32>(start: UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32))), count: 512 * 512)
@@ -188,6 +194,12 @@ final internal class VIC: Component {
         UInt32(truncatingBitPattern: (0xFFC0C0C0 as UInt64)),
     ]
     
+    //MARK: IRQLineComponent
+    var irqPin: Bool {
+        return state.ir & 0x80 == 0
+    }
+    //MARK: -
+    
     init() {
         state.screenBuffer = screenBuffer1
     }
@@ -199,14 +211,14 @@ final internal class VIC: Component {
         case 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F:
             return state.m_y[Int((position - 1) >> 1)]
         case 0x10:
-            let value = (state.m_x[0] & 0xFF00) >> 8 |
-                (state.m_x[1] & 0xFF00) >> 7 |
-                (state.m_x[2] & 0xFF00) >> 6 |
-                (state.m_x[3] & 0xFF00) >> 5 |
-                (state.m_x[4] & 0xFF00) >> 4 |
-                (state.m_x[5] & 0xFF00) >> 3 |
-                (state.m_x[6] & 0xFF00) >> 2 |
-                (state.m_x[7] & 0xFF00) >> 1
+            var value = (state.m_x[0] & 0xFF00) >> 8
+            value |= (state.m_x[1] & 0xFF00) >> 7
+            value |= (state.m_x[2] & 0xFF00) >> 6
+            value |= (state.m_x[3] & 0xFF00) >> 5
+            value |= (state.m_x[4] & 0xFF00) >> 4
+            value |= (state.m_x[5] & 0xFF00) >> 3
+            value |= (state.m_x[6] & 0xFF00) >> 2
+            value |= (state.m_x[7] & 0xFF00) >> 1
             return UInt8(truncatingBitPattern: value)
         case 0x11:
             return state.yScroll | (state.den ? 0x10 : 0) | (state.bmm ? 0x20 : 0) | (state.ecm ? 0x40 : 0) | UInt8((state.raster & 0x100) >> 1)
@@ -221,8 +233,9 @@ final internal class VIC: Component {
         case 0x18:
             return state.vm << 4 | state.cb << 1 | 0x01
         case 0x19:
-            //TEMP: force NTSC timing
-            return 0x70
+            return state.ir | 0x70
+        case 0x1A:
+            return state.ier | 0xF0
         case 0x1C:
             return state.mmc
         case 0x20:
@@ -266,6 +279,9 @@ final internal class VIC: Component {
             state.den = byte & 0x10 != 0
             state.bmm = byte & 0x20 != 0
             state.ecm = byte & 0x40 != 0
+            state.rasterInterruptLine = UInt16(byte & 0x80) << 1 | (state.rasterInterruptLine & 0x00FF)
+        case 0x12:
+            state.rasterInterruptLine = (state.rasterInterruptLine & 0xFF00) | UInt16(byte)
         case 0x15:
             state.me = byte
         case 0x16:
@@ -275,6 +291,11 @@ final internal class VIC: Component {
         case 0x18:
             state.cb = (byte & 0x0E) >> 1
             state.vm = (byte & 0xF0) >> 4
+        case 0x19:
+            state.ir = (state.ir & 0x80) | (~byte & 0x0F)
+            updateIRQLine()
+        case 0x1A:
+            state.ier = byte & 0x0F
         case 0x1C:
             state.mmc = byte
         case 0x20:
@@ -312,6 +333,18 @@ final internal class VIC: Component {
             state.dataBus = memory.readRAMByte(state.addressBus)
         }
         return state.dataBus
+    }
+    
+    private func updateIRQLine() {
+        let value = state.ir & 0x80
+        if (state.ir & state.ier) & 0x0F != 0 {
+            state.ir |= 0x80
+        } else {
+            state.ir &= 0x7F
+        }
+        if value != state.ir & 0x80 {
+            irqLine.update(self)
+        }
     }
     
     internal func cycle() {
@@ -435,6 +468,13 @@ final internal class VIC: Component {
             }
         default:
             break
+        }
+        
+        if state.rasterInterruptLine == state.raster {
+            if (state.raster == 0 && state.currentCycle == 2) || state.currentCycle == 1 {
+                state.ir |= 0x01
+                updateIRQLine()
+            }
         }
         
         // Second half-cycle
