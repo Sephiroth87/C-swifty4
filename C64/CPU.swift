@@ -139,6 +139,9 @@ final internal class CPU: Component, IRQLineComponent {
             adcImmediate()
         case 0x65:
             state.cycle == 2 ? zeroPage() : adcZeroPage()
+        case 0x75:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPageX() : adcZeroPage()
         case 0x6D:
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absolute2() : adcAbsolute()
@@ -666,6 +669,7 @@ final internal class CPU: Component, IRQLineComponent {
             switch state.currentOpcode {
             case 0x69: return String(format: "ADC #%02x", self.memory.readByte(state.pc))
             case 0x65: return String(format: "ADC %02x", self.memory.readByte(state.pc))
+            case 0x75: return String(format: "ADC %02x,X", self.memory.readByte(state.pc))
             case 0x6D: return String(format: "ADC %04x", self.memory.readWord(state.pc))
             case 0x7D: return String(format: "ADC %04x,X", self.memory.readWord(state.pc))
             case 0x79: return String(format: "ADC %04x,Y", self.memory.readWord(state.pc))
