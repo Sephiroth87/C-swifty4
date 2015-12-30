@@ -166,6 +166,9 @@ final internal class CPU: Component, IRQLineComponent {
             // ALR*
         case 0x4B:
             alrImmediate()
+            // ANC
+        case 0x0B, 0x2B:
+            ancImmediate()
             // AND
         case 0x29:
             andImmediate()
@@ -679,6 +682,8 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x61: return String(format: "ADC (%02x,X)", self.memory.readByte(state.pc))
             case 0x71: return String(format: "ADC (%02x),Y", self.memory.readByte(state.pc))
             case 0x4B: return String(format: "ALR* #%02x", self.memory.readByte(state.pc))
+            case 0x0B: return String(format: "ANC* #%02x", self.memory.readByte(state.pc))
+            case 0x2B: return String(format: "ANC* #%02x", self.memory.readByte(state.pc))
             case 0x29: return String(format: "AND #%02x", self.memory.readByte(state.pc))
             case 0x25: return String(format: "AND %02x", self.memory.readByte(state.pc))
             case 0x35: return String(format: "AND %02x,X", self.memory.readByte(state.pc))
@@ -1086,13 +1091,22 @@ final internal class CPU: Component, IRQLineComponent {
         state.cycle = 0
     }
     
-    //MARK: ALR
+    //MARK: ALR*
     
     private func alrImmediate() {
         state.data = memory.readByte(state.pc++)
         let a = state.a & state.data
         state.c = ((a & 1) != 0)
         loadA(a >> 1)
+        state.cycle = 0
+    }
+    
+    //MARK: ANC*
+    
+    private func ancImmediate() {
+        state.data = memory.readByte(state.pc++)
+        loadA(state.a & state.data)
+        state.c = state.n
         state.cycle = 0
     }
     
