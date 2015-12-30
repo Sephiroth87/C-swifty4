@@ -559,29 +559,7 @@ final internal class VIC: Component, IRQLineComponent {
         for i in 0...3 {
             if (state.rasterX >= 0x1E8 || state.rasterX < 0x18C) && state.raster >= 28 { // 0x1E8 first visible X coord. 0x18C last visible NTSC
                 if !state.mainBorder && !state.verticalBorder {
-                    if (!state.mcm && !state.bmm) || (state.mcm && state.graphicsSequencerColorLine & 0x08 == 0) {
-                        if state.graphicsSequencerShiftRegister >> 7 != 0 {
-                            state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine)]
-                        } else {
-                            if state.ecm {
-                                switch (state.graphicsSequencerVideoMatrix & 0xC0) >> 6 {
-                                case 0:
-                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
-                                case 1:
-                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
-                                case 2:
-                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
-                                case 3:
-                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b3c)]
-                                default:
-                                    break
-                                }
-                            } else {
-                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
-                            }
-                        }
-                        state.graphicsSequencerShiftRegister <<= 1
-                    } else if state.bmm {
+                    if state.bmm {
                         if state.mcm {
                             switch (state.graphicsSequencerShiftRegister & 0xC0) >> 6 {
                             case 0:
@@ -606,6 +584,28 @@ final internal class VIC: Component, IRQLineComponent {
                             }
                             state.graphicsSequencerShiftRegister <<= 1
                         }
+                    } else if (!state.mcm && !state.bmm) || (state.mcm && state.graphicsSequencerColorLine & 0x08 == 0) {
+                        if state.graphicsSequencerShiftRegister >> 7 != 0 {
+                            state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine)]
+                        } else {
+                            if state.ecm {
+                                switch (state.graphicsSequencerVideoMatrix & 0xC0) >> 6 {
+                                case 0:
+                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
+                                case 1:
+                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
+                                case 2:
+                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
+                                case 3:
+                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b3c)]
+                                default:
+                                    break
+                                }
+                            } else {
+                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
+                            }
+                        }
+                        state.graphicsSequencerShiftRegister <<= 1
                     } else {
                         switch (state.graphicsSequencerShiftRegister & 0xC0) >> 6 {
                         case 0:
