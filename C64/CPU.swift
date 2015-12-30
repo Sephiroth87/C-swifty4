@@ -163,6 +163,9 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? indirectIndex2() :
                 state.cycle == 4 ? indirectY() :
                 state.cycle == 5 ? adcPageBoundary() : adcAbsolute()
+            // ALR*
+        case 0x4B:
+            alrImmediate()
             // AND
         case 0x29:
             andImmediate()
@@ -675,6 +678,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x79: return String(format: "ADC %04x,Y", self.memory.readWord(state.pc))
             case 0x61: return String(format: "ADC (%02x,X)", self.memory.readByte(state.pc))
             case 0x71: return String(format: "ADC (%02x),Y", self.memory.readByte(state.pc))
+            case 0x4B: return String(format: "ALR* #%02x", self.memory.readByte(state.pc))
             case 0x29: return String(format: "AND #%02x", self.memory.readByte(state.pc))
             case 0x25: return String(format: "AND %02x", self.memory.readByte(state.pc))
             case 0x35: return String(format: "AND %02x,X", self.memory.readByte(state.pc))
@@ -1079,6 +1083,16 @@ final internal class CPU: Component, IRQLineComponent {
     private func adcAbsolute() {
         state.data = memory.readByte(address)
         adc(state.data)
+        state.cycle = 0
+    }
+    
+    //MARK: ALR
+    
+    private func alrImmediate() {
+        state.data = memory.readByte(state.pc++)
+        let a = state.a & state.data
+        state.c = ((a & 1) != 0)
+        loadA(a >> 1)
         state.cycle = 0
     }
     
