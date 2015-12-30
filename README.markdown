@@ -4,6 +4,8 @@ C-swifty4
 
 <p align="center">
 	<img src="https://raw.githubusercontent.com/Sephiroth87/C-swifty4/master/Images/hello.png" alt="Hello world" />
+</p>
+<p align="center">
 	<a href="https://gitter.im/Sephiroth87/C-swifty4?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/Sephiroth87/C-swifty4" /></a>
 </p>
 
@@ -51,7 +53,7 @@ Then just open the project file, build and run.
 
 #### Lorenz Test Suite compatibility
 
-Passing 109/275 tests
+Passing 117/275 tests
 
 License
 -----------------------------

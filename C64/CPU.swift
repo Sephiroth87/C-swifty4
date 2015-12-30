@@ -150,6 +150,11 @@ final internal class CPU: Component, IRQLineComponent {
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absoluteY() :
                 state.cycle == 4 ? adcPageBoundary() : adcAbsolute()
+        case 0x61:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectX() :
+                state.cycle == 4 ? indirectIndex2() :
+                state.cycle == 5 ? indirectX2() : adcAbsolute()
         case 0x71:
             state.cycle == 2 ? indirectIndex() :
                 state.cycle == 3 ? indirectIndex2() :
@@ -664,6 +669,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x6D: return String(format: "ADC %04x", self.memory.readWord(state.pc))
             case 0x7D: return String(format: "ADC %04x,X", self.memory.readWord(state.pc))
             case 0x79: return String(format: "ADC %04x,Y", self.memory.readWord(state.pc))
+            case 0x61: return String(format: "ADC (%02x,X)", self.memory.readByte(state.pc))
             case 0x71: return String(format: "ADC (%02x),Y", self.memory.readByte(state.pc))
             case 0x29: return String(format: "AND #%02x", self.memory.readByte(state.pc))
             case 0x25: return String(format: "AND %02x", self.memory.readByte(state.pc))

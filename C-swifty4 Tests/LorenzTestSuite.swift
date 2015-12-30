@@ -810,10 +810,6 @@ class LorenzTestSuite: XCTestCase {
         setupTest("plpn")
     }
     
-    func test_readme() {
-        setupTest("readme")
-    }
-    
     func test_rlaa() {
         setupTest("rlaa")
     }
