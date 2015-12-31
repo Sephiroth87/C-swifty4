@@ -170,6 +170,11 @@ final internal class VIC: Component, IRQLineComponent {
         }
     }
     
+    private let firstVBlankLine: UInt16 = 13
+    private let lastVBLankLine: UInt16 = 40
+    private let topLine: UInt16 = 27
+    private let totalLines: UInt16 = 263
+    
     private let borderLeftComparisonValue: UInt16 = 24
     private let borderRightComparisonValue: UInt16 = 344
     private let borderTopComparisonValue: UInt16 = 51
@@ -202,6 +207,7 @@ final internal class VIC: Component, IRQLineComponent {
     
     init() {
         state.screenBuffer = screenBuffer1
+        state.raster = topLine
     }
     
     internal func readByte(position: UInt8) -> UInt8 {
@@ -392,8 +398,10 @@ final internal class VIC: Component, IRQLineComponent {
                 state.verticalBorder = false
             }
         case 65:
-            if ++state.raster == 263 {
+            if ++state.raster == totalLines {
                 state.raster = 0
+            }
+            if state.raster == topLine {
                 state.bufferPosition = 0
                 state.screenBuffer = state.screenBuffer.baseAddress == screenBuffer1.baseAddress ? screenBuffer2 : screenBuffer1
             }
@@ -557,7 +565,8 @@ final internal class VIC: Component, IRQLineComponent {
     // Draw 4 pixels (half cycle)
     private func draw() {
         for i in 0...3 {
-            if (state.rasterX >= 0x1E8 || state.rasterX < 0x18C) && state.raster >= 28 { // 0x1E8 first visible X coord. 0x18C last visible NTSC
+            if (state.rasterX >= 0x1E9 || state.rasterX < 0x18B) && // 0x1E9 first visible X coord. 0x18C last visible NTSC
+                (state.raster > lastVBLankLine || state.raster < firstVBlankLine) {
                 if !state.mainBorder && !state.verticalBorder {
                     if state.bmm {
                         if state.mcm {

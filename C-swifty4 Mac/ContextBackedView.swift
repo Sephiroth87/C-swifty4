@@ -14,7 +14,7 @@ private class ContextBackedLayer: CALayer {
     
     required init?(coder aDecoder: NSCoder) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGBitmapContextCreate(nil, 420, 235, 8, 1680, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
+        context = CGBitmapContextCreate(nil, 418, 235, 8, 418 * 4, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
         super.init(coder: aDecoder)
         self.actions = ["contents": NSNull()]
         self.backgroundColor = NSColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0).CGColor
@@ -22,7 +22,7 @@ private class ContextBackedLayer: CALayer {
     
     override init() {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGBitmapContextCreate(nil, 420, 235, 8, 1680, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
+        context = CGBitmapContextCreate(nil, 418, 235, 8, 418 * 4, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
         super.init()
         self.actions = ["contents": NSNull()]
         self.backgroundColor = NSColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0).CGColor
@@ -35,7 +35,7 @@ private class ContextBackedLayer: CALayer {
     
     private func setData(data: UnsafePointer<UInt32>) {
         let address = CGBitmapContextGetData(context)
-        memcpy(address, data, 420 * 235 * 4)
+        memcpy(address, data, 418 * 235 * 4)
         let cgImage = CGBitmapContextCreateImage(context)
         self.contents = cgImage
     }

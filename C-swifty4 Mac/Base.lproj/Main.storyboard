@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9060"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
@@ -143,22 +143,20 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="C_swifty4" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="420" height="257"/>
+                        <rect key="frame" x="0.0" y="0.0" width="418" height="257"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="viV-Kk-Ag9" customClass="ContextBackedView" customModule="C_swifty4" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="22" width="420" height="235"/>
-                                <animations/>
+                                <rect key="frame" x="0.0" y="22" width="418" height="235"/>
                             </customView>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="cQO-qd-B8E">
-                                <rect key="frame" x="0.0" y="0.0" width="420" height="22"/>
+                                <rect key="frame" x="0.0" y="0.0" width="418" height="22"/>
                                 <subviews>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="t7m-E7-aHh">
                                         <rect key="frame" x="0.0" y="-1" width="22" height="24"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="t7m-E7-aHh" secondAttribute="height" multiplier="1:1" id="QCT-GJ-F3M"/>
                                         </constraints>
-                                        <animations/>
                                         <buttonCell key="cell" type="smallSquare" title="▶︎" bezelStyle="smallSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="TrL-lj-hj0">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -172,7 +170,6 @@
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="M7R-G1-j56" secondAttribute="height" multiplier="1:1" id="OLe-5g-cjk"/>
                                         </constraints>
-                                        <animations/>
                                         <buttonCell key="cell" type="smallSquare" title="I▶︎" bezelStyle="smallSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JCN-Av-RO2">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -186,7 +183,6 @@
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="aX9-Rn-yLy" secondAttribute="height" multiplier="1:1" id="ZgM-3f-8ph"/>
                                         </constraints>
-                                        <animations/>
                                         <buttonCell key="cell" type="smallSquare" title="💾" bezelStyle="smallSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1kt-D0-Wjv">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -196,8 +192,7 @@
                                         </connections>
                                     </button>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kDC-Ob-JhV">
-                                        <rect key="frame" x="373" y="5" width="39" height="13"/>
-                                        <animations/>
+                                        <rect key="frame" x="371" y="5" width="39" height="13"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="60 FPS" id="yet-DW-1rp">
                                             <font key="font" metaFont="system" size="10"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -206,7 +201,6 @@
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Gj5-7O-QKZ">
                                         <rect key="frame" x="70" y="2" width="21" height="17"/>
-                                        <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="⚪️" id="kAu-6r-IPZ">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -230,7 +224,6 @@
                                     <constraint firstItem="M7R-G1-j56" firstAttribute="leading" secondItem="t7m-E7-aHh" secondAttribute="trailing" constant="1" id="l6k-9P-btx"/>
                                     <constraint firstAttribute="bottom" secondItem="t7m-E7-aHh" secondAttribute="bottom" id="vRo-3E-orm"/>
                                 </constraints>
-                                <animations/>
                             </customView>
                         </subviews>
                         <constraints>
@@ -242,7 +235,6 @@
                             <constraint firstItem="viV-Kk-Ag9" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" id="WNi-0k-OHR"/>
                             <constraint firstItem="cQO-qd-B8E" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" id="hKm-by-UgH"/>
                         </constraints>
-                        <animations/>
                     </view>
                     <connections>
                         <outlet property="driveLedLabel" destination="Gj5-7O-QKZ" id="bPn-6X-ZNt"/>

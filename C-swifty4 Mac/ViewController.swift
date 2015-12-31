@@ -180,11 +180,11 @@ extension ViewController: NSWindowDelegate {
         
         if abs(heightDiff) > abs(widthDiff) {
             let newHeight = frameSize.height
-            let newWidth = ((newHeight - 22) / 235) * 420
+            let newWidth = ((newHeight - 22) / 235) * 418
             self.view.window?.contentAspectRatio = NSSize(width: newWidth, height: newHeight)
         } else {
             let newWidth = frameSize.width
-            let newHeight = ((newWidth / 420) * 235) + 22
+            let newHeight = ((newWidth / 418) * 235) + 22
             self.view.window?.contentAspectRatio = NSSize(width: newWidth, height: newHeight)
         }
         return frameSize
