@@ -215,6 +215,12 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? absolute2() :
                 state.cycle == 4 ? absolute3() :
                 state.cycle == 5 ? aslAbsolute() : absoluteWriteUpdateNZ()
+        case 0x1E:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteX() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? aslAbsolute() : absoluteWriteUpdateNZ()
             // BCC
         case 0x90:
             state.cycle == 2 ? bccRelative() :
@@ -711,6 +717,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x06: return String(format: "ASL %02x", self.memory.readByte(state.pc))
             case 0x16: return String(format: "ASL %02x,X", self.memory.readByte(state.pc))
             case 0x0E: return String(format: "ASL %04x", self.memory.readWord(state.pc))
+            case 0x1E: return String(format: "ASL %04x,X", self.memory.readWord(state.pc))
             case 0x90: return String(format: "BCC %02x", self.memory.readByte(state.pc))
             case 0xB0: return String(format: "BCS %02x", self.memory.readByte(state.pc))
             case 0xF0: return String(format: "BEQ %02x", self.memory.readByte(state.pc))
