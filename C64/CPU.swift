@@ -193,6 +193,11 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? indirectX() :
                 state.cycle == 4 ? indirectIndex2() :
                 state.cycle == 5 ? indirectX2() : andAbsolute()
+        case 0x31:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectIndex2() :
+                state.cycle == 4 ? indirectY() :
+                state.cycle == 5 ? andPageBoundary() : andAbsolute()
             // ASL
         case 0x0A:
             aslAccumulator()
@@ -696,6 +701,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x3D: return String(format: "AND %04x,X", self.memory.readWord(state.pc))
             case 0x39: return String(format: "AND %04x,Y", self.memory.readWord(state.pc))
             case 0x21: return String(format: "AND (%02x,X)", self.memory.readByte(state.pc))
+            case 0x31: return String(format: "AND (%02x),Y", self.memory.readByte(state.pc))
             case 0x0A: return "ASL"
             case 0x06: return String(format: "ASL %02x", self.memory.readByte(state.pc))
             case 0x16: return String(format: "ASL %02x,X", self.memory.readByte(state.pc))
