@@ -251,6 +251,13 @@ final internal class CPU: Component, IRQLineComponent {
         case 0x10:
             state.cycle == 2 ? bplRelative() :
                 state.cycle == 3 ? branch() : branchOverflow()
+            // BRK
+        case 0x00:
+            state.cycle == 2 ? immediate() :
+                state.cycle == 3 ? brkImplied() :
+                state.cycle == 4 ? brkImplied2() :
+                state.cycle == 5 ? brkImplied3() :
+                state.cycle == 6 ? brkImplied4() : brkImplied5()
             // BVC
         case 0x50:
             state.cycle == 2 ? bvcRelative() :
@@ -549,13 +556,13 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 5 ? rorAbsolute() : absoluteWriteUpdateNZ()
             // RTI
         case 0x40:
-            state.cycle == 2 ? implied() :
+            state.cycle == 2 ? immediate() :
                 state.cycle == 3 ? implied2() :
                 state.cycle == 4 ? rtiImplied() :
                 state.cycle == 5 ? rtiImplied2() : rtiImplied3()
             // RTS
         case 0x60:
-            state.cycle == 2 ? implied() :
+            state.cycle == 2 ? immediate() :
                 state.cycle == 3 ? implied2() :
                 state.cycle == 4 ? rtsImplied() :
                 state.cycle == 5 ? rtsImplied2() : rtsImplied3()
@@ -655,13 +662,14 @@ final internal class CPU: Component, IRQLineComponent {
             // TYA
         case 0x98:
             tyaImplied()
-            // IRQ
+            // NMI
         case 0xFFFE:
             state.cycle == 2 ? implied() :
                 state.cycle == 3 ? pushPch() :
                 state.cycle == 4 ? pushPcl() :
                 state.cycle == 5 ? interrupt() :
                 state.cycle == 6 ? nmi() : nmi2()
+            // IRQ
         case 0xFFFF:
             state.cycle == 2 ? implied() :
                 state.cycle == 3 ? pushPch() :
@@ -726,6 +734,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x30: return String(format: "BMI %02x", self.memory.readByte(state.pc))
             case 0xD0: return String(format: "BNE %02x", self.memory.readByte(state.pc))
             case 0x10: return String(format: "BPL %02x", self.memory.readByte(state.pc))
+            case 0x00: return "BRK"
             case 0x50: return String(format: "BVC %02x", self.memory.readByte(state.pc))
             case 0x70: return String(format: "BVS %02x", self.memory.readByte(state.pc))
             case 0x18: return "CLC"
@@ -1059,6 +1068,11 @@ final internal class CPU: Component, IRQLineComponent {
         state.sp = state.sp &+ 1
     }
     
+    private func immediate() {
+        memory.readByte(state.pc)
+        state.pc = state.pc &+ UInt16(1)
+    }
+    
     //MARK: ADC
     
     private func adc(value: UInt8) {
@@ -1275,6 +1289,42 @@ final internal class CPU: Component, IRQLineComponent {
         if state.n {
             state.cycle = 0
         }
+    }
+    
+    //MARK: BRK
+    
+    private func brkImplied() {
+        state.b = true
+        pushPch()
+    }
+    
+    private func brkImplied2() {
+        pushPcl()
+        //TODO: handle NMI during BRK here
+    }
+    
+    private func brkImplied3() {
+        let p = UInt8((state.c ? 0x01 : 0) |
+            (state.z ? 0x02 : 0) |
+            (state.i ? 0x04 : 0) |
+            (state.d ? 0x08 : 0) |
+            (state.b ? 0x10 : 0) |
+            0x20 |
+            (state.v ? 0x40 : 0) |
+            (state.n ? 0x80 : 0))
+        memory.writeByte(0x100 &+ state.sp, byte: p)
+        state.sp = state.sp &- 1
+    }
+    
+    private func brkImplied4() {
+        state.data = memory.readByte(0xFFFE)
+    }
+    
+    private func brkImplied5() {
+        pcl = state.data
+        pch = memory.readByte(0xFFFF)
+        state.i = true
+        state.cycle = 0
     }
     
     //MARK: BVC
