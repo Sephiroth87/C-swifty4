@@ -210,6 +210,11 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? zeroPageX() :
                 state.cycle == 4 ? zeroPage2() :
                 state.cycle == 5 ? aslZeroPage() : zeroPageWriteUpdateNZ()
+        case 0x0E:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absolute2() :
+                state.cycle == 4 ? absolute3() :
+                state.cycle == 5 ? aslAbsolute() : absoluteWriteUpdateNZ()
             // BCC
         case 0x90:
             state.cycle == 2 ? bccRelative() :
@@ -705,6 +710,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x0A: return "ASL"
             case 0x06: return String(format: "ASL %02x", self.memory.readByte(state.pc))
             case 0x16: return String(format: "ASL %02x,X", self.memory.readByte(state.pc))
+            case 0x0E: return String(format: "ASL %04x", self.memory.readWord(state.pc))
             case 0x90: return String(format: "BCC %02x", self.memory.readByte(state.pc))
             case 0xB0: return String(format: "BCS %02x", self.memory.readByte(state.pc))
             case 0xF0: return String(format: "BEQ %02x", self.memory.readByte(state.pc))
@@ -1163,6 +1169,12 @@ final internal class CPU: Component, IRQLineComponent {
     
     private func aslZeroPage() {
         memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        state.c = ((state.data & 0x80) != 0)
+        state.data = state.data << 1
+    }
+    
+    private func aslAbsolute() {
+        memory.writeByte(address, byte: state.data)
         state.c = ((state.data & 0x80) != 0)
         state.data = state.data << 1
     }
