@@ -35,6 +35,7 @@ final public class C1541 {
         }
     }
     internal var rotating = false
+    private var on: Bool = false
     
     private var disk: Disk?
     private var halftrack: Int = 41
@@ -68,6 +69,7 @@ final public class C1541 {
     }
     
     internal func cycle() {
+        guard on == true else { return }
         via1.cycle()
         via2.cycle()
         cpu.executeInstruction()
@@ -109,6 +111,14 @@ final public class C1541 {
         }
     }
     
+    public func turnOn() {
+        on = true
+    }
+    
+    public func turnOff() {
+        on = false
+    }
+    
     internal func insertDisk(disk: Disk) {
         self.disk = disk
     }
@@ -120,6 +130,7 @@ final public class C1541 {
     }
     
     internal func moveHeadUp() {
+        guard on == true else { return }
         if halftrack < 84 {
             ++halftrack
             track = (halftrack + 1) / 2
@@ -127,6 +138,7 @@ final public class C1541 {
     }
     
     internal func moveHeadDown() {
+        guard on == true else { return }
         if halftrack > 1 {
             --halftrack
             track = (halftrack + 1) / 2
@@ -134,6 +146,7 @@ final public class C1541 {
     }
     
     internal func setSpeedZone(speedZone: Int) {
+        guard on == true else { return }
         if speedZone != self.speedZone {
             self.speedZone = speedZone
         }

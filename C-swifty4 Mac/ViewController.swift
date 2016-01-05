@@ -32,6 +32,7 @@ class ViewController: NSViewController {
         
         c64.delegate = self
         c64.c1541.delegate = self
+        c64.c1541.turnOn()
         onPlayButton(self)
     }
     
