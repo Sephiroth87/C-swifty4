@@ -499,6 +499,12 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? absolute2() :
                 state.cycle == 4 ? absolute3() :
                 state.cycle == 5 ? lsrAbsolute() : absoluteWriteUpdateNZ()
+        case 0x5E:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteX() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? lsrAbsolute() : absoluteWriteUpdateNZ()
             // NOP
         case 0xEA, 0x5A, 0x7A:
             nop()
@@ -811,6 +817,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x46: return String(format: "LSR %02x", self.memory.readByte(state.pc))
             case 0x56: return String(format: "LSR %02x,X", self.memory.readByte(state.pc))
             case 0x4E: return String(format: "LSR %04x", self.memory.readWord(state.pc))
+            case 0x1E: return String(format: "LSR %04x,X", self.memory.readWord(state.pc))
             case 0xEA: return "NOP"
             case 0x5A: return "NOP*"
             case 0x7A: return "NOP*"
