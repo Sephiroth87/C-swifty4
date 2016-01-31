@@ -520,6 +520,9 @@ final internal class CPU: Component, IRQLineComponent {
             oraImmediate()
         case 0x05:
             state.cycle == 2 ? zeroPage() : oraZeroPage()
+        case 0x15:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPageX() : oraZeroPage()
         case 0x0D:
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absolute2() : oraAbsolute()
@@ -827,6 +830,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0xE2: return String(format: "NOP* #%02x", self.memory.readByte(state.pc))
             case 0x09: return String(format: "ORA #%02x", self.memory.readByte(state.pc))
             case 0x05: return String(format: "ORA %02x", self.memory.readByte(state.pc))
+            case 0x15: return String(format: "ORA %02x,X", self.memory.readByte(state.pc))
             case 0x0D: return String(format: "ORA %04x", self.memory.readWord(state.pc))
             case 0x3D: return String(format: "ORA %04x,X", self.memory.readWord(state.pc))
             case 0x48: return "PHA"
