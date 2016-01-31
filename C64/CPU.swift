@@ -494,6 +494,11 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? zeroPageX() :
                 state.cycle == 4 ? zeroPage2() :
                 state.cycle == 5 ? lsrZeroPage() : zeroPageWriteUpdateNZ()
+        case 0x4E:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absolute2() :
+                state.cycle == 4 ? absolute3() :
+                state.cycle == 5 ? lsrAbsolute() : absoluteWriteUpdateNZ()
             // NOP
         case 0xEA, 0x5A, 0x7A:
             nop()
@@ -805,6 +810,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x4A: return "LSR"
             case 0x46: return String(format: "LSR %02x", self.memory.readByte(state.pc))
             case 0x56: return String(format: "LSR %02x,X", self.memory.readByte(state.pc))
+            case 0x4E: return String(format: "LSR %04x", self.memory.readWord(state.pc))
             case 0xEA: return "NOP"
             case 0x5A: return "NOP*"
             case 0x7A: return "NOP*"
@@ -1677,6 +1683,12 @@ final internal class CPU: Component, IRQLineComponent {
 
     private func lsrZeroPage() {
         memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        state.c = ((state.data & 1) != 0)
+        state.data = state.data >> 1
+    }
+    
+    private func lsrAbsolute() {
+        memory.writeByte(address, byte: state.data)
         state.c = ((state.data & 1) != 0)
         state.data = state.data >> 1
     }
