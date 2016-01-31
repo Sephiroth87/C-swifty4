@@ -1042,7 +1042,8 @@ final internal class CPU: Component, IRQLineComponent {
     }
     
     private func indirectIndex2() {
-        state.addressLow = memory.readByte(UInt16(state.pointer++))
+        state.addressLow = memory.readByte(UInt16(state.pointer))
+        state.pointer = state.pointer &+ 1
     }
     
     private func indirectX() {
@@ -1051,11 +1052,13 @@ final internal class CPU: Component, IRQLineComponent {
     }
     
     private func indirectX2() {
-        state.addressHigh = memory.readByte(UInt16(state.pointer++))
+        state.addressHigh = memory.readByte(UInt16(state.pointer))
+        state.pointer = state.pointer &+ 1
     }
     
     private func indirectY() {
-        state.addressHigh = memory.readByte(UInt16(state.pointer++))
+        state.addressHigh = memory.readByte(UInt16(state.pointer))
+        state.pointer = state.pointer &+ 1
         state.pageBoundaryCrossed = (UInt16(state.addressLow) &+ state.y >= 0x100)
         state.addressLow = state.addressLow &+ state.y
     }
