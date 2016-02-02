@@ -598,6 +598,12 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? absolute2() :
                 state.cycle == 4 ? absolute3() :
                 state.cycle == 5 ? rorAbsolute() : absoluteWriteUpdateNZ()
+        case 0x7E:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteX() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? rorAbsolute() : absoluteWriteUpdateNZ()
             // RTI
         case 0x40:
             state.cycle == 2 ? immediate() :
@@ -874,6 +880,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x66: return String(format: "ROR %02x", self.memory.readByte(state.pc))
             case 0x76: return String(format: "ROR %02x,X", self.memory.readByte(state.pc))
             case 0x6E: return String(format: "ROR %04x", self.memory.readWord(state.pc))
+            case 0x7E: return String(format: "ROR %04x,X", self.memory.readWord(state.pc))
             case 0x40: return "RTI"
             case 0x60: return "RTS"
             case 0xE9: return String(format: "SBC #%02x", self.memory.readByte(state.pc))
