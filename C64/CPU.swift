@@ -565,6 +565,11 @@ final internal class CPU: Component, IRQLineComponent {
             state.cycle == 2 ? zeroPage() :
                 state.cycle == 3 ? zeroPage2() :
                 state.cycle == 4 ? rolZeroPage() : zeroPageWriteUpdateNZ()
+        case 0x36:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPageX() :
+                state.cycle == 4 ? zeroPage2() :
+                state.cycle == 5 ? rolZeroPage() : zeroPageWriteUpdateNZ()
         case 0x2E:
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absolute2() :
@@ -856,6 +861,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x28: return "PLP"
             case 0x2A: return "ROL"
             case 0x26: return String(format: "ROL %02x", self.memory.readByte(state.pc))
+            case 0x36: return String(format: "ROL %02x,X", self.memory.readByte(state.pc))
             case 0x2E: return String(format: "ROL %04x", self.memory.readWord(state.pc))
             case 0x6A: return "ROR"
             case 0x66: return String(format: "ROR %02x", self.memory.readByte(state.pc))
