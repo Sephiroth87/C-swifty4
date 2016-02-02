@@ -627,20 +627,25 @@ final internal class CPU: Component, IRQLineComponent {
         case 0xED:
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absolute2() :
-                state.cycle == 4 ? sbcAbsolute() : sbcAbsolute2()
+                state.cycle == 4 ? sbcPageBoundary() : sbcAbsolute()
         case 0xFD:
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absoluteX() :
-                state.cycle == 4 ? sbcAbsolute() : sbcAbsolute2()
+                state.cycle == 4 ? sbcPageBoundary() : sbcAbsolute()
         case 0xF9:
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absoluteY() :
-                state.cycle == 4 ? sbcAbsolute() : sbcAbsolute2()
+                state.cycle == 4 ? sbcPageBoundary() : sbcAbsolute()
+        case 0xE1:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectX() :
+                state.cycle == 4 ? indirectIndex2() :
+                state.cycle == 5 ? indirectX2() : sbcAbsolute()
         case 0xF1:
             state.cycle == 2 ? indirectIndex() :
                 state.cycle == 3 ? indirectIndex2() :
                 state.cycle == 4 ? indirectY() :
-                state.cycle == 5 ? sbcAbsolute() : sbcAbsolute2()
+                state.cycle == 5 ? sbcPageBoundary() : sbcAbsolute()
             // SEC
         case 0x38:
             secImplied()
@@ -889,6 +894,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0xED: return String(format: "SBC %04x", self.memory.readWord(state.pc))
             case 0xFD: return String(format: "SBC %04x,X", self.memory.readWord(state.pc))
             case 0xF9: return String(format: "SBC %04x,Y", self.memory.readWord(state.pc))
+            case 0xE1: return String(format: "SBC (%02x,X)", self.memory.readByte(state.pc))
             case 0xF1: return String(format: "SBC (%02x),Y", self.memory.readByte(state.pc))
             case 0x38: return "SEC"
             case 0xF8: return "SED"
@@ -1960,7 +1966,7 @@ final internal class CPU: Component, IRQLineComponent {
         state.cycle = 0
     }
     
-    private func sbcAbsolute() {
+    private func sbcPageBoundary() {
         state.data = memory.readByte(address)
         if state.pageBoundaryCrossed {
             state.addressHigh = state.addressHigh &+ 1
@@ -1970,7 +1976,7 @@ final internal class CPU: Component, IRQLineComponent {
         }
     }
     
-    private func sbcAbsolute2() {
+    private func sbcAbsolute() {
         state.data = memory.readByte(address)
         sbc(state.data)
         state.cycle = 0
