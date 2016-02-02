@@ -575,6 +575,12 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? absolute2() :
                 state.cycle == 4 ? absolute3() :
                 state.cycle == 5 ? rolAbsolute() : absoluteWriteUpdateNZ()
+        case 0x3E:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteX() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? rolAbsolute() : absoluteWriteUpdateNZ()
             // ROR
         case 0x6A:
             rorAccumulator()
@@ -863,6 +869,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x26: return String(format: "ROL %02x", self.memory.readByte(state.pc))
             case 0x36: return String(format: "ROL %02x,X", self.memory.readByte(state.pc))
             case 0x2E: return String(format: "ROL %04x", self.memory.readWord(state.pc))
+            case 0x3E: return String(format: "ROL %04x,X", self.memory.readWord(state.pc))
             case 0x6A: return "ROR"
             case 0x66: return String(format: "ROR %02x", self.memory.readByte(state.pc))
             case 0x76: return String(format: "ROR %02x,X", self.memory.readByte(state.pc))
