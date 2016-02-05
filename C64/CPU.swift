@@ -626,8 +626,7 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? zeroPageX() : sbcZeroPage()
         case 0xED:
             state.cycle == 2 ? absolute() :
-                state.cycle == 3 ? absolute2() :
-                state.cycle == 4 ? sbcPageBoundary() : sbcAbsolute()
+                state.cycle == 3 ? absolute2() : sbcAbsolute()
         case 0xFD:
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absoluteX() :
