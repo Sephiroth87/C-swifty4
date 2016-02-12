@@ -40,6 +40,21 @@ private class ContextBackedLayer: CALayer {
         self.contents = cgImage
     }
     
+    override var bounds: CGRect {
+        didSet {
+            var wScale = bounds.width / 418.0
+            var hScale = bounds.height / 235.0
+            if wScale > hScale {
+                wScale /= hScale
+                hScale = 1.0
+            } else {
+                hScale /= wScale
+                wScale = 1.0
+            }
+            self.contentsRect = CGRect(x: (1.0 - wScale) / 2.0, y: (1.0 - hScale) / 2.0, width: wScale, height: hScale)
+        }
+    }
+    
 }
 
 class ContextBackedView: NSView {
