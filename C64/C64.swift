@@ -132,7 +132,7 @@ final public class C64: NSObject {
         
         if lines == 263 {
             lines = 0
-            dispatch_sync(dispatch_get_main_queue(), { () -> Void in
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 let _ = self.delegate?.C64VideoFrameReady(self)
             })
         }
