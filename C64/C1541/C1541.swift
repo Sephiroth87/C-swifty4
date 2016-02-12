@@ -36,6 +36,7 @@ final public class C1541 {
     }
     internal var rotating = false
     private var on: Bool = false
+    private var ledOn: Bool = false
     
     private var disk: Disk?
     private var halftrack: Int = 41
@@ -124,9 +125,12 @@ final public class C1541 {
     }
     
     internal func updateLedStatus(ledOn: Bool) {
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            let _ = self.delegate?.C1541UpdateLedStatus(self, ledOn: ledOn)
-        })
+        if ledOn != self.ledOn {
+            self.ledOn = ledOn
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                let _ = self.delegate?.C1541UpdateLedStatus(self, ledOn: ledOn)
+            })
+        }
     }
     
     internal func moveHeadUp() {
