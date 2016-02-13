@@ -198,6 +198,9 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? indirectIndex2() :
                 state.cycle == 4 ? indirectY() :
                 state.cycle == 5 ? andPageBoundary() : andAbsolute()
+            // ANE*
+        case 0x8B:
+            aneImmediate()
             // ASL
         case 0x0A:
             aslAccumulator()
@@ -898,6 +901,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x39: return String(format: "AND %04x,Y", self.memory.readWord(state.pc))
             case 0x21: return String(format: "AND (%02x,X)", self.memory.readByte(state.pc))
             case 0x31: return String(format: "AND (%02x),Y", self.memory.readByte(state.pc))
+            case 0x8B: return String(format: "ANE* #%02x", self.memory.readByte(state.pc))
             case 0x0A: return "ASL"
             case 0x06: return String(format: "ASL %02x", self.memory.readByte(state.pc))
             case 0x16: return String(format: "ASL %02x,X", self.memory.readByte(state.pc))
@@ -1388,6 +1392,15 @@ final internal class CPU: Component, IRQLineComponent {
     private func andAbsolute() {
         state.data = memory.readByte(address)
         loadA(state.a & state.data)
+        state.cycle = 0
+    }
+    
+    //MARK: ANE*
+    
+    private func aneImmediate() {
+        state.data = memory.readByte(state.pc++)
+        //TODO: From http://www.zimmers.net/anonftp/pub/cbm/documents/chipdata/64doc, number might be different than 0xEE
+        loadA((state.a | 0xEE) & state.x & state.data)
         state.cycle = 0
     }
     
