@@ -604,6 +604,47 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 4 ? absoluteFixPage() :
                 state.cycle == 5 ? absolute3() :
                 state.cycle == 6 ? rorAbsolute() : absoluteWriteUpdateNZ()
+            // RRA*
+        case 0x67:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPage2() :
+                state.cycle == 4 ? rraZeroPage() : rraZeroPage2()
+        case 0x77:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPageX() :
+                state.cycle == 4 ? zeroPage2() :
+                state.cycle == 5 ? rraZeroPage() : rraZeroPage2()
+        case 0x6F:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absolute2() :
+                state.cycle == 4 ? absolute3() :
+                state.cycle == 5 ? rraAbsolute() : rraAbsolute2()
+        case 0x7F:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteX() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? rraAbsolute() : rraAbsolute2()
+        case 0x7B:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteY() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? rraAbsolute() : rraAbsolute2()
+        case 0x63:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectX() :
+                state.cycle == 4 ? indirectIndex2() :
+                state.cycle == 5 ? indirectX2() :
+                state.cycle == 6 ? indirect() :
+                state.cycle == 7 ? rraAbsolute() : rraAbsolute2()
+        case 0x73:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectIndex2() :
+                state.cycle == 4 ? indirectY() :
+                state.cycle == 5 ? absoluteFixPage() :
+                state.cycle == 6 ? indirect() :
+                state.cycle == 7 ? rraAbsolute() : rraAbsolute2()
             // RTI
         case 0x40:
             state.cycle == 2 ? immediate() :
@@ -967,6 +1008,13 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x76: return String(format: "ROR %02x,X", self.memory.readByte(state.pc))
             case 0x6E: return String(format: "ROR %04x", self.memory.readWord(state.pc))
             case 0x7E: return String(format: "ROR %04x,X", self.memory.readWord(state.pc))
+            case 0x67: return String(format: "RRA* %02x", self.memory.readByte(state.pc))
+            case 0x77: return String(format: "RRA* %02x,X", self.memory.readByte(state.pc))
+            case 0x6F: return String(format: "RRA* %04x", self.memory.readWord(state.pc))
+            case 0x7F: return String(format: "RRA* %04x,X", self.memory.readWord(state.pc))
+            case 0x7B: return String(format: "RRA* %04x,Y", self.memory.readWord(state.pc))
+            case 0x63: return String(format: "RRA* (%02x,X)", self.memory.readByte(state.pc))
+            case 0x73: return String(format: "RRA* (%02x),Y", self.memory.readByte(state.pc))
             case 0x40: return "RTI"
             case 0x60: return "RTS"
             case 0xE9: return String(format: "SBC #%02x", self.memory.readByte(state.pc))
@@ -1979,6 +2027,28 @@ final internal class CPU: Component, IRQLineComponent {
         let hasCarry = state.c
         state.c = ((state.data & 1) != 0)
         state.data = (state.data >> 1) + (hasCarry ? 0x80 : 0)
+    }
+    
+    //MARK: RRA*
+    
+    private func rraZeroPage() {
+        rorZeroPage()
+    }
+    
+    private func rraZeroPage2() {
+        memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        adc(state.data)
+        state.cycle = 0
+    }
+    
+    private func rraAbsolute() {
+        rorAbsolute()
+    }
+    
+    private func rraAbsolute2() {
+        memory.writeByte(address, byte: state.data)
+        adc(state.data)
+        state.cycle = 0
     }
     
     //MARK: RTI
