@@ -176,8 +176,8 @@
 			children = (
 				E5065F1B1A6311AC00CECED1 /* C-swifty4 iOS */,
 				E5065E501A63028F00CECED1 /* C-swifty4 Mac */,
-				E52FEA871A9B996700851C83 /* C-swifty4 Tests */,
 				E5EE30C91BF917A300404BE0 /* C-swifty4 tvOS */,
+				E52FEA871A9B996700851C83 /* C-swifty4 Tests */,
 				E5EE304F1BF8E63900404BE0 /* C64.xcodeproj */,
 				E567E4B11A8D0EC000CF079D /* ROM */,
 				E567E4B71A8D17C200CF079D /* Programs */,
@@ -605,8 +605,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "C-swifty4 Mac/C-swifty4.entitlements";
-				CODE_SIGN_IDENTITY = "Developer ID Application";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -656,8 +654,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "C-swifty4 Mac/C-swifty4.entitlements";
-				CODE_SIGN_IDENTITY = "Developer ID Application";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";

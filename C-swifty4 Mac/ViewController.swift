@@ -176,19 +176,11 @@ class ViewController: NSViewController {
 extension ViewController: NSWindowDelegate {
     
     func windowWillResize(sender: NSWindow, toSize frameSize: NSSize) -> NSSize {
-        let widthDiff = frameSize.width - sender.frame.size.width
-        let heightDiff = frameSize.height - sender.frame.size.height
-        
-        if abs(heightDiff) > abs(widthDiff) {
-            let newHeight = frameSize.height
-            let newWidth = ((newHeight - 22) / 235) * 418
-            self.view.window?.contentAspectRatio = NSSize(width: newWidth, height: newHeight)
-        } else {
-            let newWidth = frameSize.width
-            let newHeight = ((newWidth / 418) * 235) + 22
-            self.view.window?.contentAspectRatio = NSSize(width: newWidth, height: newHeight)
-        }
-        return frameSize
+        var newSize = frameSize
+        newSize.width = max(newSize.width, sender.contentMinSize.width)
+        newSize.height = max(newSize.height, sender.contentMinSize.height + 22)
+        sender.contentAspectRatio = NSSize(width: newSize.width, height: (newSize.width / (418.0 / 235.0)) + 22.0)
+        return newSize
     }
 
 }
