@@ -694,6 +694,47 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 5 ? absoluteFixPage() :
                 state.cycle == 6 ? indirect() :
                 state.cycle == 7 ? sloAbsolute() : sloAbsolute2()
+            // SRE*
+        case 0x47:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPage2() :
+                state.cycle == 4 ? sreZeroPage() : sreZeroPage2()
+        case 0x57:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPageX() :
+                state.cycle == 4 ? zeroPage2() :
+                state.cycle == 5 ? sreZeroPage() : sreZeroPage2()
+        case 0x4F:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absolute2() :
+                state.cycle == 4 ? absolute3() :
+                state.cycle == 5 ? sreAbsolute() : sreAbsolute2()
+        case 0x5F:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteX() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? sreAbsolute() : sreAbsolute2()
+        case 0x5B:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteY() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? sreAbsolute() : sreAbsolute2()
+        case 0x43:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectX() :
+                state.cycle == 4 ? indirectIndex2() :
+                state.cycle == 5 ? indirectX2() :
+                state.cycle == 6 ? indirect() :
+                state.cycle == 7 ? sreAbsolute() : sreAbsolute2()
+        case 0x53:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectIndex2() :
+                state.cycle == 4 ? indirectY() :
+                state.cycle == 5 ? absoluteFixPage() :
+                state.cycle == 6 ? indirect() :
+                state.cycle == 7 ? sreAbsolute() : sreAbsolute2()
             // STA
         case 0x85:
             state.cycle == 2 ? zeroPage() : staZeroPage()
@@ -946,6 +987,13 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x1B: return String(format: "SLO* %04x,Y", self.memory.readWord(state.pc))
             case 0x03: return String(format: "SLO* (%02x,X)", self.memory.readByte(state.pc))
             case 0x13: return String(format: "SLO* (%02x),Y", self.memory.readByte(state.pc))
+            case 0x47: return String(format: "SRE* %02x", self.memory.readByte(state.pc))
+            case 0x57: return String(format: "SRE* %02x,X", self.memory.readByte(state.pc))
+            case 0x4F: return String(format: "SRE* %04x", self.memory.readWord(state.pc))
+            case 0x5F: return String(format: "SRE* %04x,X", self.memory.readWord(state.pc))
+            case 0x5B: return String(format: "SRE* %04x,Y", self.memory.readWord(state.pc))
+            case 0x43: return String(format: "SRE* (%02x,X)", self.memory.readByte(state.pc))
+            case 0x53: return String(format: "SRE* (%02x),Y", self.memory.readByte(state.pc))
             case 0x85: return String(format: "STA %02x", self.memory.readByte(state.pc))
             case 0x95: return String(format: "STA %02x,X", self.memory.readByte(state.pc))
             case 0x8D: return String(format: "STA %04x", self.memory.readWord(state.pc))
@@ -2076,6 +2124,32 @@ final internal class CPU: Component, IRQLineComponent {
     private func sloAbsolute2() {
         memory.writeByte(address, byte: state.data)
         loadA(state.a | state.data)
+        state.cycle = 0
+    }
+    
+    //MARK: SRE*
+    
+    private func sreZeroPage() {
+        memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        state.c = ((state.data & 0x01) != 0)
+        state.data >>= 1
+    }
+    
+    private func sreZeroPage2() {
+        memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        loadA(state.a ^ state.data)
+        state.cycle = 0
+    }
+    
+    private func sreAbsolute() {
+        memory.writeByte(address, byte: state.data)
+        state.c = ((state.data & 0x01) != 0)
+        state.data >>= 1
+    }
+    
+    private func sreAbsolute2() {
+        memory.writeByte(address, byte: state.data)
+        loadA(state.a ^ state.data)
         state.cycle = 0
     }
     
