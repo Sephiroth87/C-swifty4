@@ -665,6 +665,12 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 4 ? absoluteFixPage() :
                 state.cycle == 5 ? absolute3() :
                 state.cycle == 6 ? sloAbsolute() : sloAbsolute2()
+        case 0x1B:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteY() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? sloAbsolute() : sloAbsolute2()
             // STA
         case 0x85:
             state.cycle == 2 ? zeroPage() : staZeroPage()
@@ -912,6 +918,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x78: return "SEI"
             case 0x0F: return String(format: "SLO* %04x", self.memory.readWord(state.pc))
             case 0x1F: return String(format: "SLO* %04x,X", self.memory.readWord(state.pc))
+            case 0x1B: return String(format: "SLO* %04x,Y", self.memory.readWord(state.pc))
             case 0x85: return String(format: "STA %02x", self.memory.readByte(state.pc))
             case 0x95: return String(format: "STA %02x,X", self.memory.readByte(state.pc))
             case 0x8D: return String(format: "STA %04x", self.memory.readWord(state.pc))
