@@ -654,6 +654,10 @@ final internal class CPU: Component, IRQLineComponent {
         case 0x78:
             seiImplied()
             // SLO*
+        case 0x07:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPage2() :
+                state.cycle == 4 ? sloZeroPage() : sloZeroPage2()
         case 0x0F:
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absolute2() :
@@ -930,6 +934,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x38: return "SEC"
             case 0xF8: return "SED"
             case 0x78: return "SEI"
+            case 0x07: return String(format: "SLO* %02x", self.memory.readByte(state.pc))
             case 0x0F: return String(format: "SLO* %04x", self.memory.readWord(state.pc))
             case 0x1F: return String(format: "SLO* %04x,X", self.memory.readWord(state.pc))
             case 0x1B: return String(format: "SLO* %04x,Y", self.memory.readWord(state.pc))
@@ -2043,6 +2048,18 @@ final internal class CPU: Component, IRQLineComponent {
     }
     
     //MARK: SLO*
+    
+    private func sloZeroPage() {
+        memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        state.c = ((state.data & 0x80) != 0)
+        state.data <<= 1
+    }
+    
+    private func sloZeroPage2() {
+        memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        loadA(state.a | state.data)
+        state.cycle = 0
+    }
     
     private func sloAbsolute() {
         memory.writeByte(address, byte: state.data)
