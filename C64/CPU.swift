@@ -201,6 +201,9 @@ final internal class CPU: Component, IRQLineComponent {
             // ANE*
         case 0x8B:
             aneImmediate()
+            // ARR*
+        case 0x6B:
+            arrImmediate()
             // ASL
         case 0x0A:
             aslAccumulator()
@@ -902,6 +905,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x21: return String(format: "AND (%02x,X)", self.memory.readByte(state.pc))
             case 0x31: return String(format: "AND (%02x),Y", self.memory.readByte(state.pc))
             case 0x8B: return String(format: "ANE* #%02x", self.memory.readByte(state.pc))
+            case 0x6B: return String(format: "ARR* #%02x", self.memory.readByte(state.pc))
             case 0x0A: return "ASL"
             case 0x06: return String(format: "ASL %02x", self.memory.readByte(state.pc))
             case 0x16: return String(format: "ASL %02x,X", self.memory.readByte(state.pc))
@@ -1401,6 +1405,40 @@ final internal class CPU: Component, IRQLineComponent {
         state.data = memory.readByte(state.pc++)
         //TODO: From http://www.zimmers.net/anonftp/pub/cbm/documents/chipdata/64doc, number might be different than 0xEE
         loadA((state.a | 0xEE) & state.x & state.data)
+        state.cycle = 0
+    }
+    
+    //MARK: ARR*
+    
+    private func arrImmediate() {
+        
+        
+        state.data = memory.readByte(state.pc++)
+        if state.v == false && state.d == true && state.z == false && state.b == true && state.a == 0xff && state.data == 0xff {
+            print("A")
+        }
+        let tempA = state.a & state.data
+        state.a = (tempA >> 1) + (state.c ? 0x80 : 0)
+        if state.d {
+            state.n = state.c
+            state.z = (state.a == 0)
+            state.v = (((tempA ^ state.a) & 0x40) != 0)
+            
+            if (tempA & 0x0F) + (tempA & 0x01) > 5 {
+                state.a = (state.a & 0xF0) | ((state.a &+ 6) & 0x0F)
+            }
+            if UInt16(tempA & 0xF0) &+ UInt16(tempA & 0x10) > 0x50 {
+                state.c = true
+                state.a = state.a &+ 0x60
+            } else {
+                state.c = false
+            }
+        } else {
+            state.z = (state.a == 0)
+            state.n = (state.a & 0x80 != 0)
+            state.c = ((state.a & 0x40) != 0)
+            state.v = (((state.a & 0x40) ^ ((state.a & 0x20) << 1)) != 0)
+        }
         state.cycle = 0
     }
     
