@@ -115,7 +115,7 @@ final internal class C64Memory: Memory , Component {
                 } else if position >= 0xDD00 && position <= 0xDDFF {
                     return self.cia2.readByte(UInt8(truncatingBitPattern: position & 0xF))
                 } else {
-                    crashHandler?("Unknown I/O address " + String(position, radix: 16, uppercase: true))
+                    //TODO: http://www.zimmers.net/anonftp/pub/cbm/documents/chipdata/pal.timing
                     return 0
                 }
             } else if state.characterRomVisible {
