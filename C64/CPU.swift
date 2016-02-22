@@ -1525,8 +1525,6 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: ARR*
     
     private func arrImmediate() {
-        
-        
         state.data = memory.readByte(state.pc++)
         let tempA = state.a & state.data
         state.a = (tempA >> 1) + (state.c ? 0x80 : 0)
@@ -1969,7 +1967,8 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: LDA
     
     private func ldaImmediate() {
-        loadA(memory.readByte(state.pc++))
+        state.data = memory.readByte(state.pc++)
+        loadA(state.data)
         state.cycle = 0
     }
     
@@ -1998,7 +1997,8 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: LDX
     
     private func ldxImmediate() {
-        loadX(memory.readByte(state.pc++))
+        state.data = memory.readByte(state.pc++)
+        loadX(state.data)
         state.cycle = 0
     }
     
@@ -2027,7 +2027,8 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: LDY
     
     private func ldyImmediate() {
-        loadY(memory.readByte(state.pc++))
+        state.data = memory.readByte(state.pc++)
+        loadY(state.data)
         state.cycle = 0
     }
     
