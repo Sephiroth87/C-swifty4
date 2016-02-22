@@ -799,6 +799,16 @@ final internal class CPU: Component, IRQLineComponent {
             // SEI
         case 0x78:
             seiImplied()
+            // SHA*
+        case 0x9F:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteY() :
+                state.cycle == 4 ? absoluteFixPage() : shaAbsolute()
+        case 0x93:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectIndex2() :
+                state.cycle == 4 ? indirectY() :
+                state.cycle == 5 ? absoluteFixPage() : shaAbsolute()
             // SLO*
         case 0x07:
             state.cycle == 2 ? zeroPage() :
@@ -1154,6 +1164,8 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x38: return "SEC"
             case 0xF8: return "SED"
             case 0x78: return "SEI"
+            case 0x9F: return String(format: "SHA %04x,Y", self.memory.readWord(state.pc))
+            case 0x93: return String(format: "SHA (%02x),Y", self.memory.readByte(state.pc))
             case 0x07: return String(format: "SLO* %02x", self.memory.readByte(state.pc))
             case 0x17: return String(format: "SLO* %02x,X", self.memory.readByte(state.pc))
             case 0x0F: return String(format: "SLO* %04x", self.memory.readWord(state.pc))
@@ -2403,6 +2415,15 @@ final internal class CPU: Component, IRQLineComponent {
     private func seiImplied() {
         memory.readByte(state.pc)
         state.i = true
+        state.cycle = 0
+    }
+    
+    //MARK: SHA*
+    
+    private func shaAbsolute() {
+        state.data = state.a & state.x & (state.addressHigh &+ 1)
+        memory.writeByte(address, byte: state.data)
+        state.addressHigh = state.data
         state.cycle = 0
     }
     
