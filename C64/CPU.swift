@@ -552,6 +552,9 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 4 ? absoluteFixPage() :
                 state.cycle == 5 ? absolute3() :
                 state.cycle == 6 ? lsrAbsolute() : absoluteWriteUpdateNZ()
+            // LXA*
+        case 0xAB:
+            lxaImmediate()
             // NOP
         case 0xEA, 0x5A, 0x7A:
             nop()
@@ -1090,6 +1093,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x56: return String(format: "LSR %02x,X", self.memory.readByte(state.pc))
             case 0x4E: return String(format: "LSR %04x", self.memory.readWord(state.pc))
             case 0x1E: return String(format: "LSR %04x,X", self.memory.readWord(state.pc))
+            case 0xAB: return String(format: "LXA* #%02x", self.memory.readByte(state.pc))
             case 0xEA: return "NOP"
             case 0x5A: return "NOP*"
             case 0x7A: return "NOP*"
@@ -2073,6 +2077,16 @@ final internal class CPU: Component, IRQLineComponent {
         memory.writeByte(address, byte: state.data)
         state.c = ((state.data & 1) != 0)
         state.data = state.data >> 1
+    }
+    
+    //MARK: LXA*
+    
+    private func lxaImmediate() {
+        state.data = memory.readByte(state.pc++)
+        //TODO: From http://www.zimmers.net/anonftp/pub/cbm/documents/chipdata/64doc, number might be different than 0xEE
+        state.x = state.data & (state.a | 0xEE)
+        loadA(state.x)
+        state.cycle = 0
     }
     
     //MARK: NOP
