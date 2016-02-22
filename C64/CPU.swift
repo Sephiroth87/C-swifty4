@@ -564,6 +564,47 @@ final internal class CPU: Component, IRQLineComponent {
         case 0x28:
             state.cycle == 2 ? implied() :
                 state.cycle == 3 ? implied2() : plpImplied()
+            // RLA*
+        case 0x27:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPage2() :
+                state.cycle == 4 ? rlaZeroPage() : rlaZeroPage2()
+        case 0x37:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPageX() :
+                state.cycle == 4 ? zeroPage2() :
+                state.cycle == 5 ? rlaZeroPage() : rlaZeroPage2()
+        case 0x2F:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absolute2() :
+                state.cycle == 4 ? absolute3() :
+                state.cycle == 5 ? rlaAbsolute() : rlaAbsolute2()
+        case 0x3F:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteX() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? rlaAbsolute() : rlaAbsolute2()
+        case 0x3B:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteY() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? rlaAbsolute() : rlaAbsolute2()
+        case 0x23:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectX() :
+                state.cycle == 4 ? indirectIndex2() :
+                state.cycle == 5 ? indirectX2() :
+                state.cycle == 6 ? indirect() :
+                state.cycle == 7 ? rlaAbsolute() : rlaAbsolute2()
+        case 0x33:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectIndex2() :
+                state.cycle == 4 ? indirectY() :
+                state.cycle == 5 ? absoluteFixPage() :
+                state.cycle == 6 ? indirect() :
+                state.cycle == 7 ? rlaAbsolute() : rlaAbsolute2()
             // ROL
         case 0x2A:
             rolAccumulator()
@@ -1006,6 +1047,13 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x08: return "PHP"
             case 0x68: return "PLA"
             case 0x28: return "PLP"
+            case 0x27: return String(format: "RLA* %02x", self.memory.readByte(state.pc))
+            case 0x37: return String(format: "RLA* %02x,X", self.memory.readByte(state.pc))
+            case 0x2F: return String(format: "RLA* %04x", self.memory.readWord(state.pc))
+            case 0x3F: return String(format: "RLA* %04x,X", self.memory.readWord(state.pc))
+            case 0x3B: return String(format: "RLA* %04x,Y", self.memory.readWord(state.pc))
+            case 0x23: return String(format: "RLA* (%02x,X)", self.memory.readByte(state.pc))
+            case 0x33: return String(format: "RLA* (%02x),Y", self.memory.readByte(state.pc))
             case 0x2A: return "ROL"
             case 0x26: return String(format: "ROL %02x", self.memory.readByte(state.pc))
             case 0x36: return String(format: "ROL %02x,X", self.memory.readByte(state.pc))
@@ -2029,6 +2077,28 @@ final internal class CPU: Component, IRQLineComponent {
         state.d = ((p & 0x08) != 0)
         state.v = ((p & 0x40) != 0)
         state.n = ((p & 0x80) != 0)
+        state.cycle = 0
+    }
+    
+    //MARK: RLA*
+    
+    private func rlaZeroPage() {
+        rolZeroPage()
+    }
+    
+    private func rlaZeroPage2() {
+        memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        loadA(state.a & state.data)
+        state.cycle = 0
+    }
+    
+    private func rlaAbsolute() {
+        rolAbsolute()
+    }
+    
+    private func rlaAbsolute2() {
+        memory.writeByte(address, byte: state.data)
+        loadA(state.a & state.data)
         state.cycle = 0
     }
     
