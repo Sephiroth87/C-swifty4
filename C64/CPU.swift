@@ -329,6 +329,47 @@ final internal class CPU: Component, IRQLineComponent {
         case 0xCC:
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absolute2() : cpyAbsolute()
+            // DCP*
+        case 0xC7:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPage2() :
+                state.cycle == 4 ? dcpZeroPage() : dcpZeroPage2()
+        case 0xD7:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPageX() :
+                state.cycle == 4 ? zeroPage2() :
+                state.cycle == 5 ? dcpZeroPage() : dcpZeroPage2()
+        case 0xCF:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absolute2() :
+                state.cycle == 4 ? absolute3() :
+                state.cycle == 5 ? dcpAbsolute() : dcpAbsolute2()
+        case 0xDF:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteX() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? dcpAbsolute() : dcpAbsolute2()
+        case 0xDB:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteY() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? dcpAbsolute() : dcpAbsolute2()
+        case 0xC3:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectX() :
+                state.cycle == 4 ? indirectIndex2() :
+                state.cycle == 5 ? indirectX2() :
+                state.cycle == 6 ? indirect() :
+                state.cycle == 7 ? dcpAbsolute() : dcpAbsolute2()
+        case 0xD3:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectIndex2() :
+                state.cycle == 4 ? indirectY() :
+                state.cycle == 5 ? absoluteFixPage() :
+                state.cycle == 6 ? indirect() :
+                state.cycle == 7 ? dcpAbsolute() : dcpAbsolute2()
             // DEC
         case 0xC6:
             state.cycle == 2 ? zeroPage() :
@@ -981,6 +1022,13 @@ final internal class CPU: Component, IRQLineComponent {
             case 0xC0: return String(format: "CPY #%02x", self.memory.readByte(state.pc))
             case 0xC4: return String(format: "CPY %02x", self.memory.readByte(state.pc))
             case 0xCC: return String(format: "CPY %04x", self.memory.readWord(state.pc))
+            case 0xC7: return String(format: "DCP* %02x", self.memory.readByte(state.pc))
+            case 0xD7: return String(format: "DCP* %02x,X", self.memory.readByte(state.pc))
+            case 0xCF: return String(format: "DCP* %04x", self.memory.readWord(state.pc))
+            case 0xDF: return String(format: "DCP* %04x,X", self.memory.readWord(state.pc))
+            case 0xDB: return String(format: "DCP* %04x,Y", self.memory.readWord(state.pc))
+            case 0xC3: return String(format: "DCP* (%02x,X)", self.memory.readByte(state.pc))
+            case 0xD3: return String(format: "DCP* (%02x),Y", self.memory.readByte(state.pc))
             case 0xC6: return String(format: "DEC %02x", self.memory.readByte(state.pc))
             case 0xD6: return String(format: "DEC %02x,X", self.memory.readByte(state.pc))
             case 0xCE: return String(format: "DEC %04x", self.memory.readWord(state.pc))
@@ -1762,6 +1810,28 @@ final internal class CPU: Component, IRQLineComponent {
     private func cpyAbsolute() {
         state.data = memory.readByte(address)
         cmp(state.y, state.data)
+        state.cycle = 0
+    }
+    
+    //MARK: DCP*
+    
+    private func dcpZeroPage() {
+        decZeroPage()
+    }
+    
+    private func dcpZeroPage2() {
+        memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        cmp(state.a, state.data)
+        state.cycle = 0
+    }
+    
+    private func dcpAbsolute() {
+        decAbsolute()
+    }
+    
+    private func dcpAbsolute2() {
+        memory.writeByte(address, byte: state.data)
+        cmp(state.a, state.data)
         state.cycle = 0
     }
     
