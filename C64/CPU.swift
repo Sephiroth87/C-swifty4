@@ -1528,9 +1528,6 @@ final internal class CPU: Component, IRQLineComponent {
         
         
         state.data = memory.readByte(state.pc++)
-        if state.v == false && state.d == true && state.z == false && state.b == true && state.a == 0xff && state.data == 0xff {
-            print("A")
-        }
         let tempA = state.a & state.data
         state.a = (tempA >> 1) + (state.c ? 0x80 : 0)
         if state.d {
