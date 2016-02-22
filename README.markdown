@@ -53,7 +53,7 @@ Then just open the project file, build and run.
 
 #### Lorenz Test Suite compatibility
 
-Passing 201/275 tests
+Passing 202/275 tests
 
 License
 -----------------------------
