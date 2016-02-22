@@ -745,6 +745,20 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? implied2() :
                 state.cycle == 4 ? rtsImplied() :
                 state.cycle == 5 ? rtsImplied2() : rtsImplied3()
+            // SAX*
+        case 0x87:
+            state.cycle == 2 ? zeroPage() : saxZeroPage()
+        case 0x97:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPageY() : saxZeroPage()
+        case 0x83:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectX() :
+                state.cycle == 4 ? indirectIndex2() :
+                state.cycle == 5 ? indirectX2() : saxAbsolute()
+        case 0x8F:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absolute2() : saxAbsolute()
             // SBC
         case 0xE9:
             sbcImmediate()
@@ -1121,6 +1135,10 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x73: return String(format: "RRA* (%02x),Y", self.memory.readByte(state.pc))
             case 0x40: return "RTI"
             case 0x60: return "RTS"
+            case 0x87: return String(format: "SAX* #%02x", self.memory.readByte(state.pc))
+            case 0x97: return String(format: "SAX* #%02x,Y", self.memory.readByte(state.pc))
+            case 0x83: return String(format: "SAX* (%02x,X)", self.memory.readByte(state.pc))
+            case 0x8F: return String(format: "SAX* %04x", self.memory.readWord(state.pc))
             case 0xE9: return String(format: "SBC #%02x", self.memory.readByte(state.pc))
             case 0xE5: return String(format: "SBC %02x", self.memory.readByte(state.pc))
             case 0xF5: return String(format: "SBC %02x,X", self.memory.readByte(state.pc))
@@ -2278,6 +2296,20 @@ final internal class CPU: Component, IRQLineComponent {
     
     private func rtsImplied3() {
         ++state.pc
+        state.cycle = 0
+    }
+    
+    //MARK: SAX*
+    
+    private func saxZeroPage() {
+        state.data = state.a & state.x
+        memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        state.cycle = 0
+    }
+    
+    private func saxAbsolute() {
+        state.data = state.a & state.x
+        memory.writeByte(address, byte: state.data)
         state.cycle = 0
     }
     
