@@ -887,6 +887,11 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? indirectIndex2() :
                 state.cycle == 4 ? indirectY() :
                 state.cycle == 5 ? absoluteFixPage() : shaAbsolute()
+            // SHS*
+        case 0x9B:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteY() :
+                state.cycle == 4 ? absoluteFixPage() : shsAbsolute()
             // SHX*
         case 0x9E:
             state.cycle == 2 ? absolute() :
@@ -1269,6 +1274,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x78: return "SEI"
             case 0x9F: return String(format: "SHA* %04x,Y", self.memory.readWord(state.pc))
             case 0x93: return String(format: "SHA* (%02x),Y", self.memory.readByte(state.pc))
+            case 0x9B: return String(format: "SHS* %04x,Y", self.memory.readWord(state.pc))
             case 0x9E: return String(format: "SHX* %04x,Y", self.memory.readWord(state.pc))
             case 0x9C: return String(format: "SHY* %04x,X", self.memory.readWord(state.pc))
             case 0x07: return String(format: "SLO* %02x", self.memory.readByte(state.pc))
@@ -2620,6 +2626,19 @@ final internal class CPU: Component, IRQLineComponent {
     
     private func shaAbsolute() {
         state.data = state.a & state.x & (state.addressHigh &+ 1)
+        memory.writeByte(address, byte: state.data)
+        if state.pageBoundaryCrossed {
+            state.addressHigh = state.data
+        }
+        state.cycle = 0
+    }
+    
+    //MARK: SHS*
+    
+    private func shsAbsolute() {
+        memory.readByte(address)
+        state.sp = state.x & state.a
+        state.data = state.sp & (state.addressHigh &+ 1)
         memory.writeByte(address, byte: state.data)
         if state.pageBoundaryCrossed {
             state.addressHigh = state.data
