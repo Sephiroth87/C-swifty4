@@ -863,6 +863,9 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? indirectIndex2() :
                 state.cycle == 4 ? indirectY() :
                 state.cycle == 5 ? sbcPageBoundary() : sbcAbsolute()
+            // SBC*
+        case 0xEB:
+            sbcImmediate()
             // SBX*
         case 0xCB:
             sbxImmediate()
@@ -1249,6 +1252,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0xF9: return String(format: "SBC %04x,Y", self.memory.readWord(state.pc))
             case 0xE1: return String(format: "SBC (%02x,X)", self.memory.readByte(state.pc))
             case 0xF1: return String(format: "SBC (%02x),Y", self.memory.readByte(state.pc))
+            case 0xEB: return String(format: "SBC* #%02x", self.memory.readByte(state.pc))
             case 0xCB: return "SBX*"
             case 0x38: return "SEC"
             case 0xF8: return "SED"
