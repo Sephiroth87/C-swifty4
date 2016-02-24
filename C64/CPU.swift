@@ -453,6 +453,47 @@ final internal class CPU: Component, IRQLineComponent {
             // INY
         case 0xC8:
             inyImplied()
+            // ISB*
+        case 0xE7:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPage2() :
+                state.cycle == 4 ? isbZeroPage() : isbZeroPage2()
+        case 0xF7:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPageX() :
+                state.cycle == 4 ? zeroPage2() :
+                state.cycle == 5 ? isbZeroPage() : isbZeroPage2()
+        case 0xEF:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absolute2() :
+                state.cycle == 4 ? absolute3() :
+                state.cycle == 5 ? isbAbsolute() : isbAbsolute2()
+        case 0xFF:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteX() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? isbAbsolute() : isbAbsolute2()
+        case 0xFB:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteY() :
+                state.cycle == 4 ? absoluteFixPage() :
+                state.cycle == 5 ? absolute3() :
+                state.cycle == 6 ? isbAbsolute() : isbAbsolute2()
+        case 0xE3:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectX() :
+                state.cycle == 4 ? indirectIndex2() :
+                state.cycle == 5 ? indirectX2() :
+                state.cycle == 6 ? indirect() :
+                state.cycle == 7 ? isbAbsolute() : isbAbsolute2()
+        case 0xF3:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectIndex2() :
+                state.cycle == 4 ? indirectY() :
+                state.cycle == 5 ? absoluteFixPage() :
+                state.cycle == 6 ? indirect() :
+                state.cycle == 7 ? isbAbsolute() : isbAbsolute2()
             // JMP
         case 0x4C:
             state.cycle == 2 ? absolute() : jmpAbsolute()
@@ -1086,6 +1127,13 @@ final internal class CPU: Component, IRQLineComponent {
             case 0xFE: return String(format: "INC %04x,X", self.memory.readWord(state.pc))
             case 0xE8: return "INX"
             case 0xC8: return "INY"
+            case 0xE7: return String(format: "ISB* %02x", self.memory.readByte(state.pc))
+            case 0xF7: return String(format: "ISB* %02x,X", self.memory.readByte(state.pc))
+            case 0xEF: return String(format: "ISB* %04x", self.memory.readWord(state.pc))
+            case 0xFF: return String(format: "ISB* %04x,X", self.memory.readWord(state.pc))
+            case 0xFB: return String(format: "ISB* %04x,Y", self.memory.readWord(state.pc))
+            case 0xE3: return String(format: "ISB* (%02x,X)", self.memory.readByte(state.pc))
+            case 0xF3: return String(format: "ISB* (%02x),Y", self.memory.readByte(state.pc))
             case 0x4C: return String(format: "JMP %04x", self.memory.readWord(state.pc))
             case 0x6C: return String(format: "JMP (%04x)", self.memory.readWord(state.pc))
             case 0x20: return String(format: "JSR %04x", self.memory.readWord(state.pc))
@@ -1956,6 +2004,32 @@ final internal class CPU: Component, IRQLineComponent {
     private func inyImplied() {
         memory.readByte(state.pc)
         loadY(state.y &+ 1)
+        state.cycle = 0
+    }
+    
+    //MARK: ISB*
+    
+    private func isbZeroPage() {
+        memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        state.data = state.data &+ 1
+    }
+    
+    private func isbZeroPage2() {
+        memory.writeByte(UInt16(state.addressLow), byte: state.data)
+        zeroPageWriteUpdateNZ()
+        sbc(state.data)
+        state.cycle = 0
+    }
+    
+    private func isbAbsolute() {
+        memory.writeByte(address, byte: state.data)
+        state.data = state.data &+ 1
+    }
+    
+    private func isbAbsolute2() {
+        memory.writeByte(address, byte: state.data)
+        absoluteWriteUpdateNZ()
+        sbc(state.data)
         state.cycle = 0
     }
     
