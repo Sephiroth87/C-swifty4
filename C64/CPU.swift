@@ -892,6 +892,11 @@ final internal class CPU: Component, IRQLineComponent {
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absoluteY() :
                 state.cycle == 4 ? absoluteFixPage() : shxAbsolute()
+            // SHY*
+        case 0x9C:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteX() :
+                state.cycle == 4 ? absoluteFixPage() : shyAbsolute()
             // SLO*
         case 0x07:
             state.cycle == 2 ? zeroPage() :
@@ -1265,6 +1270,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x9F: return String(format: "SHA* %04x,Y", self.memory.readWord(state.pc))
             case 0x93: return String(format: "SHA* (%02x),Y", self.memory.readByte(state.pc))
             case 0x9E: return String(format: "SHX* %04x,Y", self.memory.readWord(state.pc))
+            case 0x9C: return String(format: "SHY* %04x,X", self.memory.readWord(state.pc))
             case 0x07: return String(format: "SLO* %02x", self.memory.readByte(state.pc))
             case 0x17: return String(format: "SLO* %02x,X", self.memory.readByte(state.pc))
             case 0x0F: return String(format: "SLO* %04x", self.memory.readWord(state.pc))
@@ -2623,6 +2629,15 @@ final internal class CPU: Component, IRQLineComponent {
     
     private func shxAbsolute() {
         state.data = state.x & (state.addressHigh &+ 1)
+        memory.writeByte(address, byte: state.data)
+        state.addressHigh = state.data
+        state.cycle = 0
+    }
+    
+    //MARK: SHY*
+    
+    private func shyAbsolute() {
+        state.data = state.y & (state.addressHigh &+ 1)
         memory.writeByte(address, byte: state.data)
         state.addressHigh = state.data
         state.cycle = 0
