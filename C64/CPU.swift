@@ -2621,7 +2621,9 @@ final internal class CPU: Component, IRQLineComponent {
     private func shaAbsolute() {
         state.data = state.a & state.x & (state.addressHigh &+ 1)
         memory.writeByte(address, byte: state.data)
-        state.addressHigh = state.data
+        if state.pageBoundaryCrossed {
+            state.addressHigh = state.data
+        }
         state.cycle = 0
     }
     
@@ -2630,7 +2632,9 @@ final internal class CPU: Component, IRQLineComponent {
     private func shxAbsolute() {
         state.data = state.x & (state.addressHigh &+ 1)
         memory.writeByte(address, byte: state.data)
-        state.addressHigh = state.data
+        if state.pageBoundaryCrossed {
+            state.addressHigh = state.data
+        }
         state.cycle = 0
     }
     
@@ -2639,7 +2643,9 @@ final internal class CPU: Component, IRQLineComponent {
     private func shyAbsolute() {
         state.data = state.y & (state.addressHigh &+ 1)
         memory.writeByte(address, byte: state.data)
-        state.addressHigh = state.data
+        if state.pageBoundaryCrossed {
+            state.addressHigh = state.data
+        }
         state.cycle = 0
     }
     
