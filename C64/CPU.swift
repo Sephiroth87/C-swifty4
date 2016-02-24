@@ -512,10 +512,29 @@ final internal class CPU: Component, IRQLineComponent {
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absoluteY() :
                 state.cycle == 4 ? lasPageBoundary() : lasAbsolute()
-            // LAX
+            // LAX*
+        case 0xA7:
+            state.cycle == 2 ? zeroPage() : laxZeroPage()
+        case 0xB7:
+            state.cycle == 2 ? zeroPage() :
+                state.cycle == 3 ? zeroPageY() : laxZeroPage()
         case 0xAF:
             state.cycle == 2 ? absolute() :
                 state.cycle == 3 ? absolute2() : laxAbsolute()
+        case 0xBF:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteY() :
+                state.cycle == 4 ? laxPageBoundary() : laxAbsolute()
+        case 0xA3:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectX() :
+                state.cycle == 4 ? indirectIndex2() :
+                state.cycle == 5 ? indirectX2() : laxAbsolute()
+        case 0xB3:
+            state.cycle == 2 ? indirectIndex() :
+                state.cycle == 3 ? indirectIndex2() :
+                state.cycle == 4 ? indirectY() :
+                state.cycle == 5 ? laxPageBoundary() : laxAbsolute()
             // LDA
         case 0xA9:
             ldaImmediate()
@@ -1143,7 +1162,12 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x6C: return String(format: "JMP (%04x)", self.memory.readWord(state.pc))
             case 0x20: return String(format: "JSR %04x", self.memory.readWord(state.pc))
             case 0xBB: return String(format: "LAS* %04x,Y", self.memory.readWord(state.pc))
+            case 0xA7: return String(format: "LAX* %02x", self.memory.readByte(state.pc))
+            case 0xB7: return String(format: "LAX* %02x,Y", self.memory.readByte(state.pc))
             case 0xAF: return String(format: "LAX* %04x", self.memory.readWord(state.pc))
+            case 0xBF: return String(format: "LAX* %04x,Y", self.memory.readWord(state.pc))
+            case 0xA3: return String(format: "LAX* (%02x,X)", self.memory.readByte(state.pc))
+            case 0xB3: return String(format: "LAX* (%02x),Y", self.memory.readByte(state.pc))
             case 0xA9: return String(format: "LDA #%02x", self.memory.readByte(state.pc))
             case 0xA5: return String(format: "LDA %02x", self.memory.readByte(state.pc))
             case 0xB5: return String(format: "LDA %02x,X", self.memory.readByte(state.pc))
@@ -2086,7 +2110,25 @@ final internal class CPU: Component, IRQLineComponent {
         state.cycle = 0
     }
     
-    //MARK: LAX
+    //MARK: LAX*
+    
+    private func laxZeroPage() {
+        state.data = memory.readByte(UInt16(state.addressLow))
+        loadA(state.data)
+        loadX(state.data)
+        state.cycle = 0
+    }
+    
+    private func laxPageBoundary() {
+        state.data = memory.readByte(address)
+        if state.pageBoundaryCrossed {
+            state.addressHigh = state.addressHigh &+ 1
+        } else {
+            loadA(state.data)
+            loadX(state.data)
+            state.cycle = 0
+        }
+    }
     
     private func laxAbsolute() {
         state.data = memory.readByte(address)
