@@ -507,6 +507,11 @@ final internal class CPU: Component, IRQLineComponent {
                 state.cycle == 3 ? {}() :
                 state.cycle == 4 ? pushPch() :
                 state.cycle == 5 ? pushPcl() : jsrAbsolute()
+            // LAS*
+        case 0xBB:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteY() :
+                state.cycle == 4 ? lasPageBoundary() : lasAbsolute()
             // LAX
         case 0xAF:
             state.cycle == 2 ? absolute() :
@@ -1137,6 +1142,7 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x4C: return String(format: "JMP %04x", self.memory.readWord(state.pc))
             case 0x6C: return String(format: "JMP (%04x)", self.memory.readWord(state.pc))
             case 0x20: return String(format: "JSR %04x", self.memory.readWord(state.pc))
+            case 0xBB: return String(format: "LAS* %04x,Y", self.memory.readWord(state.pc))
             case 0xAF: return String(format: "LAX* %04x", self.memory.readWord(state.pc))
             case 0xA9: return String(format: "LDA #%02x", self.memory.readByte(state.pc))
             case 0xA5: return String(format: "LDA %02x", self.memory.readByte(state.pc))
@@ -2053,6 +2059,30 @@ final internal class CPU: Component, IRQLineComponent {
     private func jsrAbsolute() {
         state.addressHigh = memory.readByte(state.pc)
         state.pc = address
+        state.cycle = 0
+    }
+    
+    //MARK: LAS*
+    
+    private func lasPageBoundary() {
+        state.data = memory.readByte(address)
+        if state.pageBoundaryCrossed {
+            state.addressHigh = state.addressHigh &+ 1
+        } else {
+            state.data &= state.sp
+            state.sp = state.data
+            state.x = state.data
+            loadA(state.data)
+            state.cycle = 0
+        }
+    }
+    
+    private func lasAbsolute() {
+        state.data = memory.readByte(address)
+        state.data &= state.sp
+        state.sp = state.data
+        state.x = state.data
+        loadA(state.data)
         state.cycle = 0
     }
     
