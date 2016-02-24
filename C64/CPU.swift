@@ -556,15 +556,22 @@ final internal class CPU: Component, IRQLineComponent {
         case 0xAB:
             lxaImmediate()
             // NOP
-        case 0xEA, 0x5A, 0x7A:
+        case 0x1A, 0x3A, 0x5A, 0x7A, 0xDA, 0xEA, 0xFA:
             nop()
-        case 0x44:
+        case 0x04, 0x44, 0x64:
             state.cycle == 2 ? zeroPage() : nopZeroPage()
-        case 0x14:
+        case 0x14, 0x34, 0x54, 0x74, 0xD4, 0xF4:
             state.cycle == 2 ? zeroPage() :
                 state.cycle == 3 ? zeroPageX() : nopZeroPage()
-        case 0x82, 0xE2:
+        case 0x80, 0x82, 0x89, 0xC2, 0xE2:
             nopImmediate()
+        case 0x0C:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absolute2() : nopAbsolute()
+        case 0x1C, 0x3C, 0x5C, 0x7C, 0xDC, 0xFC:
+            state.cycle == 2 ? absolute() :
+                state.cycle == 3 ? absoluteX() :
+                state.cycle == 4 ? nopPageBoundary() : nopAbsolute()
             // ORA
         case 0x09:
             oraImmediate()
@@ -1108,12 +1115,12 @@ final internal class CPU: Component, IRQLineComponent {
             case 0x1E: return String(format: "LSR %04x,X", self.memory.readWord(state.pc))
             case 0xAB: return String(format: "LXA* #%02x", self.memory.readByte(state.pc))
             case 0xEA: return "NOP"
-            case 0x5A: return "NOP*"
-            case 0x7A: return "NOP*"
-            case 0x44: return String(format: "NOP* %02x", self.memory.readByte(state.pc))
-            case 0x14: return String(format: "NOP* %02x,X", self.memory.readByte(state.pc))
-            case 0x82: return String(format: "NOP* #%02x", self.memory.readByte(state.pc))
-            case 0xE2: return String(format: "NOP* #%02x", self.memory.readByte(state.pc))
+            case 0x1A, 0x3A, 0x5A, 0x7A, 0xDA, 0xFA: return "NOP*"
+            case 0x04, 0x44, 0x64: return String(format: "NOP* %02x", self.memory.readByte(state.pc))
+            case 0x14, 0x34, 0x54, 0x74, 0xD4, 0xF4: return String(format: "NOP* %02x,X", self.memory.readByte(state.pc))
+            case 0x80, 0x82, 0x89, 0xC2, 0xE2: return String(format: "NOP* #%02x", self.memory.readByte(state.pc))
+            case 0x0C: return String(format: "NOP* %04x", self.memory.readWord(state.pc))
+            case 0x1C, 0x3C, 0x5C, 0x7C, 0xDC, 0xFC: return String(format: "NOP* %04x,X", self.memory.readWord(state.pc))
             case 0x09: return String(format: "ORA #%02x", self.memory.readByte(state.pc))
             case 0x05: return String(format: "ORA %02x", self.memory.readByte(state.pc))
             case 0x15: return String(format: "ORA %02x,X", self.memory.readByte(state.pc))
@@ -2119,6 +2126,20 @@ final internal class CPU: Component, IRQLineComponent {
     
     private func nopImmediate() {
         state.data = memory.readByte(state.pc++)
+        state.cycle = 0
+    }
+    
+    private func nopPageBoundary() {
+        state.data = memory.readByte(address)
+        if state.pageBoundaryCrossed {
+            state.addressHigh = state.addressHigh &+ 1
+        } else {
+            state.cycle = 0
+        }
+    }
+    
+    private func nopAbsolute() {
+        state.data = memory.readByte(address)
         state.cycle = 0
     }
     
