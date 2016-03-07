@@ -62,7 +62,9 @@
 		E5DFEDA91C0D06DC003AA5B9 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				E5EE305D1BF8E8AE00404BE0 /* Math.swift */,
 				E58F4D8A1C110070000F3976 /* Component.swift */,
+				E5E0E3CC1C2AF6750062E0DD /* Line.swift */,
 				E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */,
 			);
 			path = Utils;
@@ -92,14 +94,12 @@
 				E5EE305A1BF8E8AE00404BE0 /* C64.swift */,
 				E5EE305B1BF8E8AE00404BE0 /* CPU.swift */,
 				E5EE305C1BF8E8AE00404BE0 /* CIA.swift */,
-				E5EE305D1BF8E8AE00404BE0 /* Math.swift */,
 				E5EE305E1BF8E8AE00404BE0 /* Memory.swift */,
 				E5EE305F1BF8E8AE00404BE0 /* SID.swift */,
 				E5EE30601BF8E8AE00404BE0 /* VIC.swift */,
 				E5EE30611BF8E8AE00404BE0 /* Keyboard.swift */,
 				E5EE30621BF8E8AE00404BE0 /* Joystick.swift */,
 				E5EE30631BF8E8AE00404BE0 /* IEC.swift */,
-				E5E0E3CC1C2AF6750062E0DD /* Line.swift */,
 				E5EE30551BF8E8A100404BE0 /* Supporting Files */,
 			);
 			path = C64;
