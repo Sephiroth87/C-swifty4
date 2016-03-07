@@ -26,6 +26,7 @@ internal struct CPUState: ComponentState {
 
     var portDirection: UInt8 = 0x2F
     var port: UInt8 = 0x37
+    var portExternal: UInt8 = 0x1F
     
     @available(*, deprecated) var irqTriggered = false //TODO: maybe we still need to keep track if the IRQ has been triggered?
     var nmiTriggered = false //TODO: see below
@@ -55,6 +56,7 @@ internal struct CPUState: ComponentState {
         n = dictionary["n"] as! Bool
         portDirection = UInt8(dictionary["portDirection"] as! UInt)
         port = UInt8(dictionary["port"] as! UInt)
+        portExternal = UInt8(dictionary["portExternal"] as! UInt)
         irqTriggered = dictionary["irqTriggered"] as! Bool
         nmiTriggered = dictionary["nmiTriggered"] as! Bool
         currentOpcode = UInt16(dictionary["currentOpcode"] as! UInt)
@@ -93,23 +95,6 @@ final internal class CPU: Component, IRQLineComponent {
         }
     }
 
-    internal var port: UInt8 {
-        set {
-            state.port = newValue | ~state.portDirection
-        }
-        get {
-            return state.port
-        }
-    }
-    var portDirection: UInt8 {
-        set {
-            state.portDirection = newValue
-        }
-        get {
-            return state.portDirection
-        }
-    }
-
     private var address: UInt16 {
         get {
             return UInt16(state.addressHigh) << 8 | UInt16(state.addressLow)
@@ -125,8 +110,29 @@ final internal class CPU: Component, IRQLineComponent {
     func lineChanged(line: Line) {
     }
     
-    //MARK: Running
+    //MARK: I/O Port
     
+    internal func writeByte(position: UInt8, byte: UInt8) {
+        if position == 0x00 {
+            state.portDirection = byte
+        } else {
+            state.port = byte
+        }
+        //TEMP: copied from VirtualC64, but it should be replaced by actual external lines implementation
+        let mask = 0xC8 & state.portDirection
+        state.portExternal = (state.portExternal & ~mask) | (mask & state.port)
+    }
+    
+    internal func readByte(position: UInt8) -> UInt8 {
+        if position == 0x00 {
+            return state.portDirection
+        } else {
+            return (state.portDirection & state.port) | (~state.portDirection & (state.portExternal | 0x10)) //TEMP: force no button pressed on deck
+        }
+    }
+    
+    //MARK: Running
+
     internal func executeInstruction() {
         if state.cycle++ == 0 {
             fetch()
