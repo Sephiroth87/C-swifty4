@@ -1394,6 +1394,28 @@ final internal class CPU: Component, IRQLineComponent {
         state.sp = state.sp &- 1
     }
     
+    //MARK: Memory Reading
+    
+    private func loadAddressLow() {
+        state.addressLow = memory.readByte(state.pc)
+        state.pc = state.pc &+ UInt16(1)
+    }
+    
+    private func loadAddressHigh() {
+        state.addressHigh = memory.readByte(state.pc)
+        state.pc = state.pc &+ UInt16(1)
+    }
+    
+    private func loadPointer() {
+        state.pointer = memory.readByte(state.pc)
+        state.pc = state.pc &+ UInt16(1)
+    }
+    
+    private func loadDataImmediate() {
+        state.data = memory.readByte(state.pc)
+        state.pc = state.pc &+ UInt16(1)
+    }
+    
     //MARK: Interrupts
 
     private func interrupt() {
@@ -1435,7 +1457,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: Addressing
     
     private func zeroPage() {
-        state.addressLow = memory.readByte(state.pc++)
+        loadAddressLow()
     }
     
     private func zeroPage2() {
@@ -1460,11 +1482,11 @@ final internal class CPU: Component, IRQLineComponent {
     }
     
     private func absolute() {
-        state.addressLow = memory.readByte(state.pc++)
+        loadAddressLow()
     }
     
     private func absolute2() {
-        state.addressHigh = memory.readByte(state.pc++)
+        loadAddressHigh()
     }
     
     private func absolute3() {
@@ -1479,13 +1501,13 @@ final internal class CPU: Component, IRQLineComponent {
     }
     
     private func absoluteX() {
-        state.addressHigh = memory.readByte(state.pc++)
+        loadAddressHigh()
         state.pageBoundaryCrossed = (UInt16(state.addressLow) &+ state.x >= 0x100)
         state.addressLow = state.addressLow &+ state.x
     }
     
     private func absoluteY() {
-        state.addressHigh = memory.readByte(state.pc++)
+        loadAddressHigh()
         state.pageBoundaryCrossed = (UInt16(state.addressLow) &+ state.y >= 0x100)
         state.addressLow = state.addressLow &+ state.y
     }
@@ -1502,7 +1524,7 @@ final internal class CPU: Component, IRQLineComponent {
     }
     
     private func indirectIndex() {
-        state.pointer = memory.readByte(state.pc++)
+        loadPointer()
     }
     
     private func indirectIndex2() {
@@ -1570,7 +1592,7 @@ final internal class CPU: Component, IRQLineComponent {
     }
     
     private func adcImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         adc(state.data)
         state.cycle = 0
     }
@@ -1600,7 +1622,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: ALR*
     
     private func alrImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         let a = state.a & state.data
         state.c = ((a & 1) != 0)
         loadA(a >> 1)
@@ -1610,7 +1632,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: ANC*
     
     private func ancImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         loadA(state.a & state.data)
         state.c = state.n
         state.cycle = 0
@@ -1619,7 +1641,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: AND
     
     private func andImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         loadA(state.a & state.data)
         state.cycle = 0
     }
@@ -1649,7 +1671,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: ANE*
     
     private func aneImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         //TODO: From http://www.zimmers.net/anonftp/pub/cbm/documents/chipdata/64doc, number might be different than 0xEE
         loadA((state.a | 0xEE) & state.x & state.data)
         state.cycle = 0
@@ -1658,7 +1680,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: ARR*
     
     private func arrImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         let tempA = state.a & state.data
         state.a = (tempA >> 1) + (state.c ? 0x80 : 0)
         if state.d {
@@ -1727,7 +1749,7 @@ final internal class CPU: Component, IRQLineComponent {
     }
     
     private func bccRelative() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         if state.c {
             state.cycle = 0
         }
@@ -1736,7 +1758,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: BCS
     
     private func bcsRelative() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         if !state.c {
             state.cycle = 0
         }
@@ -1745,7 +1767,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: BEQ
     
     private func beqRelative() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         if !state.z {
             state.cycle = 0
         }
@@ -1772,7 +1794,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: BMI
     
     private func bmiRelative() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         if !state.n {
             state.cycle = 0
         }
@@ -1781,7 +1803,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: BNE
     
     private func bneRelative() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         if state.z {
             state.cycle = 0
         }
@@ -1790,7 +1812,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: BPL
     
     private func bplRelative() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         if state.n {
             state.cycle = 0
         }
@@ -1835,7 +1857,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: BVC
     
     private func bvcRelative() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         if state.v {
             state.cycle = 0
         }
@@ -1844,7 +1866,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: BVS
     
     private func bvsRelative() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         if !state.v {
             state.cycle = 0
         }
@@ -1892,7 +1914,7 @@ final internal class CPU: Component, IRQLineComponent {
     }
     
     private func cmpImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         cmp(state.a, state.data)
         state.cycle = 0
     }
@@ -1922,7 +1944,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: CPX
     
     private func cpxImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         cmp(state.x, state.data)
         state.cycle = 0
     }
@@ -1942,7 +1964,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: CPY
     
     private func cpyImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         cmp(state.y, state.data)
         state.cycle = 0
     }
@@ -2010,7 +2032,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: EOR
     
     private func eorImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         loadA(state.a ^ state.data)
         state.cycle = 0
     }
@@ -2168,7 +2190,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: LDA
     
     private func ldaImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         loadA(state.data)
         state.cycle = 0
     }
@@ -2198,7 +2220,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: LDX
     
     private func ldxImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         loadX(state.data)
         state.cycle = 0
     }
@@ -2228,7 +2250,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: LDY
     
     private func ldyImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         loadY(state.data)
         state.cycle = 0
     }
@@ -2279,7 +2301,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: LXA*
     
     private func lxaImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         //TODO: From http://www.zimmers.net/anonftp/pub/cbm/documents/chipdata/64doc, number might be different than 0xEE
         state.x = state.data & (state.a | 0xEE)
         loadA(state.x)
@@ -2299,7 +2321,7 @@ final internal class CPU: Component, IRQLineComponent {
     }
     
     private func nopImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         state.cycle = 0
     }
     
@@ -2320,7 +2342,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: ORA
     
     private func oraImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         loadA(state.a | state.data)
         state.cycle = 0
     }
@@ -2566,7 +2588,7 @@ final internal class CPU: Component, IRQLineComponent {
     }
     
     private func sbcImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         sbc(state.data)
         state.cycle = 0
     }
@@ -2596,7 +2618,7 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: SBX*
     
     private func sbxImmediate() {
-        state.data = memory.readByte(state.pc++)
+        loadDataImmediate()
         let value = state.a & state.x
         let diff = value &- state.data
         state.c = (value >= diff)
