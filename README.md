@@ -36,7 +36,7 @@ Then just open the project file, build and run.
 * Video (all video modes, some sprites functionalities)
 * Keyboard (not all keys)
 * Joystick 2
-* Loading files (Supported *.prg files will be dumped in memory directly atm, so you’ll just need to type `RUN` to start them, *.txt files will be typed in as text)
+* Loading files (Supported *.prg and *.p00 files will be dumped in memory directly atm, so you’ll just need to type `RUN` to start them, *.txt files will be typed in as text)
 * Standard .d64 disk files
 
 #### What doesn’t work

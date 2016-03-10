@@ -69,7 +69,7 @@ class ViewController: NSViewController {
     
     @IBAction func onDiskButton(sender: AnyObject) {
         let panel = NSOpenPanel()
-        panel.allowedFileTypes = ["prg", "txt", "d64"]
+        panel.allowedFileTypes = ["prg", "txt", "d64", "p00"]
         panel.beginSheetModalForWindow(self.view.window!, completionHandler: { (result) -> Void in
             if let url = panel.URLs.first where result == NSFileHandlingPanelOKButton {
                 switch String(url.pathExtension!).lowercaseString {
@@ -81,6 +81,8 @@ class ViewController: NSViewController {
                     self.c64.loadPRGFile(NSData(contentsOfURL: url)!)
                 case "d64":
                     self.c64.loadD64File(NSData(contentsOfURL: url)!)
+                case "p00":
+                    self.c64.loadP00File(NSData(contentsOfURL: url)!)
                 default:
                     break
                 }

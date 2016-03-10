@@ -275,6 +275,10 @@ final public class C64: NSObject {
         }
     }
     
+    public func loadP00File(data: NSData) {
+        loadPRGFile(data.subdataWithRange(NSRange(location: 0x1A, length: data.length - 0x1A)))
+    }
+    
     public func loadD64File(data: NSData) {
         c1541.insertDisk(Disk(d64Data: UnsafeBufferPointer<UInt8>(start: UnsafePointer<UInt8>(data.bytes), count: data.length)))
     }
