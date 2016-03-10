@@ -30,6 +30,9 @@ internal struct CIAState: ComponentState {
     
     //MARK: Helpers
     private var interruptPin: Bool = true
+    private var timerADelay: UInt8 = 0
+    private var timerBDelay: UInt8 = 0
+    private var interruptDelay: UInt8 = 0
     //MARK: -
     
     //MARK: IECDevice lines for CIA2
@@ -67,31 +70,54 @@ internal class CIA: Component {
     internal var crashHandler: C64CrashHandler?
    
     internal func cycle() {
-        //TODO: real timer handling
-        if state.cra & 0x01 != 0 {
-            state.counterA = state.counterA &- 1
+        if state.timerADelay > 0 {
+            --state.timerADelay
         }
-        if state.counterA == 0 {
-            state.counterA = state.latchA
-            if state.cra & 0x08 != 0 {
-                state.cra &= ~0x01
-            }
-            state.icr |= 0x01
-            if state.imr & 0x01 != 0 {
-                state.icr |= 0x80
-                triggerInterrupt()
+        if state.cra & 0x01 != 0 && state.timerADelay == 0 {
+            if state.cra & 0x20 == 0x00 {
+                // o2 mode
+                state.counterA = state.counterA &- 1
+                if state.counterA == 0 {
+                    state.counterA = state.latchA
+                    if state.cra & 0x08 != 0 {
+                        state.cra &= ~0x01
+                    } else {
+                        state.timerADelay = 1
+                    }
+                    state.icr |= 0x01
+                    if state.imr & 0x01 != 0 {
+                        state.interruptDelay = 1
+                    }
+                }
+            } else {
+                //TODO: CNT mode
             }
         }
-        if state.crb & 0x01 != 0 {
-            state.counterB = state.counterB &- 1
+        if state.timerBDelay > 0 {
+            --state.timerBDelay
         }
-        if state.counterB == 0 {
-            state.counterB = state.latchB
-            if state.crb & 0x08 != 0 {
-                state.crb &= ~0x01
+        if state.crb & 0x01 != 0 && state.timerBDelay == 0 {
+            if state.crb & 0x20 == 0x00 {
+                // o2 mode
+                state.counterB = state.counterB &- 1
+                if state.counterB == 0 {
+                    state.counterB = state.latchB
+                    if state.crb & 0x08 != 0 {
+                        state.crb &= ~0x01
+                    } else {
+                        state.timerBDelay = 1
+                    }
+                    state.icr |= 0x02
+                    if state.imr & 0x02 != 0 {
+                        state.interruptDelay = 1
+                    }
+                }
+            } else {
+                //TODO: CNT mode
             }
-            state.icr |= 0x02
-            if state.imr & 0x02 != 0 {
+        }
+        if state.interruptDelay > 0 {
+            if --state.interruptDelay == 0 {
                 state.icr |= 0x80
                 triggerInterrupt()
             }
@@ -131,6 +157,7 @@ internal class CIA: Component {
             // bit4: force load
             if ((byte & 0x10) != 0) {
                 state.counterA = state.latchA
+                state.timerADelay = 2
             }
             state.cra = byte
             //TODO: more timer stuff
@@ -138,6 +165,7 @@ internal class CIA: Component {
             // bit4: force load
             if ((byte & 0x10) != 0) {
                 state.counterB = state.latchB
+                state.timerBDelay = 2
             }
             state.crb = byte
             //TODO: more timer stuff
@@ -167,6 +195,7 @@ internal class CIA: Component {
             clearInterrupt()
             let value = state.icr
             state.icr = 0
+            state.interruptDelay = 0
             return value
         case 0x0E:
             return state.cra & ~0x10
