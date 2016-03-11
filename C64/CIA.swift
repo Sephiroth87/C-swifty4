@@ -77,7 +77,7 @@ internal class CIA: Component {
             if state.cra & 0x20 == 0x00 {
                 // o2 mode
                 state.counterA = state.counterA &- 1
-                if state.counterA == 0 {
+                if state.counterA == 0 || state.counterA == 0xFFFF {
                     state.counterA = state.latchA
                     if state.cra & 0x08 != 0 {
                         state.cra &= ~0x01
@@ -100,7 +100,7 @@ internal class CIA: Component {
             if state.crb & 0x20 == 0x00 {
                 // o2 mode
                 state.counterB = state.counterB &- 1
-                if state.counterB == 0 {
+                if state.counterB == 0 || state.counterB == 0xFFFF {
                     state.counterB = state.latchB
                     if state.crb & 0x08 != 0 {
                         state.crb &= ~0x01
@@ -152,6 +152,9 @@ internal class CIA: Component {
                 state.imr |= (byte & 0x1F)
             } else {
                 state.imr &= ~(byte & 0x1F)
+            }
+            if state.imr & state.icr != 0 {
+                state.interruptDelay = 2
             }
         case 0x0E:
             // bit4: force load
