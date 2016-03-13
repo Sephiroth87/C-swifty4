@@ -8,33 +8,15 @@
 
 internal protocol LineComponent: class {
     
-    var state: Bool { get }
+    func pin(line: Line) -> Bool
     func lineChanged(line: Line)
 
 }
 
 extension LineComponent {
     
+    func pin(line: Line) -> Bool { return true }
     func lineChanged(line: Line) { }
-    
-}
-
-internal protocol IRQLineComponent: LineComponent {
-    
-    var irqPin: Bool { get }
-    
-}
-
-extension IRQLineComponent {
-    
-    // Override for components that actively drive the line
-    var irqPin: Bool {
-        return true
-    }
-    
-    var state: Bool {
-        return irqPin
-    }
     
 }
 
@@ -50,7 +32,7 @@ internal final class Line {
     
     func update(source: LineComponent) {
         let oldState = state
-        state = components.reduce(true) { return $0 && $1.state }
+        state = components.reduce(true) { return $0 && $1.pin(self) }
         if oldState != state {
             for otherComponent in components where otherComponent !== source {
                 otherComponent.lineChanged(self)

@@ -71,7 +71,7 @@ internal struct CPUState: ComponentState {
 
 }
 
-final internal class CPU: Component, IRQLineComponent {
+final internal class CPU: Component, LineComponent {
     
     var state = CPUState()
 

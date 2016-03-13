@@ -220,14 +220,14 @@ internal class CIA: Component {
     
 }
 
-final internal class CIA1: CIA, IRQLineComponent {
+final internal class CIA1: CIA, LineComponent {
     
     internal weak var irqLine: Line!
     internal weak var keyboard: Keyboard!
     internal weak var joystick2: Joystick!
     
-    //MARK: IRQLineComponent
-    var irqPin: Bool {
+    //MARK: LineComponent
+    func pin(line: Line) -> Bool {
         return state.interruptPin
     }
     //MARK: -
