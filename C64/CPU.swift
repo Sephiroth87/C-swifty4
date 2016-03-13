@@ -109,8 +109,12 @@ final internal class CPU: Component, LineComponent {
     //MARK: LineComponent
     
     func lineChanged(line: Line) {
-        if line === irqLine && !line.state {
-            state.irqDelayCounter = 3
+        if line === irqLine {
+            if !line.state {
+                state.irqDelayCounter = 3
+            } else {
+                state.irqDelayCounter = -1
+            }
         }
     }
     
@@ -1378,9 +1382,8 @@ final internal class CPU: Component, LineComponent {
             return
         }
         //IRQ is level sensitive, so it's always trigger as long as the line is pulled down
-        if !irqLine.state && (!state.i || state.currentOpcode == 0x78) && state.irqDelayCounter == 0 {
+        if state.irqDelayCounter == 0 && (!state.i || state.currentOpcode == 0x78) {
             state.currentOpcode = 0xFFFF
-            state.irqDelayCounter = -1
             return
         }
         if state.irqTriggered && !state.i && state.irqDelayCounter == 0 {
