@@ -32,7 +32,7 @@ internal struct CIAState: ComponentState {
     private var interruptPin: Bool = true
     private var timerADelay: UInt8 = 0
     private var timerBDelay: UInt8 = 0
-    private var interruptDelay: UInt8 = 0
+    private var interruptDelay: Int8 = -1
     //MARK: -
     
     //MARK: IECDevice lines for CIA2
@@ -70,9 +70,6 @@ internal class CIA: Component {
     internal var crashHandler: C64CrashHandler?
    
     internal func cycle() {
-        if state.timerADelay > 0 {
-            --state.timerADelay
-        }
         if state.cra & 0x01 != 0 && state.timerADelay == 0 {
             if state.cra & 0x20 == 0x00 {
                 // o2 mode
@@ -93,8 +90,8 @@ internal class CIA: Component {
                 //TODO: CNT mode
             }
         }
-        if state.timerBDelay > 0 {
-            --state.timerBDelay
+        if state.timerADelay > 0 {
+            --state.timerADelay
         }
         if state.crb & 0x01 != 0 && state.timerBDelay == 0 {
             if state.crb & 0x20 == 0x00 {
@@ -116,11 +113,16 @@ internal class CIA: Component {
                 //TODO: CNT mode
             }
         }
+        if state.timerBDelay > 0 {
+            --state.timerBDelay
+        }
+        if state.interruptDelay == 0 {
+            state.icr |= 0x80
+            state.interruptDelay = -1
+            triggerInterrupt()
+        }
         if state.interruptDelay > 0 {
-            if --state.interruptDelay == 0 {
-                state.icr |= 0x80
-                triggerInterrupt()
-            }
+            --state.interruptDelay
         }
     }
     
@@ -154,24 +156,22 @@ internal class CIA: Component {
                 state.imr &= ~(byte & 0x1F)
             }
             if state.imr & state.icr != 0 {
-                state.interruptDelay = 2
+                state.interruptDelay = 1
             }
         case 0x0E:
             // bit4: force load
             if ((byte & 0x10) != 0) {
                 state.counterA = state.latchA
-                state.timerADelay = 2
+                state.timerADelay = 3
             }
             state.cra = byte
-            //TODO: more timer stuff
         case 0x0F:
             // bit4: force load
             if ((byte & 0x10) != 0) {
                 state.counterB = state.latchB
-                state.timerBDelay = 2
+                state.timerBDelay = 3
             }
             state.crb = byte
-            //TODO: more timer stuff
         default:
             crashHandler?("todo cia write address: " + String(position, radix: 16, uppercase: true))
         }
@@ -198,7 +198,7 @@ internal class CIA: Component {
             clearInterrupt()
             let value = state.icr
             state.icr = 0
-            state.interruptDelay = 0
+            state.interruptDelay = -1
             return value
         case 0x0E:
             return state.cra & ~0x10

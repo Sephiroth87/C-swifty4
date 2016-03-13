@@ -33,6 +33,7 @@ internal struct CPUState: ComponentState {
     var nmiLine = true
     var currentOpcode: UInt16 = 0
     var cycle = 0
+    var irqDelayCounter: Int8 = -1
     
     var data: UInt8 = 0
     var addressLow: UInt8 = 0
@@ -108,6 +109,9 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: LineComponent
     
     func lineChanged(line: Line) {
+        if line === irqLine && !line.state {
+            state.irqDelayCounter = 3
+        }
     }
     
     //MARK: I/O Port
@@ -134,6 +138,9 @@ final internal class CPU: Component, IRQLineComponent {
     //MARK: Running
 
     internal func executeInstruction() {
+        if state.irqDelayCounter > 0 {
+            --state.irqDelayCounter
+        }
         if state.cycle++ == 0 {
             fetch()
             return
@@ -1076,6 +1083,7 @@ final internal class CPU: Component, IRQLineComponent {
     
     @available(*, deprecated) internal func setIRQLine() {
         state.irqTriggered = true
+        state.irqDelayCounter = 3
     }
 
     //TODO: NMI is connected to multiple sources so it should be treated like an actual line (like IEC)
@@ -1370,18 +1378,27 @@ final internal class CPU: Component, IRQLineComponent {
             return
         }
         //IRQ is level sensitive, so it's always trigger as long as the line is pulled down
-        if !irqLine.state && !state.i {
+        if !irqLine.state && (!state.i || state.currentOpcode == 0x78) && state.irqDelayCounter == 0 {
             state.currentOpcode = 0xFFFF
+            state.irqDelayCounter = -1
             return
         }
-        if state.irqTriggered && !state.i {
+        if state.irqTriggered && !state.i && state.irqDelayCounter == 0 {
             state.irqTriggered = false
             state.currentOpcode = 0xFFFF
+            state.irqDelayCounter = -1
             return
         }
         state.isAtFetch = true
         state.currentOpcode = UInt16(memory.readByte(state.pc))
         state.pc = state.pc &+ UInt16(1)
+        if state.currentOpcode == 0x78 && state.i && state.irqDelayCounter >= 0 {
+            // Only trigger pending interrupts after SEI if I was false before
+            state.irqDelayCounter = -1
+        } else if state.currentOpcode == 0x58 && state.i && state.irqDelayCounter >= 0 {
+            // Delay interrupts during CLI to the next instruction
+            state.irqDelayCounter = 3
+        }
     }
     
     private func pushPch() {
@@ -1734,7 +1751,9 @@ final internal class CPU: Component, IRQLineComponent {
         let oldPch = pch
         state.pc = state.pc &+ Int8(bitPattern: state.data)
         if pch == oldPch {
-            //TODO: delay IRQs
+            if state.irqDelayCounter >= 0 {
+                ++state.irqDelayCounter
+            }
             state.cycle = 0
         }
     }
