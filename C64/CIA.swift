@@ -294,8 +294,9 @@ final internal class CIA1: CIA, LineComponent {
     
 }
 
-final internal class CIA2: CIA, IECDevice {
+final internal class CIA2: CIA, IECDevice, LineComponent {
     
+    internal weak var nmiLine: Line!
     internal weak var vic: VIC!
     internal weak var iec: IEC!
     
@@ -308,6 +309,12 @@ final internal class CIA2: CIA, IECDevice {
     }
     internal var dataPin: Bool {
         return state.dataPin
+    }
+    //MARK: -
+    
+    //MARK: LineComponent
+    func pin(line: Line) -> Bool {
+        return state.interruptPin
     }
     //MARK: -
     
@@ -340,11 +347,13 @@ final internal class CIA2: CIA, IECDevice {
     }
     
     private override func triggerInterrupt() {
-        cpu.setNMILine(false)
+        super.triggerInterrupt()
+        nmiLine.update(self)
     }
     
     private override func clearInterrupt() {
-        cpu.setNMILine(true)
+        super.clearInterrupt()
+        nmiLine.update(self)
     }
     
     func iecUpdatedLines(atnLineUpdated atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) { }

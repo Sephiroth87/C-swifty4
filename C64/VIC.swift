@@ -155,7 +155,7 @@ internal struct VICState: ComponentState {
     
 }
 
-final internal class VIC: Component, IRQLineComponent {
+final internal class VIC: Component, LineComponent {
     
     internal var state = VICState()
     
@@ -199,8 +199,8 @@ final internal class VIC: Component, IRQLineComponent {
         UInt32(truncatingBitPattern: (0xFFC0C0C0 as UInt64)),
     ]
     
-    //MARK: IRQLineComponent
-    var irqPin: Bool {
+    //MARK: LineComponent
+    func pin(line: Line) -> Bool {
         return state.ir & 0x80 == 0
     }
     //MARK: -

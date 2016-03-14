@@ -29,11 +29,11 @@ internal struct CPUState: ComponentState {
     var portExternal: UInt8 = 0x1F
     
     @available(*, deprecated) var irqTriggered = false //TODO: maybe we still need to keep track if the IRQ has been triggered?
-    var nmiTriggered = false //TODO: see below
     var nmiLine = true
     var currentOpcode: UInt16 = 0
     var cycle = 0
     var irqDelayCounter: Int8 = -1
+    var nmiDelayCounter: Int8 = -1
     
     var data: UInt8 = 0
     var addressLow: UInt8 = 0
@@ -59,9 +59,10 @@ internal struct CPUState: ComponentState {
         port = UInt8(dictionary["port"] as! UInt)
         portExternal = UInt8(dictionary["portExternal"] as! UInt)
         irqTriggered = dictionary["irqTriggered"] as! Bool
-        nmiTriggered = dictionary["nmiTriggered"] as! Bool
         currentOpcode = UInt16(dictionary["currentOpcode"] as! UInt)
         cycle = dictionary["cycle"] as! Int
+        irqDelayCounter = Int8(dictionary["currentOpcode"] as! Int)
+        nmiDelayCounter = Int8(dictionary["currentOpcode"] as! Int)
         data = UInt8(dictionary["data"] as! UInt)
         addressLow = UInt8(dictionary["addressLow"] as! UInt)
         addressHigh = UInt8(dictionary["addressHigh"] as! UInt)
@@ -76,6 +77,7 @@ final internal class CPU: Component, LineComponent {
     var state = CPUState()
 
     internal weak var irqLine: Line!
+    internal weak var nmiLine: Line!
     internal weak var memory: Memory!
     internal var crashHandler: C64CrashHandler?
 
@@ -115,6 +117,8 @@ final internal class CPU: Component, LineComponent {
             } else {
                 state.irqDelayCounter = -1
             }
+        } else if line === nmiLine {
+            state.nmiDelayCounter = 3
         }
     }
     
@@ -144,6 +148,9 @@ final internal class CPU: Component, LineComponent {
     internal func executeInstruction() {
         if state.irqDelayCounter > 0 {
             --state.irqDelayCounter
+        }
+        if state.nmiDelayCounter > 0 {
+            --state.nmiDelayCounter
         }
         if state.cycle++ == 0 {
             fetch()
@@ -1089,14 +1096,6 @@ final internal class CPU: Component, LineComponent {
         state.irqTriggered = true
         state.irqDelayCounter = 3
     }
-
-    //TODO: NMI is connected to multiple sources so it should be treated like an actual line (like IEC)
-    internal func setNMILine(line: Bool) {
-        if !line && state.nmiLine {
-            state.nmiTriggered = true
-        }
-        state.nmiLine = line
-    }
     
     internal func setOverflow() {
         state.v = true
@@ -1376,8 +1375,8 @@ final internal class CPU: Component, LineComponent {
     }
     
     private func fetch() {
-        if state.nmiTriggered {
-            state.nmiTriggered = false
+        if state.nmiDelayCounter == 0 && state.currentOpcode != 0x00 {
+            state.nmiDelayCounter = -1
             state.currentOpcode = 0xFFFE
             return
         }
@@ -1757,6 +1756,9 @@ final internal class CPU: Component, LineComponent {
             if state.irqDelayCounter >= 0 {
                 ++state.irqDelayCounter
             }
+            if state.nmiDelayCounter >= 0 {
+                ++state.nmiDelayCounter
+            }
             state.cycle = 0
         }
     }
@@ -1849,7 +1851,6 @@ final internal class CPU: Component, LineComponent {
     
     private func brkImplied2() {
         pushPcl()
-        //TODO: handle NMI during BRK here
     }
     
     private func brkImplied3() {
@@ -1866,12 +1867,25 @@ final internal class CPU: Component, LineComponent {
     }
     
     private func brkImplied4() {
-        state.data = memory.readByte(0xFFFE)
+        if state.nmiDelayCounter == 0 {
+            state.data = memory.readByte(0xFFFA)
+        } else {
+            state.data = memory.readByte(0xFFFE)
+            if state.nmiDelayCounter == 1 {
+                state.nmiDelayCounter = 2
+            }
+        }
     }
     
     private func brkImplied5() {
         pcl = state.data
-        pch = memory.readByte(0xFFFF)
+        if state.nmiDelayCounter == 0 {
+            pch = memory.readByte(0xFFFB)
+            state.nmiDelayCounter = -1
+        } else {
+            pch = memory.readByte(0xFFFF)
+            //TODO: there might be some delays here if NMI is not converted, but I'm not sure
+        }
         state.i = true
         state.cycle = 0
     }

@@ -39,6 +39,7 @@ final public class C64: NSObject {
     public let c1541: C1541
     
     private let irqLine: Line
+    private let nmiLine: Line
     
     private var cycles = 0
     private var lines = 0
@@ -59,6 +60,7 @@ final public class C64: NSObject {
         joystick2 = Joystick()
         iec = IEC()
         irqLine = Line()
+        nmiLine = Line()
         c1541 = C1541(c1541Data: c1541Data)
         
         memory.writeKernalData(UnsafePointer<UInt8>(kernalData.bytes))
@@ -83,6 +85,10 @@ final public class C64: NSObject {
         cpu.irqLine = irqLine
         vic.irqLine = irqLine
         irqLine.addComponents([cpu, cia1, vic])
+        
+        cia2.nmiLine = nmiLine
+        cpu.nmiLine = nmiLine
+        nmiLine.addComponents([cpu, cia2])
         
         iec.connectDevice(cia2)
         c1541.iec = iec
