@@ -62,12 +62,18 @@ internal struct CIAState: ComponentState {
     
 }
 
-internal class CIA: Component {
+internal class CIA: Component, LineComponent {
     
     internal var state = CIAState()
 
-    internal weak var cpu: CPU!
+    internal weak var interruptLine: Line!
     internal var crashHandler: C64CrashHandler?
+    
+    //MARK: LineComponent
+    func pin(line: Line) -> Bool {
+        return state.interruptPin
+    }
+    //MARK: -
    
     internal func cycle() {
         if state.cra & 0x01 != 0 && state.timerADelay == 0 {
@@ -212,25 +218,20 @@ internal class CIA: Component {
     
     private func triggerInterrupt() {
         state.interruptPin = false
+        interruptLine.update(self)
     }
     
     private func clearInterrupt() {
         state.interruptPin = true
+        interruptLine.update(self)
     }
     
 }
 
-final internal class CIA1: CIA, LineComponent {
+final internal class CIA1: CIA {
     
-    internal weak var irqLine: Line!
     internal weak var keyboard: Keyboard!
     internal weak var joystick2: Joystick!
-    
-    //MARK: LineComponent
-    func pin(line: Line) -> Bool {
-        return state.interruptPin
-    }
-    //MARK: -
     
     override init() {
         super.init()
@@ -282,21 +283,10 @@ final internal class CIA1: CIA, LineComponent {
         }
     }
     
-    private override func triggerInterrupt() {
-        super.triggerInterrupt()
-        irqLine.update(self)
-    }
-    
-    private override func clearInterrupt() {
-        super.clearInterrupt()
-        irqLine.update(self)
-    }
-    
 }
 
-final internal class CIA2: CIA, IECDevice, LineComponent {
+final internal class CIA2: CIA, IECDevice {
     
-    internal weak var nmiLine: Line!
     internal weak var vic: VIC!
     internal weak var iec: IEC!
     
@@ -309,12 +299,6 @@ final internal class CIA2: CIA, IECDevice, LineComponent {
     }
     internal var dataPin: Bool {
         return state.dataPin
-    }
-    //MARK: -
-    
-    //MARK: LineComponent
-    func pin(line: Line) -> Bool {
-        return state.interruptPin
     }
     //MARK: -
     
@@ -344,16 +328,6 @@ final internal class CIA2: CIA, IECDevice, LineComponent {
         default:
             return super.readByte(position)
         }
-    }
-    
-    private override func triggerInterrupt() {
-        super.triggerInterrupt()
-        nmiLine.update(self)
-    }
-    
-    private override func clearInterrupt() {
-        super.clearInterrupt()
-        nmiLine.update(self)
     }
     
     func iecUpdatedLines(atnLineUpdated atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) { }

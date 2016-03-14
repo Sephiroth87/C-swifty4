@@ -73,20 +73,18 @@ final public class C64: NSObject {
         memory.cia2 = cia2
         memory.sid = sid
         memory.vic = vic
-        cia1.cpu = cpu
         cia1.keyboard = keyboard
         cia1.joystick2 = joystick2
-        cia2.cpu = cpu
         cia2.vic = vic
         cia2.iec = iec
         vic.memory = memory
         
-        cia1.irqLine = irqLine
+        cia1.interruptLine = irqLine
         cpu.irqLine = irqLine
         vic.irqLine = irqLine
         irqLine.addComponents([cpu, cia1, vic])
         
-        cia2.nmiLine = nmiLine
+        cia2.interruptLine = nmiLine
         cpu.nmiLine = nmiLine
         nmiLine.addComponents([cpu, cia2])
         
