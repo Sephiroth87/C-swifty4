@@ -55,6 +55,9 @@ internal struct CIAState: ComponentState {
         latchB = UInt16(dictionary["latchB"] as! UInt)
         counterB = UInt16(dictionary["counterB"] as! UInt)
         interruptPin = dictionary["interruptPin"] as! Bool
+        timerADelay = UInt8(dictionary["timerADelay"] as! UInt)
+        timerBDelay = UInt8(dictionary["timerBDelay"] as! UInt)
+        interruptDelay = Int8(dictionary["timerBDelay"] as! Int)
         atnPin = dictionary["atnPin"] as! Bool
         clkPin = dictionary["clkPin"] as! Bool
         dataPin = dictionary["dataPin"] as! Bool
