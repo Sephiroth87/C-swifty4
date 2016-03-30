@@ -1,8 +1,8 @@
 #VICE testprogs
 ##CIA
 #####tod
-- [ ] 0alarm.prg
-- [ ] 1alarm.prg
+- [x] 0alarm.prg
+- [x] 1alarm.prg
 - [ ] 4tod.prg
 - [ ] 4todcia1.prg
 - [ ] 5tod.prg

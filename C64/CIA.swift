@@ -196,13 +196,7 @@ internal class CIA: Component, LineComponent {
                     state.tod10ths = incrementBCD(state.tod10ths)
                 }
             }
-        }
-        if state.todHr == state.alarmHr && state.todMin == state.alarmMin && state.todSec == state.alarmSec && state.tod10ths == state.alarm10ths {
-            state.icr |= 0x04
-            if state.imr & 0x04 != 0 {
-                state.icr |= 0x80
-                triggerInterrupt()
-            }
+            checkAlarm()
         }
     }
     
@@ -233,18 +227,21 @@ internal class CIA: Component, LineComponent {
             } else {
                 state.alarm10ths = byte & 0x0F
             }
+            checkAlarm()
         case 0x09:
             if state.crb & 0x80 == 0 {
                 state.todSec = byte & 0x7F
             } else {
                 state.alarmSec = byte & 0x7F
             }
+            checkAlarm()
         case 0x0A:
             if state.crb & 0x80 == 0 {
                 state.todMin = byte & 0x7F
             } else {
                 state.alarmMin = byte & 0x7F
             }
+            checkAlarm()
         case 0x0B:
             if state.crb & 0x80 == 0 {
                 state.todRunning = false
@@ -256,6 +253,7 @@ internal class CIA: Component, LineComponent {
             } else {
                 state.alarmHr = byte & 0x9F
             }
+            checkAlarm()
         case 0x0C:
             //TODO: serial i/o
             return
@@ -345,6 +343,16 @@ internal class CIA: Component, LineComponent {
     private func clearInterrupt() {
         state.interruptPin = true
         interruptLine.update(self)
+    }
+    
+    private func checkAlarm() {
+        if state.todHr == state.alarmHr && state.todMin == state.alarmMin && state.todSec == state.alarmSec && state.tod10ths == state.alarm10ths {
+            state.icr |= 0x04
+            if state.imr & 0x04 != 0 {
+                state.icr |= 0x80
+                triggerInterrupt()
+            }
+        }
     }
     
     private func incrementBCD(value: UInt8) -> UInt8 {
