@@ -116,7 +116,9 @@ final internal class CPU: Component, LineComponent {
                 state.irqDelayCounter = -1
             }
         } else if line === nmiLine {
-            state.nmiDelayCounter = 3
+            if !line.state {
+                state.nmiDelayCounter = 3
+            }
         }
     }
     
