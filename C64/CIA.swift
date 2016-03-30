@@ -175,19 +175,22 @@ internal class CIA: Component, LineComponent {
                         if state.todMin == 0x59 {
                             state.todMin = 0
                             let pm = (state.todHr & 0x80 != 0)
-                            if state.todHr & 0x1F == 0x12 {
+                            let hour = state.todHr & 0x1F
+                            if hour == 0x12 {
                                 state.todHr = 0x01
+                            } else if hour < 0x12 {
+                                state.todHr = incrementBCD(hour)
                             } else {
-                                state.todHr = incrementBCD(state.todHr & 0x1F)
+                                state.todHr = (hour & 0xF0) | ((hour & 0x0F) &+ 1)
                             }
                             if pm != (state.todHr == 0x12) {
                                 state.todHr |= 0x80
                             }
                         } else {
-                            state.todMin = incrementBCD(state.todMin)
+                            state.todMin = incrementBCD(state.todMin) & 0x7F
                         }
                     } else {
-                        state.todSec = incrementBCD(state.todSec)
+                        state.todSec = incrementBCD(state.todSec) & 0x7F
                     }
                 } else {
                     state.tod10ths = incrementBCD(state.tod10ths)

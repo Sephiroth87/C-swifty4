@@ -10,10 +10,10 @@
 - [x] alarm-cond.prg
 - [x] alarm-cond2.prg
 - [x] alarm.prg
-- [ ] fix-hour.prg
-- [ ] fix-min.prg
-- [ ] fix-sec.prg
-- [ ] fix-tsec.prg
+- [x] fix-hour.prg
+- [x] fix-min.prg
+- [x] fix-sec.prg
+- [x] fix-tsec.prg
 - [x] frogger.prg
 - [x] hammerfist0.prg
 - [x] hammerfist1.prg
