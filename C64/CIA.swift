@@ -179,9 +179,9 @@ internal class CIA: Component, LineComponent {
                                 state.todHr = 0x01
                             } else {
                                 state.todHr = incrementBCD(state.todHr & 0x1F)
-                                if state.todHr == 0x12 && !pm {
-                                    state.todHr |= 0x80
-                                }
+                            }
+                            if pm != (state.todHr == 0x12) {
+                                state.todHr |= 0x80
                             }
                         } else {
                             state.todMin = incrementBCD(state.todMin)
@@ -245,7 +245,11 @@ internal class CIA: Component, LineComponent {
         case 0x0B:
             if state.crb & 0x80 == 0 {
                 state.todRunning = false
-                state.todHr = byte & 0x9F
+                if byte & 0x1F == 0x12 {
+                    state.todHr = 0x12 | (~byte & 0x80)
+                } else {
+                    state.todHr = byte & 0x9F
+                }
             } else {
                 state.alarmHr = byte & 0x9F
             }

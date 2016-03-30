@@ -17,7 +17,7 @@
 - [x] frogger.prg
 - [x] hammerfist0.prg
 - [x] hammerfist1.prg
-- [ ] hour-test.prg
+- [x] hour-test.prg
 - [ ] hzsync0.prg
 - [x] hzsync1.prg
 - [ ] hzsync2.prg
