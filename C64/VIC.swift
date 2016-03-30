@@ -398,7 +398,8 @@ final internal class VIC: Component, LineComponent {
                 state.verticalBorder = false
             }
         case 65:
-            if ++state.raster == totalLines {
+            state.raster += 1
+            if state.raster == totalLines {
                 state.raster = 0
             }
             if state.raster == topLine {
@@ -512,9 +513,10 @@ final internal class VIC: Component, LineComponent {
             break
         }
 
-        if state.currentCycle++ == cyclesPerRaster {
-            state.currentCycle = 1
+        if state.currentCycle == cyclesPerRaster {
+            state.currentCycle = 0
         }
+        state.currentCycle += 1
     }
     
     // Video matrix access
@@ -553,7 +555,7 @@ final internal class VIC: Component, LineComponent {
     private func sAccess(accessNumber: Int) {
         let data = memoryAccess(UInt16(state.mp) << 6 | UInt16(state.mc[Int(state.currentSprite)]))
         state.spriteSequencerData[Int(state.currentSprite)] |= UInt32(data) << UInt32(8 * (2 - accessNumber))
-        state.mc[Int(state.currentSprite)]++
+        state.mc[Int(state.currentSprite)] += 1
     }
     
     // DRAM refresh
@@ -661,7 +663,7 @@ final internal class VIC: Component, LineComponent {
                                         state.screenBuffer[state.bufferPosition] = colors[Int(state.m_c[spriteIndex])]
                                     }
                                     state.spriteSequencerData[spriteIndex] <<= 1
-                                    state.spriteShiftRegisterCount[spriteIndex]--
+                                    state.spriteShiftRegisterCount[spriteIndex] -= 1
                                 }
                             }
                         }
@@ -670,10 +672,11 @@ final internal class VIC: Component, LineComponent {
                 if state.mainBorder || state.verticalBorder {
                     state.screenBuffer[state.bufferPosition] = colors[Int(state.ec)]
                 }
-                ++state.bufferPosition
+                state.bufferPosition += 1
             }
         
-            if ++state.rasterX == 0x200 {
+            state.rasterX += 1
+            if state.rasterX == 0x200 {
                 state.rasterX = 0
             }
             

@@ -50,7 +50,7 @@ extension ComponentState {
 
 internal protocol Component: class {
     
-    typealias StateType: ComponentState
+    associatedtype StateType: ComponentState
     var state: StateType { get set }
     func updateState(dictionary: [String: AnyObject])
     

@@ -130,7 +130,7 @@ internal class CIA: Component, LineComponent {
             }
         }
         if state.timerADelay > 0 {
-            --state.timerADelay
+            state.timerADelay -= 1
         }
         if state.crb & 0x01 != 0 && state.timerBDelay == 0 {
             if state.crb & 0x20 == 0x00 {
@@ -153,7 +153,7 @@ internal class CIA: Component, LineComponent {
             }
         }
         if state.timerBDelay > 0 {
-            --state.timerBDelay
+            state.timerBDelay -= 1
         }
         if state.interruptDelay == 0 {
             state.icr |= 0x80
@@ -161,7 +161,7 @@ internal class CIA: Component, LineComponent {
             triggerInterrupt()
         }
         if state.interruptDelay > 0 {
-            --state.interruptDelay
+            state.interruptDelay -= 1
         }
         state.todCounter += 1
         if state.todCounter == 65 * 263 { //TODO: actually use 50/60 hz flag

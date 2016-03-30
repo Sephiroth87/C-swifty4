@@ -28,12 +28,13 @@ extension CircularBuffer: SequenceType {
     
     public func generate() -> AnyGenerator<T> {
         var index = self.index
-        return anyGenerator({ () -> T? in
+        return AnyGenerator(body: { () -> T? in
             if index - 1 == self.index {
                 return nil
             } else {
                 let value = self.buffer[index]
-                if --index == -1 {
+                index -= 1
+                if index == -1 {
                     index = self.buffer.count - 1
                 }
                 return value

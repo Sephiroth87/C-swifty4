@@ -83,11 +83,13 @@ final public class C1541 {
                 shiftRegister <<= 1
                 let bit = (disk?.tracks[track].readBit(bitOffset) ?? 0)
                 shiftRegister |= bit
-                if ++bitOffset >= disk?.tracks[track].length {
+                bitOffset += 1
+                if bitOffset >= disk?.tracks[track].length {
                     bitOffset = 0
                 }
                 if bit == 0x01 {
-                    if ++syncCounter >= 10 {
+                    syncCounter += 1
+                    if syncCounter >= 10 {
                         via2.pb7 = true
                     }
                 } else {
@@ -97,7 +99,8 @@ final public class C1541 {
                         via2.pb7 = false
                     }
                 }
-                if ++byteCounter == 8 {
+                byteCounter += 1
+                if byteCounter == 8 {
                     if via2.cb2 && !via2.pb7 { // Read mode and no SYNC
                         if via2.ca2 { // Byte ready enabled
                             via2.ca1 = false
@@ -137,7 +140,7 @@ final public class C1541 {
     internal func moveHeadUp() {
         guard on == true else { return }
         if halftrack < 84 {
-            ++halftrack
+            halftrack += 1
             track = (halftrack + 1) / 2
         }
     }
@@ -145,7 +148,7 @@ final public class C1541 {
     internal func moveHeadDown() {
         guard on == true else { return }
         if halftrack > 1 {
-            --halftrack
+            halftrack -= 1
             track = (halftrack + 1) / 2
         }
     }

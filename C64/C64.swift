@@ -129,9 +129,10 @@ final public class C64: NSObject {
         cpu.executeInstruction()
         c1541.cycle()
         
-        if ++cycles == 65 {
+        cycles += 1
+        if cycles == 65 {
             cycles = 0
-            ++lines
+            lines += 1
         }
         
         if lines == 263 {

@@ -18,7 +18,7 @@ class LorenzTestSuite: XCTestCase {
     
     func setupTest(filename: String) {
         self.fileName = filename
-        expectation = expectationWithDescription(name)
+        expectation = expectationWithDescription(name!)
         c64.run()
         waitForExpectationsWithTimeout(100, handler: nil)
     }

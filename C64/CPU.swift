@@ -145,12 +145,13 @@ final internal class CPU: Component, LineComponent {
 
     internal func executeInstruction() {
         if state.irqDelayCounter > 0 {
-            --state.irqDelayCounter
+            state.irqDelayCounter -= 1
         }
         if state.nmiDelayCounter > 0 {
-            --state.nmiDelayCounter
+            state.nmiDelayCounter -= 1
         }
-        if state.cycle++ == 0 {
+        state.cycle += 1
+        if state.cycle == 1 {
             fetch()
             return
         }
@@ -1743,10 +1744,10 @@ final internal class CPU: Component, LineComponent {
         state.pc = state.pc &+ Int8(bitPattern: state.data)
         if pch == oldPch {
             if state.irqDelayCounter >= 0 {
-                ++state.irqDelayCounter
+                state.irqDelayCounter += 1
             }
             if state.nmiDelayCounter >= 0 {
-                ++state.nmiDelayCounter
+                state.nmiDelayCounter += 1
             }
             state.cycle = 0
         }
@@ -2565,7 +2566,7 @@ final internal class CPU: Component, LineComponent {
     }
     
     private func rtsImplied3() {
-        ++state.pc
+        state.pc += 1
         state.cycle = 0
     }
     

@@ -192,7 +192,8 @@ extension ViewController: C64Delegate {
     func C64VideoFrameReady(c64: C64) {
         graphicsView.setData(c64.screenBuffer())
         
-        if ++frames == 60 {
+        frames += 1
+        if frames == 60 {
             let newTime = CACurrentMediaTime()
             let time = newTime - startTime
             fpsLabel.stringValue = "\(Int(60 / time)) FPS"

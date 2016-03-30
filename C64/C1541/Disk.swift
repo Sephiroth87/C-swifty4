@@ -75,7 +75,7 @@ internal final class Disk {
                 // Data block
                 var dataChecksum: UInt8 = d64Data[dataOffset] ^ d64Data[dataOffset + 1] ^ d64Data[dataOffset + 2]
                 trackData.appendContentsOf(encodeGCR([0x07, d64Data[dataOffset + 0], d64Data[dataOffset + 1], d64Data[dataOffset + 2]]))
-                for var i = dataOffset + 3; i < dataOffset + 255; i += 4 {
+                for i in (dataOffset + 3).stride(to: dataOffset + 255, by: 4) {
                     dataChecksum ^= d64Data[i] ^ d64Data[i+1] ^ d64Data[i+2] ^ d64Data[i+3]
                     trackData.appendContentsOf(encodeGCR([d64Data[i], d64Data[i+1], d64Data[i+2], d64Data[i+3]]))
                 }
