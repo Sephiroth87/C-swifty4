@@ -47,7 +47,7 @@ internal struct CIAState: ComponentState {
     private var interruptDelay: Int8 = -1
     private var todLatched: Bool = false
     private var todRunning: Bool = true
-    private var todCounter: UInt16 = 0
+    private var todCounter: UInt32 = 0
     //MARK: -
     
     //MARK: IECDevice lines for CIA2
@@ -87,7 +87,7 @@ internal struct CIAState: ComponentState {
         interruptDelay = Int8(dictionary["timerBDelay"] as! Int)
         todLatched = dictionary["todLatched"] as! Bool
         todRunning = dictionary["todRunning"] as! Bool
-        todCounter = UInt16(dictionary["todCounter"] as! UInt)
+        todCounter = UInt32(dictionary["todCounter"] as! UInt)
         atnPin = dictionary["atnPin"] as! Bool
         clkPin = dictionary["clkPin"] as! Bool
         dataPin = dictionary["dataPin"] as! Bool
@@ -164,7 +164,8 @@ internal class CIA: Component, LineComponent {
             state.interruptDelay -= 1
         }
         state.todCounter += 1
-        if state.todCounter == 65 * 263 { //TODO: actually use 50/60 hz flag
+        let hzFactor = UInt32(state.cra & 0x80 == 0 ? 6 : 5)
+        if state.todCounter == 65 * 263 * hzFactor { //TODO: use refresh rate of the system, currently fixed at 60hz NTSC
             state.todCounter = 0
             if state.todRunning {
                 if state.tod10ths == 0x09 {

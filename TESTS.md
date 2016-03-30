@@ -7,25 +7,25 @@
 - [ ] 4todcia1.prg
 - [ ] 5tod.prg
 - [ ] 6tod.prg
-- [*] alarm-cond.prg
-- [*] alarm-cond2.prg
-- [*] alarm.prg
+- [x] alarm-cond.prg
+- [x] alarm-cond2.prg
+- [x] alarm.prg
 - [ ] fix-hour.prg
 - [ ] fix-min.prg
 - [ ] fix-sec.prg
 - [ ] fix-tsec.prg
-- [*] frogger.prg
-- [*] hammerfist0.prg
-- [*] hammerfist1.prg
+- [x] frogger.prg
+- [x] hammerfist0.prg
+- [x] hammerfist1.prg
 - [ ] hour-test.prg
 - [ ] hzsync0.prg
-- [*] hzsync1.prg
+- [x] hzsync1.prg
 - [ ] hzsync2.prg
-- [*] hzsync3.prg
+- [x] hzsync3.prg
 - [ ] hzsync4.prg
 - [ ] hzsync5.prg
 - [ ] powerup.prg
-- [ ] read-latch.prg
+- [x] read-latch.prg
 - [ ] stability-ntsc.prg
 - [ ] stability.prg
-- [*] write-stop.prg
+- [x] write-stop.prg
