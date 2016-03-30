@@ -6,10 +6,10 @@
 //  Copyright (c) 2015 orange in a day. All rights reserved.
 //
 
-internal class VIA {
+internal class VIA: LineComponent {
     
     internal weak var c1541: C1541!
-    internal weak var cpu: CPU!
+    internal weak var interruptLine: Line!
     
     //MARK: Registers
     private var orb: UInt8 = 0 // Output Register B
@@ -36,10 +36,7 @@ internal class VIA {
                 if (pcr & 0x01 == 0x00 && ca1 == false) || (pcr & 0x01 == 0x01 && ca1 == true) {
                     latchPA()
                     ifr |= 0x02
-                    if ier & 0x02 != 0 {
-                        //TODO: better IRQ handling
-                        cpu.setIRQLine()
-                    }
+                    updateInterruptPin()
                 }
             }
         }
@@ -51,6 +48,13 @@ internal class VIA {
     //MARK: Helpers
     private var timer1Fired = true // We default to true so we don't fire until the counter is loaded from the latch
     private var timer2Fired = true
+    private var interruptPin: Bool = true
+    //MARK: -
+    
+    //MARK: LineComponent
+    func pin(line: Line) -> Bool {
+        return interruptPin
+    }
     //MARK: -
     
     internal func cycle() {
@@ -65,10 +69,7 @@ internal class VIA {
             }
             ifr |= 0x40
             //TODO: handle PB7
-            if ier & 0x40 != 0 {
-                //TODO: better IRQ handling
-                cpu.setIRQLine()
-            }
+            updateInterruptPin()
         }
         if acr & 0x10 == 0 {
             t2c = t2c &- 1
@@ -79,10 +80,7 @@ internal class VIA {
             timer2Fired = true
             ifr |= 0x20
             //TODO: handle PB7
-            if ier & 0x20 != 0 {
-                //TODO: better IRQ handling
-                cpu.setIRQLine()
-            }
+            updateInterruptPin()
         }
     }
     
@@ -92,6 +90,7 @@ internal class VIA {
             ora = byte
             // CA2 has some different clearing rules, but it's not used for now
             ifr &= ~0x03
+            updateInterruptPin()
             //TODO: update pins logic
         case 0x02:
             ddrb = byte
@@ -107,6 +106,7 @@ internal class VIA {
             t1c = UInt16(t1lh) << 8 | UInt16(t1ll)
             ifr &= ~0x40
             timer1Fired = false
+            updateInterruptPin()
         case 0x06:
             t1ll = byte
         case 0x07:
@@ -118,6 +118,7 @@ internal class VIA {
             t2c = UInt16(byte) << 8 | UInt16(t2ll)
             ifr &= ~0x20
             timer2Fired = false
+            updateInterruptPin()
         case 0x0B:
             acr = byte
         case 0x0C:
@@ -138,12 +139,14 @@ internal class VIA {
             }
         case 0x0D:
             ifr &= ~(byte & 0x7F)
+            updateInterruptPin()
         case 0x0E:
             if ((byte & 0x80) != 0) {
                 ier |= (byte & 0x7F)
             } else {
                 ier &= ~(byte & 0x7F)
             }
+            updateInterruptPin()
         default:
             print("todo via write address: " + String(position, radix: 16, uppercase: true))
             break
@@ -154,6 +157,7 @@ internal class VIA {
         switch position {
         case 0x04:
             ifr &= ~0x40
+            updateInterruptPin()
             return UInt8(truncatingBitPattern: t1c)
         case 0x05:
             return UInt8(truncatingBitPattern: t1c >> 8)
@@ -163,6 +167,7 @@ internal class VIA {
             return t1lh
         case 0x08:
             ifr &= ~0x20
+            updateInterruptPin()
             return UInt8(truncatingBitPattern: t2c)
         case 0x09:
             return UInt8(truncatingBitPattern: t2c >> 8)
@@ -181,6 +186,11 @@ internal class VIA {
     }
     
     func latchPA() { }
+    
+    private func updateInterruptPin() {
+        interruptPin = (ifr & ier == 0x00)
+        interruptLine.update(self)
+    }
     
 }
 
@@ -225,6 +235,7 @@ final internal class VIA1: VIA, IECDevice {
         case 0x01:
             // CA2 has some different clearing rules, but it's not used for now
             ifr &= ~0x03
+            updateInterruptPin()
             // PA is not connected on VIA1 so let's not do anything
             return 0xFF
         default:
@@ -249,10 +260,7 @@ final internal class VIA1: VIA, IECDevice {
             // CA1 interrupt, ATN is inverted so a positive edge will be seen here as negative
             if iec.atnLine == (pcr & 0x01 == 0) {
                 ifr |= 0x02
-                if ier & 0x02 != 0 {
-                    //TODOr: better IRQ handling
-                    cpu.setIRQLine()
-                }
+                updateInterruptPin()
             }
         }
     }
@@ -296,6 +304,7 @@ final internal class VIA2: VIA {
         case 0x01, 0x0F:
             // CA2 has some different clearing rules, but it's not used for now
             ifr &= ~0x03
+            updateInterruptPin()
             if acr & 0x01 == 0x00 {
                 // Latching disabled, return PA pins
                 return c1541.shiftRegister

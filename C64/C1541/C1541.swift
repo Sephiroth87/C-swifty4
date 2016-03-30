@@ -49,24 +49,25 @@ final public class C1541 {
     private var speedZone: Int = 0
     
     internal init(c1541Data: NSData) {
-        self.cpu = CPU(pc: 0xEAA0)
-        self.memory = C1541Memory()
-        self.via1 = VIA1()
-        self.via2 = VIA2()
+        cpu = CPU(pc: 0xEAA0)
+        memory = C1541Memory()
+        via1 = VIA1()
+        via2 = VIA2()
         
-        self.cpu.memory = self.memory
-        self.memory.via1 = self.via1
-        self.memory.via2 = self.via2
-        self.via1.cpu = self.cpu
-        self.via2.cpu = self.cpu
+        cpu.memory = memory
+        memory.via1 = via1
+        memory.via2 = via2
         
         irqLine = Line()
         cpu.irqLine = irqLine
+        via1.interruptLine = irqLine
+        via2.interruptLine = irqLine
+        irqLine.addComponents([cpu, via1, via2])
         
-        self.via1.c1541 = self
-        self.via2.c1541 = self
+        via1.c1541 = self
+        via2.c1541 = self
         
-        self.memory.writeC1541Data(UnsafePointer<UInt8>(c1541Data.bytes))
+        memory.writeC1541Data(UnsafePointer<UInt8>(c1541Data.bytes))
     }
     
     internal func cycle() {

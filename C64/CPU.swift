@@ -28,7 +28,6 @@ internal struct CPUState: ComponentState {
     var port: UInt8 = 0x37
     var portExternal: UInt8 = 0x1F
     
-    @available(*, deprecated) var irqTriggered = false //TODO: maybe we still need to keep track if the IRQ has been triggered?
     var nmiLine = true
     var currentOpcode: UInt16 = 0
     var cycle = 0
@@ -58,7 +57,6 @@ internal struct CPUState: ComponentState {
         portDirection = UInt8(dictionary["portDirection"] as! UInt)
         port = UInt8(dictionary["port"] as! UInt)
         portExternal = UInt8(dictionary["portExternal"] as! UInt)
-        irqTriggered = dictionary["irqTriggered"] as! Bool
         currentOpcode = UInt16(dictionary["currentOpcode"] as! UInt)
         cycle = dictionary["cycle"] as! Int
         irqDelayCounter = Int8(dictionary["currentOpcode"] as! Int)
@@ -1092,11 +1090,6 @@ final internal class CPU: Component, LineComponent {
         }
     }
     
-    @available(*, deprecated) internal func setIRQLine() {
-        state.irqTriggered = true
-        state.irqDelayCounter = 3
-    }
-    
     internal func setOverflow() {
         state.v = true
     }
@@ -1385,19 +1378,15 @@ final internal class CPU: Component, LineComponent {
             state.currentOpcode = 0xFFFF
             return
         }
-        if state.irqTriggered && !state.i && state.irqDelayCounter == 0 {
-            state.irqTriggered = false
-            state.currentOpcode = 0xFFFF
-            state.irqDelayCounter = -1
-            return
-        }
         state.isAtFetch = true
         state.currentOpcode = UInt16(memory.readByte(state.pc))
         state.pc = state.pc &+ UInt16(1)
-        if state.currentOpcode == 0x78 && state.i && state.irqDelayCounter >= 0 {
-            // Only trigger pending interrupts after SEI if I was false before
-            state.irqDelayCounter = -1
-        } else if state.currentOpcode == 0x58 && state.i && state.irqDelayCounter >= 0 {
+        // I don't remember why I put this but it doesn't seem to work correctly at the moment...
+//        if state.currentOpcode == 0x78 && state.i && state.irqDelayCounter >= 0 {
+//            // Only trigger pending interrupts after SEI if I was false before
+//            state.irqDelayCounter = -1
+//        }
+        if state.currentOpcode == 0x58 && state.i && state.irqDelayCounter >= 0 {
             // Delay interrupts during CLI to the next instruction
             state.irqDelayCounter = 3
         }
