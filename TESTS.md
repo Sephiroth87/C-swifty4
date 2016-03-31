@@ -3,10 +3,10 @@
 #####tod
 - [x] 0alarm.prg
 - [x] 1alarm.prg
-- [ ] 4tod.prg
-- [ ] 4todcia1.prg
-- [ ] 5tod.prg
-- [ ] 6tod.prg
+- [x] 4tod.prg
+- [x] 4todcia1.prg
+- [x] 5tod.prg
+- [x] 6tod.prg
 - [x] alarm-cond.prg
 - [x] alarm-cond2.prg
 - [x] alarm.prg
@@ -18,13 +18,13 @@
 - [x] hammerfist0.prg
 - [x] hammerfist1.prg
 - [x] hour-test.prg
-- [ ] hzsync0.prg
-- [x] hzsync1.prg
-- [ ] hzsync2.prg
+- [x] hzsync0.prg
+- [ ] hzsync1.prg
+- [x] hzsync2.prg
 - [x] hzsync3.prg
-- [ ] hzsync4.prg
-- [ ] hzsync5.prg
-- [ ] powerup.prg
+- [x] hzsync4.prg
+- [x] hzsync5.prg
+- [x] powerup.prg
 - [x] read-latch.prg
 - [ ] stability-ntsc.prg
 - [ ] stability.prg

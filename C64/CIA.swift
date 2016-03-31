@@ -46,7 +46,7 @@ internal struct CIAState: ComponentState {
     private var timerBDelay: UInt8 = 0
     private var interruptDelay: Int8 = -1
     private var todLatched: Bool = false
-    private var todRunning: Bool = true
+    private var todRunning: Bool = false
     private var todCounter: UInt32 = 0
     //MARK: -
     
@@ -195,8 +195,8 @@ internal class CIA: Component, LineComponent {
                 } else {
                     state.tod10ths = incrementBCD(state.tod10ths)
                 }
+                checkAlarm()
             }
-            checkAlarm()
         }
     }
     
@@ -221,39 +221,62 @@ internal class CIA: Component, LineComponent {
                 state.counterB = state.latchB
             }
         case 0x08:
+            let value = byte & 0x0F
+            let changed: Bool
             if state.crb & 0x80 == 0 {
+                if !state.todRunning {
+                    state.todCounter = 0
+                }
                 state.todRunning = true
-                state.tod10ths = byte & 0x0F
+                changed = state.tod10ths != value
+                state.tod10ths = byte & value
             } else {
-                state.alarm10ths = byte & 0x0F
+                changed = state.alarm10ths != value
+                state.alarm10ths = byte & value
             }
-            checkAlarm()
+            if changed {
+                checkAlarm()
+            }
         case 0x09:
+            let value = byte & 0x7F
+            let changed: Bool
             if state.crb & 0x80 == 0 {
-                state.todSec = byte & 0x7F
+                changed = state.todSec != value
+                state.todSec = value
             } else {
-                state.alarmSec = byte & 0x7F
+                changed = state.alarmSec != value
+                state.alarmSec = value
             }
-            checkAlarm()
+            if changed {
+                checkAlarm()
+            }
         case 0x0A:
+            let value = byte & 0x7F
+            let changed: Bool
             if state.crb & 0x80 == 0 {
-                state.todMin = byte & 0x7F
+                changed = state.todMin != value
+                state.todMin = value
             } else {
-                state.alarmMin = byte & 0x7F
+                changed = state.alarmMin != value
+                state.alarmMin = value
             }
-            checkAlarm()
+            if changed {
+                checkAlarm()
+            }
         case 0x0B:
+            let changed: Bool
             if state.crb & 0x80 == 0 {
                 state.todRunning = false
-                if byte & 0x1F == 0x12 {
-                    state.todHr = 0x12 | (~byte & 0x80)
-                } else {
-                    state.todHr = byte & 0x9F
-                }
+                let value = (byte & 0x1F == 0x12 ? 0x12 | (~byte & 0x80) : byte & 0x9F)
+                changed = state.todHr != value
+                state.todHr = value
             } else {
+                changed = state.alarmHr != byte & 0x9F
                 state.alarmHr = byte & 0x9F
             }
-            checkAlarm()
+            if changed {
+                checkAlarm()
+            }
         case 0x0C:
             //TODO: serial i/o
             return
