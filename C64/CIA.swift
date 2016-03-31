@@ -202,6 +202,8 @@ internal class CIA: Component, LineComponent {
     
     internal func writeByte(position: UInt8, byte: UInt8) {
         switch position {
+        case 0x01:
+            state.prb = byte | ~state.ddrb
         case 0x02:
             state.ddra = byte
         case 0x03:
@@ -304,7 +306,7 @@ internal class CIA: Component, LineComponent {
             }
             state.crb = byte
         default:
-            crashHandler?("todo cia write address: " + String(position, radix: 16, uppercase: true))
+            break
         }
     }
     
@@ -353,7 +355,6 @@ internal class CIA: Component, LineComponent {
         case 0x0F:
             return state.crb & ~0x10
         default:
-            crashHandler?("todo cia read address: " + String(position, radix: 16, uppercase: true))
             return 0
         }
     }
@@ -398,9 +399,6 @@ final internal class CIA1: CIA {
         switch position {
         case 0x00:
             state.pra = byte | ~state.ddra
-            return
-        case 0x01:
-            state.prb = byte | ~state.ddrb
             return
         default:
             super.writeByte(position, byte: byte)
@@ -481,6 +479,8 @@ final internal class CIA2: CIA, IECDevice {
         switch position {
         case 0x00:
             return ((state.pra | ~state.ddra) & 0x3F) | (iec.clkLine ? 0x40 : 0x00) | (iec.dataLine ? 0x80 : 0x00)
+        case 0x01:
+            return state.prb | ~state.ddrb
         default:
             return super.readByte(position)
         }
