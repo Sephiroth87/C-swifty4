@@ -295,14 +295,18 @@ internal class CIA: Component, LineComponent {
             // bit4: force load
             if ((byte & 0x10) != 0) {
                 state.counterA = state.latchA
-                state.timerADelay = 3
+            }
+            if ((byte & 0x01) != 0) {
+                state.timerADelay = 2
             }
             state.cra = byte
         case 0x0F:
             // bit4: force load
             if ((byte & 0x10) != 0) {
                 state.counterB = state.latchB
-                state.timerBDelay = 3
+            }
+            if ((byte & 0x01) != 0) {
+                state.timerBDelay = 2
             }
             state.crb = byte
         default:
