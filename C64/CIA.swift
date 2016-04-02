@@ -42,8 +42,12 @@ internal struct CIAState: ComponentState {
     
     //MARK: Helpers
     private var interruptPin: Bool = true
-    private var timerADelay: UInt8 = 0
-    private var timerBDelay: UInt8 = 0
+    private var timerACountDelay: UInt8 = 0
+    private var timerALoadDelay: UInt8 = 0
+    private var timerAStopDelay: UInt8 = 0
+    private var timerBCountDelay: UInt8 = 0
+    private var timerBLoadDelay: UInt8 = 0
+    private var timerBStopDelay: UInt8 = 0
     private var interruptDelay: Int8 = -1
     private var todLatched: Bool = false
     private var todRunning: Bool = false
@@ -82,8 +86,12 @@ internal struct CIAState: ComponentState {
         alarmHr = UInt8(dictionary["alarmHr"] as! UInt)
         latchHr = UInt8(dictionary["latchHr"] as! UInt)
         interruptPin = dictionary["interruptPin"] as! Bool
-        timerADelay = UInt8(dictionary["timerADelay"] as! UInt)
-        timerBDelay = UInt8(dictionary["timerBDelay"] as! UInt)
+        timerACountDelay = UInt8(dictionary["timerACountDelay"] as! UInt)
+        timerALoadDelay = UInt8(dictionary["timerALoadDelay"] as! UInt)
+        timerAStopDelay = UInt8(dictionary["timerAStopDelay"] as! UInt)
+        timerBCountDelay = UInt8(dictionary["timerBCountDelay"] as! UInt)
+        timerBLoadDelay = UInt8(dictionary["timerBLoadDelay"] as! UInt)
+        timerBStopDelay = UInt8(dictionary["timerBStopDelay"] as! UInt)
         interruptDelay = Int8(dictionary["timerBDelay"] as! Int)
         todLatched = dictionary["todLatched"] as! Bool
         todRunning = dictionary["todRunning"] as! Bool
@@ -109,7 +117,7 @@ internal class CIA: Component, LineComponent {
     //MARK: -
    
     internal func cycle() {
-        if state.cra & 0x01 != 0 && state.timerADelay == 0 {
+        if (state.cra & 0x01 != 0 && state.timerACountDelay == 0) || state.timerAStopDelay > 0 {
             if state.cra & 0x20 == 0x00 {
                 // o2 mode
                 state.counterA = state.counterA &- 1
@@ -118,7 +126,7 @@ internal class CIA: Component, LineComponent {
                     if state.cra & 0x08 != 0 {
                         state.cra &= ~0x01
                     } else {
-                        state.timerADelay = 1
+                        state.timerACountDelay = 1
                     }
                     state.icr |= 0x01
                     if state.imr & 0x01 != 0 {
@@ -129,10 +137,22 @@ internal class CIA: Component, LineComponent {
                 //TODO: CNT mode
             }
         }
-        if state.timerADelay > 0 {
-            state.timerADelay -= 1
+        if state.timerALoadDelay > 0 {
+            state.timerALoadDelay -= 1
+            if state.timerALoadDelay == 0 {
+                state.counterA = state.latchA
+                if state.timerACountDelay == 0 {
+                    state.timerACountDelay = 2
+                }
+            }
         }
-        if state.crb & 0x01 != 0 && state.timerBDelay == 0 {
+        if state.timerACountDelay > 0 && state.timerALoadDelay == 0{
+            state.timerACountDelay -= 1
+        }
+        if state.timerAStopDelay > 0 {
+            state.timerAStopDelay -= 1
+        }
+        if (state.crb & 0x01 != 0 && state.timerBCountDelay == 0) || state.timerBStopDelay > 0 {
             if state.crb & 0x20 == 0x00 {
                 // o2 mode
                 state.counterB = state.counterB &- 1
@@ -141,7 +161,7 @@ internal class CIA: Component, LineComponent {
                     if state.crb & 0x08 != 0 {
                         state.crb &= ~0x01
                     } else {
-                        state.timerBDelay = 1
+                        state.timerBCountDelay = 1
                     }
                     state.icr |= 0x02
                     if state.imr & 0x02 != 0 {
@@ -152,8 +172,20 @@ internal class CIA: Component, LineComponent {
                 //TODO: CNT mode
             }
         }
-        if state.timerBDelay > 0 {
-            state.timerBDelay -= 1
+        if state.timerBLoadDelay > 0 {
+            state.timerBLoadDelay -= 1
+            if state.timerBLoadDelay == 0 {
+                state.counterB = state.latchB
+                if state.timerBCountDelay == 0 {
+                    state.timerBCountDelay = 2
+                }
+            }
+        }
+        if state.timerBCountDelay > 0 && state.timerBLoadDelay == 0{
+            state.timerBCountDelay -= 1
+        }
+        if state.timerBStopDelay > 0 {
+            state.timerBStopDelay -= 1
         }
         if state.interruptDelay == 0 {
             state.icr |= 0x80
@@ -292,23 +324,33 @@ internal class CIA: Component, LineComponent {
                 state.interruptDelay = 1
             }
         case 0x0E:
-            if ((byte & 0x01) != 0) {
-                state.timerADelay = 2
+            if byte & 0x01 != 0 {
+                if state.cra & 0x01 == 0 && state.timerACountDelay == 0 {
+                    state.timerACountDelay = 2
+                }
+            } else {
+                if state.cra & 0x01 == 1 {
+                    state.timerAStopDelay = 2
+                }
             }
             // bit4: force load
-            if ((byte & 0x10) != 0) {
-                state.counterA = state.latchA
-                state.timerADelay += 1
+            if byte & 0x10 != 0 && state.timerALoadDelay == 0 {
+                state.timerALoadDelay = 2
             }
             state.cra = byte
         case 0x0F:
-            if ((byte & 0x01) != 0) {
-                state.timerBDelay = 2
+            if byte & 0x01 != 0 {
+                if state.crb & 0x01 == 0 && state.timerBCountDelay == 0 {
+                    state.timerBCountDelay = 2
+                }
+            } else {
+                if state.crb & 0x01 == 1 {
+                    state.timerBStopDelay = 2
+                }
             }
             // bit4: force load
-            if ((byte & 0x10) != 0) {
-                state.counterB = state.latchB
-                state.timerBDelay += 1
+            if byte & 0x10 != 0 && state.timerBLoadDelay == 0 {
+                state.timerBLoadDelay = 2
             }
             state.crb = byte
         default:
