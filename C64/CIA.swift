@@ -292,21 +292,23 @@ internal class CIA: Component, LineComponent {
                 state.interruptDelay = 1
             }
         case 0x0E:
-            // bit4: force load
-            if ((byte & 0x10) != 0) {
-                state.counterA = state.latchA
-            }
             if ((byte & 0x01) != 0) {
                 state.timerADelay = 2
             }
+            // bit4: force load
+            if ((byte & 0x10) != 0) {
+                state.counterA = state.latchA
+                state.timerADelay += 1
+            }
             state.cra = byte
         case 0x0F:
+            if ((byte & 0x01) != 0) {
+                state.timerBDelay = 2
+            }
             // bit4: force load
             if ((byte & 0x10) != 0) {
                 state.counterB = state.latchB
-            }
-            if ((byte & 0x01) != 0) {
-                state.timerBDelay = 2
+                state.timerBDelay += 1
             }
             state.crb = byte
         default:
