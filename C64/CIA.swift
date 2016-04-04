@@ -52,6 +52,10 @@ internal struct CIAState: ComponentState {
     private var todLatched: Bool = false
     private var todRunning: Bool = false
     private var todCounter: UInt32 = 0
+    private var pb6Toggle: Bool = false
+    private var pb6Pulse: Bool = false
+    private var pb7Toggle: Bool = false
+    private var pb7Pulse: Bool = false
     //MARK: -
     
     //MARK: IECDevice lines for CIA2
@@ -96,6 +100,10 @@ internal struct CIAState: ComponentState {
         todLatched = dictionary["todLatched"] as! Bool
         todRunning = dictionary["todRunning"] as! Bool
         todCounter = UInt32(dictionary["todCounter"] as! UInt)
+        pb6Toggle = dictionary["pb6Toggle"] as! Bool
+        pb6Pulse = dictionary["pb6Pulse"] as! Bool
+        pb7Toggle = dictionary["pb7Toggle"] as! Bool
+        pb7Pulse = dictionary["pb7Pulse"] as! Bool
         atnPin = dictionary["atnPin"] as! Bool
         clkPin = dictionary["clkPin"] as! Bool
         dataPin = dictionary["dataPin"] as! Bool
@@ -117,7 +125,11 @@ internal class CIA: Component, LineComponent {
     //MARK: -
    
     internal func cycle() {
-        if (state.cra & 0x01 != 0 && state.timerACountDelay == 0) || state.timerAStopDelay > 0 {
+        if state.pb6Pulse {
+            state.pb6Pulse = false
+        }
+        // if (timer running && (no counter delay || 1 clock left on delay but conter already 0)) || timer stopped on clock before)
+        if (state.cra & 0x01 != 0 && (state.timerACountDelay == 0 || (state.timerACountDelay == 1 && state.counterA == 0))) || state.timerAStopDelay > 0 {
             if state.cra & 0x20 == 0x00 {
                 // o2 mode
                 state.counterA = state.counterA &- 1
@@ -126,12 +138,14 @@ internal class CIA: Component, LineComponent {
                     if state.cra & 0x08 != 0 {
                         state.cra &= ~0x01
                     } else {
-                        state.timerACountDelay = 1
+                        state.timerACountDelay = 2
                     }
                     state.icr |= 0x01
                     if state.imr & 0x01 != 0 {
                         state.interruptDelay = 1
                     }
+                    state.pb6Toggle = !state.pb6Toggle
+                    state.pb6Pulse = true
                 }
             } else {
                 //TODO: CNT mode
@@ -152,7 +166,10 @@ internal class CIA: Component, LineComponent {
         if state.timerAStopDelay > 0 {
             state.timerAStopDelay -= 1
         }
-        if (state.crb & 0x01 != 0 && state.timerBCountDelay == 0) || state.timerBStopDelay > 0 {
+        if state.pb7Pulse {
+            state.pb7Pulse = false
+        }
+        if (state.crb & 0x01 != 0 && (state.timerBCountDelay == 0 || (state.timerBCountDelay == 1 && state.counterB == 0))) || state.timerBStopDelay > 0 {
             if state.crb & 0x20 == 0x00 {
                 // o2 mode
                 state.counterB = state.counterB &- 1
@@ -161,12 +178,14 @@ internal class CIA: Component, LineComponent {
                     if state.crb & 0x08 != 0 {
                         state.crb &= ~0x01
                     } else {
-                        state.timerBCountDelay = 1
+                        state.timerBCountDelay = 2
                     }
                     state.icr |= 0x02
                     if state.imr & 0x02 != 0 {
                         state.interruptDelay = 1
                     }
+                    state.pb7Toggle = !state.pb7Toggle
+                    state.pb7Pulse = true
                 }
             } else {
                 //TODO: CNT mode
@@ -327,6 +346,7 @@ internal class CIA: Component, LineComponent {
             if byte & 0x01 != 0 {
                 if state.cra & 0x01 == 0 && state.timerACountDelay == 0 {
                     state.timerACountDelay = 2
+                    state.pb6Toggle = true
                 }
             } else {
                 if state.cra & 0x01 == 1 {
@@ -342,6 +362,7 @@ internal class CIA: Component, LineComponent {
             if byte & 0x01 != 0 {
                 if state.crb & 0x01 == 0 && state.timerBCountDelay == 0 {
                     state.timerBCountDelay = 2
+                    state.pb7Toggle = true
                 }
             } else {
                 if state.crb & 0x01 == 1 {
@@ -479,7 +500,22 @@ final internal class CIA1: CIA {
             return state.pra & joystick
         case 0x01:
             //TODO: Actually read from 0x00 because of joystick that might change bits
-            return keyboard.readMatrix(state.pra) & state.prb
+            var result = keyboard.readMatrix(state.pra) & (state.prb | ~state.ddrb)
+            if state.cra & 0x02 != 0 {
+                if (state.cra & 0x04 == 0 && state.pb6Pulse) || (state.cra & 0x04 != 0 && state.pb6Toggle) {
+                    result |= 0x40
+                } else {
+                    result &= ~0x40
+                }
+            }
+            if state.crb & 0x02 != 0 {
+                if (state.crb & 0x04 == 0 && state.pb7Pulse) || (state.crb & 0x04 != 0 && state.pb7Toggle) {
+                    result |= 0x80
+                } else {
+                    result &= ~0x80
+                }
+            }
+            return result
         default:
             return super.readByte(position)
         }
@@ -528,7 +564,22 @@ final internal class CIA2: CIA, IECDevice {
         case 0x00:
             return ((state.pra | ~state.ddra) & 0x3F) | (iec.clkLine ? 0x40 : 0x00) | (iec.dataLine ? 0x80 : 0x00)
         case 0x01:
-            return state.prb | ~state.ddrb
+            var result = state.prb | ~state.ddrb
+            if state.cra & 0x02 != 0 {
+                if (state.cra & 0x04 == 0 && state.pb6Pulse) || (state.cra & 0x04 != 0 && state.pb6Toggle) {
+                    result |= 0x40
+                } else {
+                    result &= ~0x40
+                }
+            }
+            if state.crb & 0x02 != 0 {
+                if (state.crb & 0x04 == 0 && state.pb7Pulse) || (state.crb & 0x04 != 0 && state.pb7Toggle) {
+                    result |= 0x80
+                } else {
+                    result &= ~0x80
+                }
+            }
+            return result
         default:
             return super.readByte(position)
         }
