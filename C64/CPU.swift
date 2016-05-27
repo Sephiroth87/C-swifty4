@@ -59,8 +59,8 @@ internal struct CPUState: ComponentState {
         portExternal = UInt8(dictionary["portExternal"] as! UInt)
         currentOpcode = UInt16(dictionary["currentOpcode"] as! UInt)
         cycle = dictionary["cycle"] as! Int
-        irqDelayCounter = Int8(dictionary["currentOpcode"] as! Int)
-        nmiDelayCounter = Int8(dictionary["currentOpcode"] as! Int)
+        irqDelayCounter = Int8(dictionary["irqDelayCounter"] as! Int)
+        nmiDelayCounter = Int8(dictionary["nmiDelayCounter"] as! Int)
         data = UInt8(dictionary["data"] as! UInt)
         addressLow = UInt8(dictionary["addressLow"] as! UInt)
         addressHigh = UInt8(dictionary["addressHigh"] as! UInt)

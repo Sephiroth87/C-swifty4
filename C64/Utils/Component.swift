@@ -27,9 +27,13 @@ extension ComponentState {
         for (label, value) in m.children where label != nil {
             if let value = value as? AnyObject {
                 dictionary[label!] = value
+            } else if let value = value as? Int8 {
+                dictionary[label!] = Int(value)
             } else if let value = value as? UInt8 {
                 dictionary[label!] = UInt(value)
             } else if let value = value as? UInt16 {
+                dictionary[label!] = UInt(value)
+            } else if let value = value as? UInt32 {
                 dictionary[label!] = UInt(value)
             } else if let value = value as? [UInt8] {
                 dictionary[label!] = value.map { UInt($0) }
