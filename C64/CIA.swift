@@ -8,6 +8,67 @@
 
 import Foundation
 
+// Adapted from "A Software Model of the CIA6526" by Wolfgang Lorenz http://ist.uwaterloo.ca/~schepers/MJK/cia6526.html
+private struct CIATimerState {
+    
+    private struct CIATimerStateFlags {
+        private static let Count0: UInt8 = 0x01
+        private static let Count1: UInt8 = 0x02
+        private static let Count2: UInt8 = 0x04
+        private static let Count3: UInt8 = 0x08
+        private static let Load0: UInt8 = 0x10
+        private static let Load1: UInt8 = 0x20
+        private static let Load2: UInt8 = 0x40
+    }
+    
+    private var delay: UInt8 = 0
+    private var feed: UInt8 = 0
+    
+    mutating func cycle() {
+        delay = ((delay << 1) & ~(CIATimerStateFlags.Count0 | CIATimerStateFlags.Load0)) | feed
+    }
+    
+    func shouldDecrement() -> Bool {
+        return delay & CIATimerStateFlags.Count3 != 0
+    }
+    
+    func shouldOutput() -> Bool {
+        return delay & CIATimerStateFlags.Count2 != 0
+    }
+    
+    mutating func start() {
+        delay |= CIATimerStateFlags.Count1 | CIATimerStateFlags.Count0
+        feed |= CIATimerStateFlags.Count0
+    }
+    
+    mutating func stop() {
+        delay &= ~(CIATimerStateFlags.Count1 | CIATimerStateFlags.Count0)
+        feed &= ~CIATimerStateFlags.Count0
+    }
+    
+    mutating func stopOneShot() {
+        delay &= ~(CIATimerStateFlags.Count2 | CIATimerStateFlags.Count1 | CIATimerStateFlags.Count0)
+        feed &= ~CIATimerStateFlags.Count0
+    }
+    
+    mutating func setSkipNextClock() {
+        delay &= ~CIATimerStateFlags.Count2
+    }
+    
+    func shouldLoad() -> Bool {
+        return delay & CIATimerStateFlags.Load1 != 0
+    }
+    
+    mutating func setLoadNextCycle() {
+        delay |= CIATimerStateFlags.Load0
+    }
+    
+    mutating func setLoadThisCycle() {
+        delay |= CIATimerStateFlags.Load1
+    }
+    
+}
+
 internal struct CIAState: ComponentState {
     
     //MARK: Registers
@@ -42,12 +103,8 @@ internal struct CIAState: ComponentState {
     
     //MARK: Helpers
     private var interruptPin: Bool = true
-    private var timerACountDelay: UInt8 = 0
-    private var timerALoadDelay: UInt8 = 0
-    private var timerAStopDelay: UInt8 = 0
-    private var timerBCountDelay: UInt8 = 0
-    private var timerBLoadDelay: UInt8 = 0
-    private var timerBStopDelay: UInt8 = 0
+    private var timerAState: CIATimerState = CIATimerState()
+    private var timerBState: CIATimerState = CIATimerState()
     private var interruptDelay: Int8 = -1
     private var todLatched: Bool = false
     private var todRunning: Bool = false
@@ -90,12 +147,6 @@ internal struct CIAState: ComponentState {
         alarmHr = UInt8(dictionary["alarmHr"] as! UInt)
         latchHr = UInt8(dictionary["latchHr"] as! UInt)
         interruptPin = dictionary["interruptPin"] as! Bool
-        timerACountDelay = UInt8(dictionary["timerACountDelay"] as! UInt)
-        timerALoadDelay = UInt8(dictionary["timerALoadDelay"] as! UInt)
-        timerAStopDelay = UInt8(dictionary["timerAStopDelay"] as! UInt)
-        timerBCountDelay = UInt8(dictionary["timerBCountDelay"] as! UInt)
-        timerBLoadDelay = UInt8(dictionary["timerBLoadDelay"] as! UInt)
-        timerBStopDelay = UInt8(dictionary["timerBStopDelay"] as! UInt)
         interruptDelay = Int8(dictionary["timerBDelay"] as! Int)
         todLatched = dictionary["todLatched"] as! Bool
         todRunning = dictionary["todRunning"] as! Bool
@@ -128,84 +179,51 @@ internal class CIA: Component, LineComponent {
         if state.pb6Pulse {
             state.pb6Pulse = false
         }
-        // if (timer running && (no counter delay || 1 clock left on delay but conter already 0)) || timer stopped on clock before)
-        if (state.cra & 0x01 != 0 && (state.timerACountDelay == 0 || (state.timerACountDelay == 1 && state.counterA == 0))) || state.timerAStopDelay > 0 {
-            if state.cra & 0x20 == 0x00 {
-                // o2 mode
-                state.counterA = state.counterA &- 1
-                if state.counterA == 0 || state.counterA == 0xFFFF {
-                    state.counterA = state.latchA
-                    if state.cra & 0x08 != 0 {
-                        state.cra &= ~0x01
-                    } else {
-                        state.timerACountDelay = 2
-                    }
-                    state.icr |= 0x01
-                    if state.imr & 0x01 != 0 {
-                        state.interruptDelay = 1
-                    }
-                    state.pb6Toggle = !state.pb6Toggle
-                    state.pb6Pulse = true
-                }
-            } else {
-                //TODO: CNT mode
+        if state.timerAState.shouldDecrement() {
+            state.counterA = state.counterA &- 1
+        }
+        if state.counterA == 0 && state.timerAState.shouldOutput() {
+            if state.cra & 0x08 != 0 {
+                state.cra &= ~0x01
+                state.timerAState.stopOneShot()
             }
-        }
-        if state.timerALoadDelay > 0 {
-            state.timerALoadDelay -= 1
-            if state.timerALoadDelay == 0 {
-                state.counterA = state.latchA
-                if state.timerACountDelay == 0 {
-                    state.timerACountDelay = 2
-                }
+            state.icr |= 0x01
+            if state.imr & 0x01 != 0 {
+                state.interruptDelay = 1
             }
+            state.pb6Toggle = !state.pb6Toggle
+            state.pb6Pulse = true
+            state.timerAState.setLoadThisCycle()
         }
-        if state.timerACountDelay > 0 && state.timerALoadDelay == 0{
-            state.timerACountDelay -= 1
+        if state.timerAState.shouldLoad() {
+            state.counterA = state.latchA
+            state.timerAState.setSkipNextClock()
         }
-        if state.timerAStopDelay > 0 {
-            state.timerAStopDelay -= 1
-        }
+        state.timerAState.cycle()
         if state.pb7Pulse {
             state.pb7Pulse = false
         }
-        if (state.crb & 0x01 != 0 && (state.timerBCountDelay == 0 || (state.timerBCountDelay == 1 && state.counterB == 0))) || state.timerBStopDelay > 0 {
-            if state.crb & 0x20 == 0x00 {
-                // o2 mode
-                state.counterB = state.counterB &- 1
-                if state.counterB == 0 || state.counterB == 0xFFFF {
-                    state.counterB = state.latchB
-                    if state.crb & 0x08 != 0 {
-                        state.crb &= ~0x01
-                    } else {
-                        state.timerBCountDelay = 2
-                    }
-                    state.icr |= 0x02
-                    if state.imr & 0x02 != 0 {
-                        state.interruptDelay = 1
-                    }
-                    state.pb7Toggle = !state.pb7Toggle
-                    state.pb7Pulse = true
-                }
-            } else {
-                //TODO: CNT mode
+        if state.timerBState.shouldDecrement() {
+            state.counterB = state.counterB &- 1
+        }
+        if state.counterB == 0 && state.timerBState.shouldOutput() {
+            if state.crb & 0x08 != 0 {
+                state.crb &= ~0x01
+                state.timerBState.stopOneShot()
             }
-        }
-        if state.timerBLoadDelay > 0 {
-            state.timerBLoadDelay -= 1
-            if state.timerBLoadDelay == 0 {
-                state.counterB = state.latchB
-                if state.timerBCountDelay == 0 {
-                    state.timerBCountDelay = 2
-                }
+            state.icr |= 0x02
+            if state.imr & 0x02 != 0 {
+                state.interruptDelay = 1
             }
+            state.pb7Toggle = !state.pb7Toggle
+            state.pb7Pulse = true
+            state.timerBState.setLoadThisCycle()
         }
-        if state.timerBCountDelay > 0 && state.timerBLoadDelay == 0{
-            state.timerBCountDelay -= 1
+        if state.timerBState.shouldLoad() {
+            state.counterB = state.latchB
+            state.timerBState.setSkipNextClock()
         }
-        if state.timerBStopDelay > 0 {
-            state.timerBStopDelay -= 1
-        }
+        state.timerBState.cycle()
         if state.interruptDelay == 0 {
             state.icr |= 0x80
             state.interruptDelay = -1
@@ -264,14 +282,14 @@ internal class CIA: Component, LineComponent {
         case 0x05:
             state.latchA = (UInt16(byte) << 8) | (state.latchA & 0xFF);
             if state.cra & 0x01 == 0 {
-                state.counterA = state.latchA
+                state.timerAState.setLoadNextCycle()
             }
         case 0x06:
             state.latchB = (state.latchB & 0xFF00) | UInt16(byte)
         case 0x07:
             state.latchB = (UInt16(byte) << 8) | (state.latchB & 0xFF);
             if state.crb & 0x01 == 0 {
-                state.counterB = state.latchB
+                state.timerBState.setLoadNextCycle()
             }
         case 0x08:
             let value = byte & 0x0F
@@ -334,7 +352,7 @@ internal class CIA: Component, LineComponent {
             //TODO: serial i/o
             return
         case 0x0D:
-            if ((byte & 0x80) != 0) {
+            if byte & 0x80 != 0 {
                 state.imr |= (byte & 0x1F)
             } else {
                 state.imr &= ~(byte & 0x1F)
@@ -343,35 +361,31 @@ internal class CIA: Component, LineComponent {
                 state.interruptDelay = 1
             }
         case 0x0E:
+            // bit4: force load
+            if byte & 0x10 != 0 {
+                state.timerAState.setLoadNextCycle()
+            }
             if byte & 0x01 != 0 {
-                if state.cra & 0x01 == 0 && state.timerACountDelay == 0 {
-                    state.timerACountDelay = 2
+                state.timerAState.start()
+                if state.cra & 0x01 == 0 {
                     state.pb6Toggle = true
                 }
             } else {
-                if state.cra & 0x01 == 1 {
-                    state.timerAStopDelay = 2
-                }
-            }
-            // bit4: force load
-            if byte & 0x10 != 0 && state.timerALoadDelay == 0 {
-                state.timerALoadDelay = 2
+               state.timerAState.stop()
             }
             state.cra = byte
         case 0x0F:
+            // bit4: force load
+            if byte & 0x10 != 0 {
+                state.timerBState.setLoadNextCycle()
+            }
             if byte & 0x01 != 0 {
-                if state.crb & 0x01 == 0 && state.timerBCountDelay == 0 {
-                    state.timerBCountDelay = 2
+                state.timerBState.start()
+                if state.crb & 0x01 == 0 {
                     state.pb7Toggle = true
                 }
             } else {
-                if state.crb & 0x01 == 1 {
-                    state.timerBStopDelay = 2
-                }
-            }
-            // bit4: force load
-            if byte & 0x10 != 0 && state.timerBLoadDelay == 0 {
-                state.timerBLoadDelay = 2
+                state.timerBState.stop()
             }
             state.crb = byte
         default:
