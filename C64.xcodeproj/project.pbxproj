@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E53A2C9F1D077FC100C52B93 /* Disk.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53A2C9E1D077FC100C52B93 /* Disk.swift */; };
+		E53A2CA11D077FF100C52B93 /* SaveState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53A2CA01D077FF100C52B93 /* SaveState.swift */; };
+		E58F36FA1D0627A300AE4DEC /* BinaryConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = E58F36F91D0627A300AE4DEC /* BinaryConvertible.swift */; };
 		E58F4D8B1C110070000F3976 /* Component.swift in Sources */ = {isa = PBXBuildFile; fileRef = E58F4D8A1C110070000F3976 /* Component.swift */; };
-		E5C06FB11BFD386E0002245F /* Disk.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C06FB01BFD386E0002245F /* Disk.swift */; };
 		E5DFEDAB1C0D06E5003AA5B9 /* CircularBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */; };
 		E5E0E3CD1C2AF6750062E0DD /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E0E3CC1C2AF6750062E0DD /* Line.swift */; };
 		E5EE30641BF8E8AE00404BE0 /* C1541.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30561BF8E8AE00404BE0 /* C1541.swift */; };
@@ -27,8 +29,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E53A2C9E1D077FC100C52B93 /* Disk.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disk.swift; sourceTree = "<group>"; };
+		E53A2CA01D077FF100C52B93 /* SaveState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveState.swift; sourceTree = "<group>"; };
+		E58F36F91D0627A300AE4DEC /* BinaryConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryConvertible.swift; sourceTree = "<group>"; };
 		E58F4D8A1C110070000F3976 /* Component.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Component.swift; sourceTree = "<group>"; };
-		E5C06FB01BFD386E0002245F /* Disk.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Disk.swift; sourceTree = "<group>"; };
 		E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularBuffer.swift; sourceTree = "<group>"; };
 		E5E0E3CC1C2AF6750062E0DD /* Line.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		E5EE30441BF8E5CD00404BE0 /* C64.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = C64.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -59,11 +63,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E53A2C9D1D077FC100C52B93 /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				E53A2C9E1D077FC100C52B93 /* Disk.swift */,
+				E53A2CA01D077FF100C52B93 /* SaveState.swift */,
+			);
+			path = Files;
+			sourceTree = "<group>";
+		};
 		E5DFEDA91C0D06DC003AA5B9 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
 				E5EE305D1BF8E8AE00404BE0 /* Math.swift */,
 				E58F4D8A1C110070000F3976 /* Component.swift */,
+				E58F36F91D0627A300AE4DEC /* BinaryConvertible.swift */,
 				E5E0E3CC1C2AF6750062E0DD /* Line.swift */,
 				E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */,
 			);
@@ -91,6 +105,7 @@
 			children = (
 				E5EE30591BF8E8AE00404BE0 /* C1541 */,
 				E5DFEDA91C0D06DC003AA5B9 /* Utils */,
+				E53A2C9D1D077FC100C52B93 /* Files */,
 				E5EE305A1BF8E8AE00404BE0 /* C64.swift */,
 				E5EE305B1BF8E8AE00404BE0 /* CPU.swift */,
 				E5EE305C1BF8E8AE00404BE0 /* CIA.swift */,
@@ -119,7 +134,6 @@
 				E5EE30561BF8E8AE00404BE0 /* C1541.swift */,
 				E5EE30571BF8E8AE00404BE0 /* C1541Memory.swift */,
 				E5EE30581BF8E8AE00404BE0 /* VIA.swift */,
-				E5C06FB01BFD386E0002245F /* Disk.swift */,
 			);
 			path = C1541;
 			sourceTree = "<group>";
@@ -201,21 +215,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E5C06FB11BFD386E0002245F /* Disk.swift in Sources */,
 				E5EE30701BF8E8AE00404BE0 /* IEC.swift in Sources */,
 				E5E0E3CD1C2AF6750062E0DD /* Line.swift in Sources */,
 				E5EE306B1BF8E8AE00404BE0 /* Memory.swift in Sources */,
 				E5EE30661BF8E8AE00404BE0 /* VIA.swift in Sources */,
 				E5EE306D1BF8E8AE00404BE0 /* VIC.swift in Sources */,
+				E58F36FA1D0627A300AE4DEC /* BinaryConvertible.swift in Sources */,
 				E5EE306E1BF8E8AE00404BE0 /* Keyboard.swift in Sources */,
 				E5EE30671BF8E8AE00404BE0 /* C64.swift in Sources */,
 				E5EE30681BF8E8AE00404BE0 /* CPU.swift in Sources */,
+				E53A2C9F1D077FC100C52B93 /* Disk.swift in Sources */,
 				E5EE306A1BF8E8AE00404BE0 /* Math.swift in Sources */,
 				E5EE30641BF8E8AE00404BE0 /* C1541.swift in Sources */,
 				E5DFEDAB1C0D06E5003AA5B9 /* CircularBuffer.swift in Sources */,
 				E5EE306C1BF8E8AE00404BE0 /* SID.swift in Sources */,
 				E5EE306F1BF8E8AE00404BE0 /* Joystick.swift in Sources */,
 				E58F4D8B1C110070000F3976 /* Component.swift in Sources */,
+				E53A2CA11D077FF100C52B93 /* SaveState.swift in Sources */,
 				E5EE30651BF8E8AE00404BE0 /* C1541Memory.swift in Sources */,
 				E5EE30691BF8E8AE00404BE0 /* CIA.swift in Sources */,
 			);
@@ -332,10 +348,12 @@
 				INFOPLIST_FILE = C64/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LLVM_LTO = NO;
 				OTHER_SWIFT_FLAGS = "-DDEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orangeinaday.C64;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
@@ -351,10 +369,12 @@
 				INFOPLIST_FILE = C64/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LLVM_LTO = NO;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orangeinaday.C64;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};

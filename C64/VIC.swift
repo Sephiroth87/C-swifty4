@@ -18,7 +18,7 @@ internal struct VICState: ComponentState {
     private var screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: UnsafeMutablePointer(nilLiteral: ()), count: 0)
     //MARK: -
     
-    private var currentCycle = 1
+    private var currentCycle: UInt8 = 1
     private var currentLine: UInt16 = 0
     
     //MARK: Registers
@@ -91,66 +91,11 @@ internal struct VICState: ComponentState {
     private var spriteShiftRegisterCount: [Int] = [Int](count: 8, repeatedValue: 0)
     //MARK: -
     
-    mutating func update(dictionary: [String: AnyObject]) {
-        ioMemory = (dictionary["ioMemory"] as! [UInt]).map({ UInt8($0) })
-        videoMatrix = (dictionary["videoMatrix"] as! [UInt]).map({ UInt8($0) })
-        colorLine = (dictionary["colorLine"] as! [UInt]).map({ UInt8($0) })
-        mp = UInt8(dictionary["mp"] as! UInt)
-        var buffer = (dictionary["screenBuffer"] as! [UInt]).map({ UInt32($0) })
-        screenBuffer.baseAddress.assignFrom(&buffer, count: buffer.count)
-        currentCycle = dictionary["currentCycle"] as! Int
-        currentLine = UInt16(dictionary["currentLine"] as! UInt)
-        vc = UInt16(dictionary["vc"] as! UInt)
-        vcbase = UInt16(dictionary["vcbase"] as! UInt)
-        rc = UInt8(dictionary["rc"] as! UInt)
-        vmli = UInt16(dictionary["vmli"] as! UInt)
-        displayState = dictionary["displayState"] as! Bool
-        rasterX = UInt16(dictionary["rasterX"] as! UInt)
-        mainBorder = dictionary["mainBorder"] as! Bool
-        verticalBorder = dictionary["verticalBorder"] as! Bool
-        ref = UInt8(dictionary["ref"] as! UInt)
-        mc = (dictionary["mc"] as! [UInt]).map({ UInt8($0) })
-        mcbase = (dictionary["mcbase"] as! [UInt]).map({ UInt8($0) })
-        yExpansion = dictionary["yExpansion"] as! [Bool]
-        m_x = (dictionary["m_x"] as! [UInt]).map({ UInt16($0) })
-        m_y = (dictionary["m_y"] as! [UInt]).map({ UInt8($0) })
-        yScroll = UInt8(dictionary["yScroll"] as! UInt)
-        den = dictionary["den"] as! Bool
-        bmm = dictionary["bmm"] as! Bool
-        ecm = dictionary["ecm"] as! Bool
-        mcm = dictionary["mcm"] as! Bool
-        raster = UInt16(dictionary["raster"] as! UInt)
-        me = UInt8(dictionary["me"] as! UInt)
-        mye = UInt8(dictionary["mye"] as! UInt)
-        vm = UInt8(dictionary["vm"] as! UInt)
-        cb = UInt8(dictionary["cb"] as! UInt)
-        ir = UInt8(dictionary["ir"] as! UInt)
-        ier = UInt8(dictionary["ier"] as! UInt)
-        ec = UInt8(dictionary["ec"] as! UInt)
-        mmc = UInt8(dictionary["mmc"] as! UInt)
-        b0c = UInt8(dictionary["b0c"] as! UInt)
-        b1c = UInt8(dictionary["b1c"] as! UInt)
-        b2c = UInt8(dictionary["b2c"] as! UInt)
-        b3c = UInt8(dictionary["b3c"] as! UInt)
-        mm0 = UInt8(dictionary["mm0"] as! UInt)
-        mm1 = UInt8(dictionary["mm1"] as! UInt)
-        m_c = (dictionary["m_c"] as! [UInt]).map({ UInt8($0) })
-        graphicsSequencerData = UInt8(dictionary["graphicsSequencerData"] as! UInt)
-        graphicsSequencerShiftRegister = UInt8(dictionary["graphicsSequencerShiftRegister"] as! UInt)
-        graphicsSequencerVideoMatrix = UInt8(dictionary["graphicsSequencerVideoMatrix"] as! UInt)
-        graphicsSequencerColorLine = UInt8(dictionary["graphicsSequencerColorLine"] as! UInt)
-        spriteSequencerData = (dictionary["spriteSequencerData"] as! [UInt]).map({ UInt32($0) })
-        addressBus = UInt16(dictionary["addressBus"] as! UInt)
-        dataBus = UInt8(dictionary["dataBus"] as! UInt)
-        memoryBankAddress = UInt16(dictionary["memoryBankAddress"] as! UInt)
-        bufferPosition = dictionary["bufferPosition"] as! Int
-        badLinesEnabled = dictionary["badLinesEnabled"] as! Bool
-        isBadLine = dictionary["isBadLine"] as! Bool
-        currentSprite = UInt8(dictionary["currentSprite"] as! UInt)
-        spriteDma = dictionary["spriteDma"] as! [Bool]
-        spriteDisplay = dictionary["spriteDisplay"] as! [Bool]
-        anySpriteDisplaying = dictionary["anySpriteDisplaying"] as! Bool
-        spriteShiftRegisterCount = dictionary["spriteDisplay"] as! [Int]
+    static func extract(binaryDump: BinaryDump) -> VICState {
+        //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
+        //      Good enough for now
+        let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32))), count: 512 * 512)
+        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_x: binaryDump.next(8), m_y: binaryDump.next(8), yScroll: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), mcm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mmc: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), graphicsSequencerData: binaryDump.next(), graphicsSequencerShiftRegister: binaryDump.next(), graphicsSequencerVideoMatrix: binaryDump.next(), graphicsSequencerColorLine: binaryDump.next(), spriteSequencerData: binaryDump.next(8), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteShiftRegisterCount: binaryDump.next(8))
     }
     
 }
@@ -411,7 +356,7 @@ final internal class VIC: Component, LineComponent {
         }
         
         // First half-cycle
-        let cyclesPerRaster = 65 // NTSC
+        let cyclesPerRaster: UInt8 = 65 // NTSC
         if state.currentCycle != cyclesPerRaster {
             draw()
         }

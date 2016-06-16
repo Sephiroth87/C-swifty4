@@ -28,18 +28,8 @@ internal struct C64MemoryState: ComponentState {
     private var ioVisible = true
     //MARK: -
     
-    mutating func update(dictionary: [String: AnyObject]) {
-        ram = (dictionary["ram"] as! [UInt]).map({ UInt8($0) })
-        colorRam = (dictionary["colorRam"] as! [UInt]).map({ UInt8($0) })
-        characterRomVisible = dictionary["characterRomVisible"] as! Bool
-        kernalRomVisible = dictionary["kernalRomVisible"] as! Bool
-        basicRomVisible = dictionary["basicRomVisible"] as! Bool
-        ioVisible = dictionary["ioVisible"] as! Bool
-    }
-    
-    init() {}
-    
-    init(dictionary: [String: AnyObject]) {
+    static func extract(binaryDump: BinaryDump) -> C64MemoryState {
+        return C64MemoryState(ram: binaryDump.next(0x10000), colorRam: binaryDump.next(1024), characterRomVisible: binaryDump.next(), kernalRomVisible: binaryDump.next(), basicRomVisible: binaryDump.next(), ioVisible: binaryDump.next())
     }
     
 }

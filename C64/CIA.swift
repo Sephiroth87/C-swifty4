@@ -9,7 +9,7 @@
 import Foundation
 
 // Adapted from "A Software Model of the CIA6526" by Wolfgang Lorenz http://ist.uwaterloo.ca/~schepers/MJK/cia6526.html
-private struct CIATimerState {
+private struct CIATimerState: BinaryConvertible {
     
     private struct CIATimerStateFlags {
         private static let Count0: UInt8 = 0x01
@@ -67,6 +67,20 @@ private struct CIATimerState {
         delay |= CIATimerStateFlags.Load1
     }
     
+    //MARK: BinaryConvertible
+    
+    private func dump() -> [UInt8] {
+        return [delay, feed]
+    }
+    
+    private var binarySize: UInt {
+        return 2
+    }
+    
+    private static func extract(binaryDump: BinaryDump) -> CIATimerState {
+        return CIATimerState(delay: binaryDump.next(), feed: binaryDump.next())
+    }
+    
 }
 
 internal struct CIAState: ComponentState {
@@ -121,43 +135,8 @@ internal struct CIAState: ComponentState {
     private var dataPin: Bool = true
     //MARK: -
     
-    mutating func update(dictionary: [String: AnyObject]) {
-        pra = UInt8(dictionary["pra"] as! UInt)
-        prb = UInt8(dictionary["prb"] as! UInt)
-        ddra = UInt8(dictionary["ddra"] as! UInt)
-        ddrb = UInt8(dictionary["ddrb"] as! UInt)
-        tod10ths = UInt8(dictionary["tod10ths"] as! UInt)
-        todSec = UInt8(dictionary["todSec"] as! UInt)
-        todMin = UInt8(dictionary["todMin"] as! UInt)
-        todHr = UInt8(dictionary["todHr"] as! UInt)
-        imr = UInt8(dictionary["imr"] as! UInt)
-        icr = UInt8(dictionary["icr"] as! UInt)
-        cra = UInt8(dictionary["cra"] as! UInt)
-        crb = UInt8(dictionary["crb"] as! UInt)
-        latchA = UInt16(dictionary["latchA"] as! UInt)
-        counterA = UInt16(dictionary["counterA"] as! UInt)
-        latchB = UInt16(dictionary["latchB"] as! UInt)
-        counterB = UInt16(dictionary["counterB"] as! UInt)
-        alarm10ths = UInt8(dictionary["alarm10ths"] as! UInt)
-        latch10ths = UInt8(dictionary["latch10ths"] as! UInt)
-        alarmSec = UInt8(dictionary["alarmSec"] as! UInt)
-        latchSec = UInt8(dictionary["latchSec"] as! UInt)
-        alarmMin = UInt8(dictionary["alarmMin"] as! UInt)
-        latchMin = UInt8(dictionary["latchMin"] as! UInt)
-        alarmHr = UInt8(dictionary["alarmHr"] as! UInt)
-        latchHr = UInt8(dictionary["latchHr"] as! UInt)
-        interruptPin = dictionary["interruptPin"] as! Bool
-        interruptDelay = Int8(dictionary["timerBDelay"] as! Int)
-        todLatched = dictionary["todLatched"] as! Bool
-        todRunning = dictionary["todRunning"] as! Bool
-        todCounter = UInt32(dictionary["todCounter"] as! UInt)
-        pb6Toggle = dictionary["pb6Toggle"] as! Bool
-        pb6Pulse = dictionary["pb6Pulse"] as! Bool
-        pb7Toggle = dictionary["pb7Toggle"] as! Bool
-        pb7Pulse = dictionary["pb7Pulse"] as! Bool
-        atnPin = dictionary["atnPin"] as! Bool
-        clkPin = dictionary["clkPin"] as! Bool
-        dataPin = dictionary["dataPin"] as! Bool
+    static func extract(binaryDump: BinaryDump) -> CIAState {
+        return CIAState(pra: binaryDump.next(), prb: binaryDump.next(), ddra: binaryDump.next(), ddrb: binaryDump.next(), tod10ths: binaryDump.next(), todSec: binaryDump.next(), todMin: binaryDump.next(), todHr: binaryDump.next(), imr: binaryDump.next(), icr: binaryDump.next(), cra: binaryDump.next(), crb: binaryDump.next(), latchA: binaryDump.next(), counterA: binaryDump.next(), latchB: binaryDump.next(), counterB: binaryDump.next(), alarm10ths: binaryDump.next(), latch10ths: binaryDump.next(), alarmSec: binaryDump.next(), latchSec: binaryDump.next(), alarmMin: binaryDump.next(), latchMin: binaryDump.next(), alarmHr: binaryDump.next(), latchHr: binaryDump.next(), interruptPin: binaryDump.next(), timerAState: binaryDump.next(), timerBState: binaryDump.next(), interruptDelay: binaryDump.next(), todLatched: binaryDump.next(), todRunning: binaryDump.next(), todCounter: binaryDump.next(), pb6Toggle: binaryDump.next(), pb6Pulse: binaryDump.next(), pb7Toggle: binaryDump.next(), pb7Pulse: binaryDump.next(), atnPin: binaryDump.next(), clkPin: binaryDump.next(), dataPin: binaryDump.next())
     }
     
 }

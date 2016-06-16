@@ -26,21 +26,21 @@ final public class C64: NSObject {
     
     private var breakpoints: [UInt16: Bool] = [UInt16: Bool]()
     
-    private let cpu: CPU
-    private let memory: C64Memory
-    private let cia1: CIA1
-    private let cia2: CIA2
-    private let sid: SID
-    private let vic: VIC
-    private let keyboard: Keyboard
-    private let joystick1: Joystick
-    private let joystick2: Joystick
-    private let iec: IEC
+    internal let cpu = CPU(pc: 0xFCE2)
+    internal let memory = C64Memory()
+    internal let cia1 = CIA1()
+    internal let cia2 = CIA2()
+    internal let sid = SID()
+    internal let vic = VIC()
+    private let keyboard = Keyboard()
+    private let joystick1 = Joystick()
+    private let joystick2 = Joystick()
+    private let iec = IEC()
     public let c1541: C1541
     
-    private let irqLine: Line
-    private let nmiLine: Line
-    
+    private let irqLine = Line()
+    private let nmiLine = Line()
+
     private var cycles = 0
     private var lines = 0
     
@@ -48,19 +48,7 @@ final public class C64: NSObject {
         if (kernalData.length != 8192 || basicData.length != 8192 || characterData.length != 4096 || c1541Data.length != 16384) {
             assertionFailure("Wrong data found");
         }
-        
-        cpu = CPU(pc: 0xFCE2)
-        memory = C64Memory()
-        cia1 = CIA1()
-        cia2 = CIA2()
-        sid = SID()
-        vic = VIC()
-        keyboard = Keyboard()
-        joystick1 = Joystick()
-        joystick2 = Joystick()
-        iec = IEC()
-        irqLine = Line()
-        nmiLine = Line()
+
         c1541 = C1541(c1541Data: c1541Data)
         
         memory.writeKernalData(UnsafePointer<UInt8>(kernalData.bytes))
@@ -229,17 +217,9 @@ final public class C64: NSObject {
     
     //MARK: Files
     
-    public func saveState(completion: (NSData) -> Void) {
+    public func saveState(completion: (SaveState) -> Void) {
         let saveBlock = {
-            var dictionary = [String: [String: AnyObject]]()
-            dictionary["cpu"] = self.cpu.state.toDictionary()
-            dictionary["cia1"] = self.cia1.state.toDictionary()
-            dictionary["cia2"] = self.cia2.state.toDictionary()
-            dictionary["vic"] = self.vic.state.toDictionary()
-            dictionary["memory"] = self.memory.state.toDictionary()
-            let data = try? NSJSONSerialization.dataWithJSONObject(dictionary, options: [])
-            completion(data ?? NSData())
-            self.run()
+            completion(SaveState(c64: self))
         }
         if running {
             executeToNextFetch {
@@ -251,16 +231,18 @@ final public class C64: NSObject {
         }
     }
     
-    public func loadState(data: NSData) {
+    public func loadState(saveState: SaveState, completion: (Void) -> Void) {
+        let running = self.running
         executeToNextFetch {
-            guard let json = try? NSJSONSerialization.JSONObjectWithData(data, options: []), dictionary = json as? [String: [String: AnyObject]] else { return }
-            guard let cpuState = dictionary["cpu"], cia1State = dictionary["cia1"], cia2state = dictionary["cia2"], vicState = dictionary["vic"], memoryState = dictionary["memory"] else { return }
-            self.cpu.updateState(cpuState)
-            self.cia1.updateState(cia1State)
-            self.cia2.updateState(cia2state)
-            self.vic.updateState(vicState)
-            self.memory.updateState(memoryState)
-            self.run()
+            self.cpu.state = saveState.cpuState
+            self.memory.state = saveState.memoryState
+            self.cia1.state = saveState.cia1State
+            self.cia2.state = saveState.cia2State
+            self.vic.state = saveState.vicState
+            completion()
+            if running {
+                self.run()
+            }
         }
     }
     

@@ -30,7 +30,7 @@ internal struct CPUState: ComponentState {
     
     var nmiLine = true
     var currentOpcode: UInt16 = 0
-    var cycle = 0
+    var cycle: UInt8 = 0
     var irqDelayCounter: Int8 = -1
     var nmiDelayCounter: Int8 = -1
     
@@ -40,32 +40,8 @@ internal struct CPUState: ComponentState {
     var pointer: UInt8 = 0
     var pageBoundaryCrossed = false
     
-    mutating func update(dictionary: [String: AnyObject]) {
-        pc = UInt16(dictionary["pc"] as! UInt)
-        isAtFetch = dictionary["isAtFetch"] as! Bool
-        a = UInt8(dictionary["a"] as! UInt)
-        x = UInt8(dictionary["x"] as! UInt)
-        y = UInt8(dictionary["y"] as! UInt)
-        sp = UInt8(dictionary["sp"] as! UInt)
-        c = dictionary["c"] as! Bool
-        z = dictionary["z"] as! Bool
-        i = dictionary["i"] as! Bool
-        d = dictionary["d"] as! Bool
-        b = dictionary["b"] as! Bool
-        v = dictionary["v"] as! Bool
-        n = dictionary["n"] as! Bool
-        portDirection = UInt8(dictionary["portDirection"] as! UInt)
-        port = UInt8(dictionary["port"] as! UInt)
-        portExternal = UInt8(dictionary["portExternal"] as! UInt)
-        currentOpcode = UInt16(dictionary["currentOpcode"] as! UInt)
-        cycle = dictionary["cycle"] as! Int
-        irqDelayCounter = Int8(dictionary["irqDelayCounter"] as! Int)
-        nmiDelayCounter = Int8(dictionary["nmiDelayCounter"] as! Int)
-        data = UInt8(dictionary["data"] as! UInt)
-        addressLow = UInt8(dictionary["addressLow"] as! UInt)
-        addressHigh = UInt8(dictionary["addressHigh"] as! UInt)
-        pointer = UInt8(dictionary["pointer"] as! UInt)
-        pageBoundaryCrossed = dictionary["pageBoundaryCrossed"] as! Bool
+    static func extract(binaryDump: BinaryDump) -> CPUState {
+        return CPUState(pc: binaryDump.next(), isAtFetch: binaryDump.next(), a: binaryDump.next(), x: binaryDump.next(), y: binaryDump.next(), sp: binaryDump.next(), c: binaryDump.next(), z: binaryDump.next(), i: binaryDump.next(), d: binaryDump.next(), b: binaryDump.next(), v: binaryDump.next(), n: binaryDump.next(), portDirection: binaryDump.next(), port: binaryDump.next(), portExternal: binaryDump.next(), nmiLine: binaryDump.next(), currentOpcode: binaryDump.next(), cycle: binaryDump.next(), irqDelayCounter: binaryDump.next(), nmiDelayCounter: binaryDump.next(), data: binaryDump.next(), addressLow: binaryDump.next(), addressHigh: binaryDump.next(), pointer: binaryDump.next(), pageBoundaryCrossed: binaryDump.next())
     }
 
 }

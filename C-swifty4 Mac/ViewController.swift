@@ -93,21 +93,22 @@ class ViewController: NSViewController {
     @IBAction func saveState(sender: AnyObject) {
         c64.pause()
         let panel = NSSavePanel()
-        panel.allowedFileTypes = ["json"]
+        panel.allowedFileTypes = ["cs4"]
         panel.title = "Save state"
         panel.extensionHidden = false
         let formatter = NSDateFormatter()
         formatter.dateFormat = "yyyyMMddHHmmss"
-        panel.nameFieldStringValue = formatter.stringFromDate(NSDate()) + ".json"
+        panel.nameFieldStringValue = formatter.stringFromDate(NSDate()) + ".cs4"
         if let iCloudFolder = NSFileManager.defaultManager().URLForUbiquityContainerIdentifier(nil) {
             panel.directoryURL = iCloudFolder.URLByAppendingPathComponent("Documents")
         }
-        panel.beginSheetModalForWindow(self.view.window!) { result in
+        panel.beginSheetModalForWindow(view.window!) { result in
             if let url = panel.URL where result == NSFileHandlingPanelOKButton {
-                self.c64.saveState({ (data) -> Void in
+                self.c64.saveState { save in
+                    let data = NSData(bytes: UnsafePointer<UInt8>(save.data), length: save.data.count)
                     data.writeToURL(url, atomically: true)
                     self.c64.run()
-                })
+                }
             } else {
                 self.c64.run()
             }
@@ -118,13 +119,17 @@ class ViewController: NSViewController {
     @IBAction func loadState(sender: AnyObject) {
         c64.pause()
         let panel = NSOpenPanel()
-        panel.allowedFileTypes = ["json"]
-        panel.beginSheetModalForWindow(self.view.window!, completionHandler: { (result) -> Void in
+        panel.allowedFileTypes = ["cs4"]
+        panel.beginSheetModalForWindow(view.window!) { result in
             if let url = panel.URLs.first where result == NSFileHandlingPanelOKButton {
-                self.c64.loadState(NSData(contentsOfURL: url)!)
+                let data = NSData(contentsOfURL: url)!
+                let bytes = Array(UnsafeBufferPointer(start: UnsafePointer<UInt8>(data.bytes), count: data.length))
+                let save = SaveState(data: bytes)
+                self.c64.loadState(save) {
+                    self.c64.run()
+                }
             }
-            self.c64.run()
-        })
+        }
     }
     
     override func keyDown(theEvent: NSEvent) {
