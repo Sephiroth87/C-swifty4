@@ -19,13 +19,14 @@ private struct CIATimerState: BinaryConvertible {
         private static let Load0: UInt8 = 0x10
         private static let Load1: UInt8 = 0x20
         private static let Load2: UInt8 = 0x40
+        private static let OneShot: UInt8 = 0x80
     }
     
     private var delay: UInt8 = 0
     private var feed: UInt8 = 0
     
     mutating func cycle() {
-        delay = ((delay << 1) & ~(CIATimerStateFlags.Count0 | CIATimerStateFlags.Load0)) | feed
+        delay = ((delay << 1) & ~(CIATimerStateFlags.OneShot | CIATimerStateFlags.Count0 | CIATimerStateFlags.Load0)) | feed
     }
     
     func shouldDecrement() -> Bool {
@@ -65,6 +66,18 @@ private struct CIATimerState: BinaryConvertible {
     
     mutating func setLoadThisCycle() {
         delay |= CIATimerStateFlags.Load1
+    }
+    
+    var isOneShot: Bool {
+        return (delay | feed) & CIATimerStateFlags.OneShot != 0
+    }
+    
+    mutating func setOneShot() {
+        feed |= CIATimerStateFlags.OneShot
+    }
+    
+    mutating func clearOneShot() {
+        feed &= ~CIATimerStateFlags.OneShot
     }
     
     //MARK: BinaryConvertible
@@ -162,7 +175,7 @@ internal class CIA: Component, LineComponent {
             state.counterA = state.counterA &- 1
         }
         if state.counterA == 0 && state.timerAState.shouldOutput() {
-            if state.cra & 0x08 != 0 {
+            if state.timerAState.isOneShot {
                 state.cra &= ~0x01
                 state.timerAState.stopOneShot()
             }
@@ -186,7 +199,7 @@ internal class CIA: Component, LineComponent {
             state.counterB = state.counterB &- 1
         }
         if state.counterB == 0 && state.timerBState.shouldOutput() {
-            if state.crb & 0x08 != 0 {
+            if state.timerBState.isOneShot {
                 state.crb &= ~0x01
                 state.timerBState.stopOneShot()
             }
@@ -344,7 +357,8 @@ internal class CIA: Component, LineComponent {
             if byte & 0x10 != 0 {
                 state.timerAState.setLoadNextCycle()
             }
-            if byte & 0x01 != 0 {
+            //TODO: CNT Mode
+            if byte & 0x21 == 1 {
                 state.timerAState.start()
                 if state.cra & 0x01 == 0 {
                     state.pb6Toggle = true
@@ -352,19 +366,29 @@ internal class CIA: Component, LineComponent {
             } else {
                state.timerAState.stop()
             }
+            if byte & 0x08 != 0 {
+                state.timerAState.setOneShot()
+            } else {
+                state.timerAState.clearOneShot()
+            }
             state.cra = byte
         case 0x0F:
             // bit4: force load
             if byte & 0x10 != 0 {
                 state.timerBState.setLoadNextCycle()
             }
-            if byte & 0x01 != 0 {
+            if byte & 0x21 == 1 {
                 state.timerBState.start()
                 if state.crb & 0x01 == 0 {
                     state.pb7Toggle = true
                 }
             } else {
                 state.timerBState.stop()
+            }
+            if byte & 0x08 != 0 {
+                state.timerBState.setOneShot()
+            } else {
+                state.timerBState.clearOneShot()
             }
             state.crb = byte
         default:
