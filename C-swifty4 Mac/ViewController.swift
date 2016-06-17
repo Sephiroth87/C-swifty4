@@ -68,6 +68,7 @@ class ViewController: NSViewController {
     }
     
     @IBAction func onDiskButton(sender: AnyObject) {
+        c64.pause()
         let panel = NSOpenPanel()
         panel.allowedFileTypes = ["prg", "txt", "d64", "p00"]
         panel.beginSheetModalForWindow(self.view.window!, completionHandler: { (result) -> Void in
@@ -87,6 +88,7 @@ class ViewController: NSViewController {
                     break
                 }
             }
+            self.c64.run()
         })
     }
     
@@ -128,6 +130,8 @@ class ViewController: NSViewController {
                 self.c64.loadState(save) {
                     self.c64.run()
                 }
+            } else {
+                self.c64.run()
             }
         }
     }
