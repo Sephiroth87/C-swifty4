@@ -24,16 +24,18 @@ private struct CIATimerState: BinaryConvertible {
     
     private var delay: UInt8 = 0
     private var feed: UInt8 = 0
+    private var interruptDelay: UInt8 = 0
     
     mutating func cycle() {
         delay = ((delay << 1) & ~(CIATimerStateFlags.OneShot | CIATimerStateFlags.Count0 | CIATimerStateFlags.Load0)) | feed
+        interruptDelay = (interruptDelay << 1) & 0x03
     }
     
-    func shouldDecrement() -> Bool {
+    var shouldDecrement: Bool {
         return delay & CIATimerStateFlags.Count3 != 0
     }
     
-    func shouldOutput() -> Bool {
+    var shouldOutput: Bool {
         return delay & CIATimerStateFlags.Count2 != 0
     }
     
@@ -56,15 +58,19 @@ private struct CIATimerState: BinaryConvertible {
         delay &= ~CIATimerStateFlags.Count2
     }
     
-    func shouldLoad() -> Bool {
+    var shouldLoad: Bool {
         return delay & CIATimerStateFlags.Load1 != 0
     }
     
-    mutating func setLoadNextCycle() {
+    var wasLoading: Bool {
+        return delay & CIATimerStateFlags.Load2 != 0
+    }
+    
+    mutating func setLoadNextClock() {
         delay |= CIATimerStateFlags.Load0
     }
     
-    mutating func setLoadThisCycle() {
+    mutating func setLoadThisClock() {
         delay |= CIATimerStateFlags.Load1
     }
     
@@ -80,18 +86,30 @@ private struct CIATimerState: BinaryConvertible {
         feed &= ~CIATimerStateFlags.OneShot
     }
     
+    mutating func setInterruptsNextClock() {
+        interruptDelay |= 0x01
+    }
+    
+    mutating func clearInterrupts() {
+        interruptDelay = 0
+    }
+    
+    var shouldInterrupt: Bool {
+        return interruptDelay & 0x02 != 0
+    }
+    
     //MARK: BinaryConvertible
     
     private func dump() -> [UInt8] {
-        return [delay, feed]
+        return [delay, feed, interruptDelay]
     }
     
     private var binarySize: UInt {
-        return 2
+        return 3
     }
     
     private static func extract(binaryDump: BinaryDump) -> CIATimerState {
-        return CIATimerState(delay: binaryDump.next(), feed: binaryDump.next())
+        return CIATimerState(delay: binaryDump.next(), feed: binaryDump.next(), interruptDelay: binaryDump.next())
     }
     
 }
@@ -132,7 +150,6 @@ internal struct CIAState: ComponentState {
     private var interruptPin: Bool = true
     private var timerAState: CIATimerState = CIATimerState()
     private var timerBState: CIATimerState = CIATimerState()
-    private var interruptDelay: Int8 = -1
     private var todLatched: Bool = false
     private var todRunning: Bool = false
     private var todCounter: UInt32 = 0
@@ -149,7 +166,7 @@ internal struct CIAState: ComponentState {
     //MARK: -
     
     static func extract(binaryDump: BinaryDump) -> CIAState {
-        return CIAState(pra: binaryDump.next(), prb: binaryDump.next(), ddra: binaryDump.next(), ddrb: binaryDump.next(), tod10ths: binaryDump.next(), todSec: binaryDump.next(), todMin: binaryDump.next(), todHr: binaryDump.next(), imr: binaryDump.next(), icr: binaryDump.next(), cra: binaryDump.next(), crb: binaryDump.next(), latchA: binaryDump.next(), counterA: binaryDump.next(), latchB: binaryDump.next(), counterB: binaryDump.next(), alarm10ths: binaryDump.next(), latch10ths: binaryDump.next(), alarmSec: binaryDump.next(), latchSec: binaryDump.next(), alarmMin: binaryDump.next(), latchMin: binaryDump.next(), alarmHr: binaryDump.next(), latchHr: binaryDump.next(), interruptPin: binaryDump.next(), timerAState: binaryDump.next(), timerBState: binaryDump.next(), interruptDelay: binaryDump.next(), todLatched: binaryDump.next(), todRunning: binaryDump.next(), todCounter: binaryDump.next(), pb6Toggle: binaryDump.next(), pb6Pulse: binaryDump.next(), pb7Toggle: binaryDump.next(), pb7Pulse: binaryDump.next(), atnPin: binaryDump.next(), clkPin: binaryDump.next(), dataPin: binaryDump.next())
+        return CIAState(pra: binaryDump.next(), prb: binaryDump.next(), ddra: binaryDump.next(), ddrb: binaryDump.next(), tod10ths: binaryDump.next(), todSec: binaryDump.next(), todMin: binaryDump.next(), todHr: binaryDump.next(), imr: binaryDump.next(), icr: binaryDump.next(), cra: binaryDump.next(), crb: binaryDump.next(), latchA: binaryDump.next(), counterA: binaryDump.next(), latchB: binaryDump.next(), counterB: binaryDump.next(), alarm10ths: binaryDump.next(), latch10ths: binaryDump.next(), alarmSec: binaryDump.next(), latchSec: binaryDump.next(), alarmMin: binaryDump.next(), latchMin: binaryDump.next(), alarmHr: binaryDump.next(), latchHr: binaryDump.next(), interruptPin: binaryDump.next(), timerAState: binaryDump.next(), timerBState: binaryDump.next(), todLatched: binaryDump.next(), todRunning: binaryDump.next(), todCounter: binaryDump.next(), pb6Toggle: binaryDump.next(), pb6Pulse: binaryDump.next(), pb7Toggle: binaryDump.next(), pb7Pulse: binaryDump.next(), atnPin: binaryDump.next(), clkPin: binaryDump.next(), dataPin: binaryDump.next())
     }
     
 }
@@ -171,59 +188,54 @@ internal class CIA: Component, LineComponent {
         if state.pb6Pulse {
             state.pb6Pulse = false
         }
-        if state.timerAState.shouldDecrement() {
+        if state.timerAState.shouldDecrement {
             state.counterA = state.counterA &- 1
         }
-        if state.counterA == 0 && state.timerAState.shouldOutput() {
+        if state.counterA == 0 && state.timerAState.shouldOutput {
             if state.timerAState.isOneShot {
                 state.cra &= ~0x01
                 state.timerAState.stopOneShot()
             }
             state.icr |= 0x01
             if state.imr & 0x01 != 0 {
-                state.interruptDelay = 1
+                state.timerAState.setInterruptsNextClock()
             }
             state.pb6Toggle = !state.pb6Toggle
             state.pb6Pulse = true
-            state.timerAState.setLoadThisCycle()
+            state.timerAState.setLoadThisClock()
         }
-        if state.timerAState.shouldLoad() {
+        if state.timerAState.shouldLoad {
             state.counterA = state.latchA
             state.timerAState.setSkipNextClock()
         }
-        state.timerAState.cycle()
         if state.pb7Pulse {
             state.pb7Pulse = false
         }
-        if state.timerBState.shouldDecrement() {
+        if state.timerBState.shouldDecrement {
             state.counterB = state.counterB &- 1
         }
-        if state.counterB == 0 && state.timerBState.shouldOutput() {
+        if state.counterB == 0 && state.timerBState.shouldOutput {
             if state.timerBState.isOneShot {
                 state.crb &= ~0x01
                 state.timerBState.stopOneShot()
             }
             state.icr |= 0x02
             if state.imr & 0x02 != 0 {
-                state.interruptDelay = 1
+                state.timerBState.setInterruptsNextClock()
             }
             state.pb7Toggle = !state.pb7Toggle
             state.pb7Pulse = true
-            state.timerBState.setLoadThisCycle()
+            state.timerBState.setLoadThisClock()
         }
-        if state.timerBState.shouldLoad() {
+        if state.timerBState.shouldLoad {
             state.counterB = state.latchB
             state.timerBState.setSkipNextClock()
         }
-        state.timerBState.cycle()
-        if state.interruptDelay == 0 {
-            state.icr |= 0x80
-            state.interruptDelay = -1
+        if state.timerAState.shouldInterrupt || state.timerBState.shouldInterrupt {
             triggerInterrupt()
         }
-        if state.interruptDelay > 0 {
-            state.interruptDelay -= 1
-        }
+        state.timerAState.cycle()
+        state.timerBState.cycle()
         state.todCounter += 1
         let hzFactor = UInt32(state.cra & 0x80 == 0 ? 6 : 5)
         if state.todCounter == 65 * 263 * hzFactor { //TODO: use refresh rate of the system, currently fixed at 60hz NTSC
@@ -271,17 +283,23 @@ internal class CIA: Component, LineComponent {
             state.ddrb = byte
         case 0x04:
             state.latchA = (state.latchA & 0xFF00) | UInt16(byte)
+            if state.timerAState.wasLoading {
+                state.counterA = (state.counterA & 0xFF00) | UInt16(byte)
+            }
         case 0x05:
             state.latchA = (UInt16(byte) << 8) | (state.latchA & 0xFF);
             if state.cra & 0x01 == 0 {
-                state.timerAState.setLoadNextCycle()
+                state.timerAState.setLoadNextClock()
+            }
+            if state.timerAState.wasLoading {
+                state.counterA = (UInt16(byte) << 8) | (state.counterA & 0xFF);
             }
         case 0x06:
             state.latchB = (state.latchB & 0xFF00) | UInt16(byte)
         case 0x07:
             state.latchB = (UInt16(byte) << 8) | (state.latchB & 0xFF);
             if state.crb & 0x01 == 0 {
-                state.timerBState.setLoadNextCycle()
+                state.timerBState.setLoadNextClock()
             }
         case 0x08:
             let value = byte & 0x0F
@@ -350,12 +368,13 @@ internal class CIA: Component, LineComponent {
                 state.imr &= ~(byte & 0x1F)
             }
             if state.imr & state.icr != 0 {
-                state.interruptDelay = 1
+                // We don't check who actually caused the interrupt because it shouldn't matter, just trigger it
+                state.timerAState.setInterruptsNextClock()
             }
         case 0x0E:
             // bit4: force load
             if byte & 0x10 != 0 {
-                state.timerAState.setLoadNextCycle()
+                state.timerAState.setLoadNextClock()
             }
             //TODO: CNT Mode
             if byte & 0x21 == 1 {
@@ -375,7 +394,7 @@ internal class CIA: Component, LineComponent {
         case 0x0F:
             // bit4: force load
             if byte & 0x10 != 0 {
-                state.timerBState.setLoadNextCycle()
+                state.timerBState.setLoadNextClock()
             }
             if byte & 0x21 == 1 {
                 state.timerBState.start()
@@ -431,10 +450,11 @@ internal class CIA: Component, LineComponent {
             //TODO: serial i/o
             return 0
         case 0x0D:
-            clearInterrupt()
-            let value = state.icr
+            let value = state.icr | (state.interruptPin ? 0x00 : 0x80)
             state.icr = 0
-            state.interruptDelay = -1
+            state.timerAState.clearInterrupts()
+            state.timerBState.clearInterrupts()
+            clearInterrupt()
             return value
         case 0x0E:
             return state.cra & ~0x10
@@ -459,7 +479,6 @@ internal class CIA: Component, LineComponent {
         if state.todHr == state.alarmHr && state.todMin == state.alarmMin && state.todSec == state.alarmSec && state.tod10ths == state.alarm10ths {
             state.icr |= 0x04
             if state.imr & 0x04 != 0 {
-                state.icr |= 0x80
                 triggerInterrupt()
             }
         }
