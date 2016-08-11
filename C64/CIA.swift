@@ -304,10 +304,16 @@ internal class CIA: Component, LineComponent {
             }
         case 0x06:
             state.latchB = (state.latchB & 0xFF00) | UInt16(byte)
+            if state.timerBState.wasLoading {
+                state.counterB = (state.counterB & 0xFF00) | UInt16(byte)
+            }
         case 0x07:
             state.latchB = (UInt16(byte) << 8) | (state.latchB & 0xFF);
             if state.crb & 0x01 == 0 {
                 state.timerBState.setLoadNextClock()
+            }
+            if state.timerBState.wasLoading {
+                state.counterB = (UInt16(byte) << 8) | (state.counterB & 0xFF);
             }
         case 0x08:
             let value = byte & 0x0F
