@@ -58,6 +58,10 @@ private struct CIATimerState: BinaryConvertible {
         delay &= ~CIATimerStateFlags.Count2
     }
     
+    mutating func setDoSingleDecrement() {
+        delay |= CIATimerStateFlags.Count1
+    }
+    
     var shouldLoad: Bool {
         return delay & CIATimerStateFlags.Load1 != 0
     }
@@ -203,6 +207,10 @@ internal class CIA: Component, LineComponent {
             state.pb6Toggle = !state.pb6Toggle
             state.pb6Pulse = true
             state.timerAState.setLoadThisClock()
+            //TODO: CNT mode
+            if state.crb & 0x41 == 0x41 {
+                state.timerBState.setDoSingleDecrement()
+            }
         }
         if state.timerAState.shouldLoad {
             state.counterA = state.latchA
@@ -379,11 +387,11 @@ internal class CIA: Component, LineComponent {
             //TODO: CNT Mode
             if byte & 0x21 == 1 {
                 state.timerAState.start()
-                if state.cra & 0x01 == 0 {
-                    state.pb6Toggle = true
-                }
             } else {
                state.timerAState.stop()
+            }
+            if state.cra & 0x01 == 0 && byte & 0x01 == 1 {
+                state.pb6Toggle = true
             }
             if byte & 0x08 != 0 {
                 state.timerAState.setOneShot()
@@ -396,13 +404,14 @@ internal class CIA: Component, LineComponent {
             if byte & 0x10 != 0 {
                 state.timerBState.setLoadNextClock()
             }
-            if byte & 0x21 == 1 {
+            //TODO: CNT Mode
+            if byte & 0x61 == 1 {
                 state.timerBState.start()
-                if state.crb & 0x01 == 0 {
-                    state.pb7Toggle = true
-                }
             } else {
                 state.timerBState.stop()
+            }
+            if state.crb & 0x01 == 0 && byte & 0x01 == 1 {
+                state.pb7Toggle = true
             }
             if byte & 0x08 != 0 {
                 state.timerBState.setOneShot()
