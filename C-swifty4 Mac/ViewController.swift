@@ -11,20 +11,20 @@ import C64
 
 class ViewController: NSViewController {
     
-    @IBOutlet private var graphicsView: ContextBackedView!
-    @IBOutlet private var playButton: NSButton!
-    @IBOutlet private var stepButton: NSButton!
-    @IBOutlet private var fpsLabel: NSTextField!
-    @IBOutlet private var driveLedLabel: NSTextField!
+    @IBOutlet fileprivate var graphicsView: ContextBackedView!
+    @IBOutlet fileprivate var playButton: NSButton!
+    @IBOutlet fileprivate var stepButton: NSButton!
+    @IBOutlet fileprivate var fpsLabel: NSTextField!
+    @IBOutlet fileprivate var driveLedLabel: NSTextField!
     
-    private var startTime: CFTimeInterval = 0
-    private var frames = 0
+    fileprivate var startTime: CFTimeInterval = 0
+    fileprivate var frames = 0
 
     private let c64: C64 = {
-        C64(kernalData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("kernal", ofType: nil, inDirectory:"ROM")!)!,
-            basicData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("basic", ofType: nil, inDirectory:"ROM")!)!,
-            characterData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chargen", ofType: nil, inDirectory:"ROM")!)!,
-            c1541Data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("1541", ofType: nil, inDirectory:"ROM")!)!)
+        C64(kernalData: try! Data(contentsOf: Bundle.main.url(forResource: "kernal", withExtension: nil, subdirectory:"ROM")!),
+            basicData: try! Data(contentsOf: Bundle.main.url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
+            characterData: try! Data(contentsOf: Bundle.main.url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!),
+            c1541Data: try! Data(contentsOf: Bundle.main.url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))
         }()
     
     override func viewDidLoad() {
@@ -51,39 +51,39 @@ class ViewController: NSViewController {
     
     //MARK: Actions
     
-    @IBAction func onPlayButton(sender: AnyObject) {
+    @IBAction func onPlayButton(_ sender: AnyObject) {
         if c64.running {
             c64.step()
             playButton.title = "▶︎"
         } else {
-            stepButton.enabled = false
+            stepButton.isEnabled = false
             stepButton.alphaValue = 0.5
             playButton.title = "II"
             c64.run()
         }
     }
     
-    @IBAction func onStepButton(sender: AnyObject) {
+    @IBAction func onStepButton(_ sender: AnyObject) {
         c64.step()
     }
     
-    @IBAction func onDiskButton(sender: AnyObject) {
+    @IBAction func onDiskButton(_ sender: AnyObject) {
         c64.pause()
         let panel = NSOpenPanel()
         panel.allowedFileTypes = ["prg", "txt", "d64", "p00"]
-        panel.beginSheetModalForWindow(self.view.window!, completionHandler: { (result) -> Void in
-            if let url = panel.URLs.first where result == NSFileHandlingPanelOKButton {
-                switch String(url.pathExtension!).lowercaseString {
+        panel.beginSheetModal(for: self.view.window!, completionHandler: { (result) -> Void in
+            if let url = panel.urls.first , result == NSFileHandlingPanelOKButton {
+                switch String(url.pathExtension).lowercased() {
                 case "txt":
-                    if let string = try? String(contentsOfURL: url, encoding: NSUTF8StringEncoding) {
+                    if let string = try? String(contentsOf: url, encoding: String.Encoding.utf8) {
                         self.c64.loadString(string)
                     }
                 case "prg":
-                    self.c64.loadPRGFile(NSData(contentsOfURL: url)!)
+                    self.c64.loadPRGFile(try! Data(contentsOf: url))
                 case "d64":
-                    self.c64.loadD64File(NSData(contentsOfURL: url)!)
+                    self.c64.loadD64File(try! Data(contentsOf: url))
                 case "p00":
-                    self.c64.loadP00File(NSData(contentsOfURL: url)!)
+                    self.c64.loadP00File(try! Data(contentsOf: url))
                 default:
                     break
                 }
@@ -92,23 +92,23 @@ class ViewController: NSViewController {
         })
     }
     
-    @IBAction func saveState(sender: AnyObject) {
+    @IBAction func saveState(_ sender: AnyObject) {
         c64.pause()
         let panel = NSSavePanel()
         panel.allowedFileTypes = ["cs4"]
         panel.title = "Save state"
-        panel.extensionHidden = false
-        let formatter = NSDateFormatter()
+        panel.isExtensionHidden = false
+        let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMddHHmmss"
-        panel.nameFieldStringValue = formatter.stringFromDate(NSDate()) + ".cs4"
-        if let iCloudFolder = NSFileManager.defaultManager().URLForUbiquityContainerIdentifier(nil) {
-            panel.directoryURL = iCloudFolder.URLByAppendingPathComponent("Documents")
+        panel.nameFieldStringValue = formatter.string(from: Date()) + ".cs4"
+        if let iCloudFolder = FileManager.default.url(forUbiquityContainerIdentifier: nil) {
+            panel.directoryURL = iCloudFolder.appendingPathComponent("Documents")
         }
-        panel.beginSheetModalForWindow(view.window!) { result in
-            if let url = panel.URL where result == NSFileHandlingPanelOKButton {
+        panel.beginSheetModal(for: view.window!) { result in
+            if let url = panel.url , result == NSFileHandlingPanelOKButton {
                 self.c64.saveState { save in
-                    let data = NSData(bytes: UnsafePointer<UInt8>(save.data), length: save.data.count)
-                    data.writeToURL(url, atomically: true)
+                    let data = Data(save.data)
+                    _ = try? data.write(to: url)
                     self.c64.run()
                 }
             } else {
@@ -118,14 +118,14 @@ class ViewController: NSViewController {
         
     }
     
-    @IBAction func loadState(sender: AnyObject) {
+    @IBAction func loadState(_ sender: AnyObject) {
         c64.pause()
         let panel = NSOpenPanel()
         panel.allowedFileTypes = ["cs4"]
-        panel.beginSheetModalForWindow(view.window!) { result in
-            if let url = panel.URLs.first where result == NSFileHandlingPanelOKButton {
-                let data = NSData(contentsOfURL: url)!
-                let bytes = Array(UnsafeBufferPointer(start: UnsafePointer<UInt8>(data.bytes), count: data.length))
+        panel.beginSheetModal(for: view.window!) { result in
+            if let url = panel.urls.first , result == NSFileHandlingPanelOKButton {
+                let data = try! Data(contentsOf: url)
+                let bytes = Array(UnsafeBufferPointer(start: (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count), count: data.count))
                 let save = SaveState(data: bytes)
                 self.c64.loadState(save) {
                     self.c64.run()
@@ -136,20 +136,20 @@ class ViewController: NSViewController {
         }
     }
     
-    override func keyDown(theEvent: NSEvent) {
+    override func keyDown(with theEvent: NSEvent) {
         switch theEvent.keyCode {
         case 36:
-            c64.pressSpecialKey(.Return)
+            c64.pressSpecialKey(.return)
         case 51:
-            c64.pressSpecialKey(.Backspace)
+            c64.pressSpecialKey(.backspace)
         case 123:
-            c64.setJoystick2XAxis(.Left)
+            c64.setJoystick2XAxis(.left)
         case 124:
-            c64.setJoystick2XAxis(.Right)
+            c64.setJoystick2XAxis(.right)
         case 125:
-            c64.setJoystick2YAxis(.Down)
+            c64.setJoystick2YAxis(.down)
         case 126:
-            c64.setJoystick2YAxis(.Up)
+            c64.setJoystick2YAxis(.up)
         default:
             if let characters = theEvent.characters?.utf8 {
                 c64.pressKey(characters[characters.startIndex])
@@ -157,16 +157,16 @@ class ViewController: NSViewController {
         }
     }
 
-    override func keyUp(theEvent: NSEvent) {
+    override func keyUp(with theEvent: NSEvent) {
         switch theEvent.keyCode {
         case 36:
-            c64.releaseSpecialKey(.Return)
+            c64.releaseSpecialKey(.return)
         case 51:
-            c64.releaseSpecialKey(.Backspace)
+            c64.releaseSpecialKey(.backspace)
         case 123, 124:
-            c64.setJoystick2XAxis(.None)
+            c64.setJoystick2XAxis(.none)
         case 125, 126:
-            c64.setJoystick2YAxis(.None)
+            c64.setJoystick2YAxis(.none)
         default:
             if let characters = theEvent.characters?.utf8 {
                 c64.releaseKey(characters[characters.startIndex])
@@ -174,8 +174,8 @@ class ViewController: NSViewController {
         }
     }
     
-    override func flagsChanged(theEvent: NSEvent) {
-        if theEvent.modifierFlags.intersect(.ControlKeyMask) != [] {
+    override func flagsChanged(with theEvent: NSEvent) {
+        if theEvent.modifierFlags.intersection(.control) != [] {
             c64.pressJoystick2Button()
         } else {
             c64.releaseJoystick2Button()
@@ -186,7 +186,7 @@ class ViewController: NSViewController {
 
 extension ViewController: NSWindowDelegate {
     
-    func windowWillResize(sender: NSWindow, toSize frameSize: NSSize) -> NSSize {
+    func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
         var newSize = frameSize
         newSize.width = max(newSize.width, sender.contentMinSize.width)
         newSize.height = max(newSize.height, sender.contentMinSize.height + 22)
@@ -198,7 +198,7 @@ extension ViewController: NSWindowDelegate {
 
 extension ViewController: C64Delegate {
     
-    func C64VideoFrameReady(c64: C64) {
+    func C64VideoFrameReady(_ c64: C64) {
         graphicsView.setData(c64.screenBuffer())
         
         frames += 1
@@ -211,15 +211,15 @@ extension ViewController: C64Delegate {
         }
     }
     
-    func C64DidBreak(c64: C64) {
+    func C64DidBreak(_ c64: C64) {
         print(c64.debugInfo())
         
-        stepButton.enabled = true
+        stepButton.isEnabled = true
         stepButton.alphaValue = 1.0
         playButton.title = "▶︎"
     }
     
-    func C64DidCrash(c64: C64) {
+    func C64DidCrash(_ c64: C64) {
         
     }
     
@@ -227,7 +227,7 @@ extension ViewController: C64Delegate {
 
 extension ViewController: C1541Delegate {
     
-    func C1541UpdateLedStatus(c1541: C1541, ledOn: Bool) {
+    func C1541UpdateLedStatus(_ c1541: C1541, ledOn: Bool) {
         driveLedLabel.stringValue = ledOn ? "🔴" : "⚪️"
     }
     

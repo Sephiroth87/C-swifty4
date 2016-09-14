@@ -40,7 +40,7 @@ internal struct CPUState: ComponentState {
     var pointer: UInt8 = 0
     var pageBoundaryCrossed = false
     
-    static func extract(binaryDump: BinaryDump) -> CPUState {
+    static func extract(_ binaryDump: BinaryDump) -> CPUState {
         return CPUState(pc: binaryDump.next(), isAtFetch: binaryDump.next(), a: binaryDump.next(), x: binaryDump.next(), y: binaryDump.next(), sp: binaryDump.next(), c: binaryDump.next(), z: binaryDump.next(), i: binaryDump.next(), d: binaryDump.next(), b: binaryDump.next(), v: binaryDump.next(), n: binaryDump.next(), portDirection: binaryDump.next(), port: binaryDump.next(), portExternal: binaryDump.next(), nmiLine: binaryDump.next(), currentOpcode: binaryDump.next(), cycle: binaryDump.next(), irqDelayCounter: binaryDump.next(), nmiDelayCounter: binaryDump.next(), data: binaryDump.next(), addressLow: binaryDump.next(), addressHigh: binaryDump.next(), pointer: binaryDump.next(), pageBoundaryCrossed: binaryDump.next())
     }
 
@@ -84,7 +84,7 @@ final internal class CPU: Component, LineComponent {
     
     //MARK: LineComponent
     
-    func lineChanged(line: Line) {
+    func lineChanged(_ line: Line) {
         if line === irqLine {
             if !line.state {
                 state.irqDelayCounter = 3
@@ -100,7 +100,7 @@ final internal class CPU: Component, LineComponent {
     
     //MARK: I/O Port
     
-    internal func writeByte(position: UInt8, byte: UInt8) {
+    internal func writeByte(_ position: UInt8, byte: UInt8) {
         if position == 0x00 {
             state.portDirection = byte
         } else {
@@ -111,7 +111,7 @@ final internal class CPU: Component, LineComponent {
         state.portExternal = (state.portExternal & ~mask) | (mask & state.port)
     }
     
-    internal func readByte(position: UInt8) -> UInt8 {
+    internal func readByte(_ position: UInt8) -> UInt8 {
         if position == 0x00 {
             return state.portDirection
         } else {
@@ -1320,27 +1320,27 @@ final internal class CPU: Component, LineComponent {
     
     //MARK: Helpers
     
-    private func updateNFlag(value: UInt8) {
+    private func updateNFlag(_ value: UInt8) {
         state.n = (value & 0x80 != 0)
     }
     
-    private func updateZFlag(value: UInt8) {
+    private func updateZFlag(_ value: UInt8) {
         state.z = (value == 0)
     }
     
-    private func loadA(value: UInt8) {
+    private func loadA(_ value: UInt8) {
         state.a = value
         state.z = (value == 0)
         state.n = (value & 0x80 != 0)
     }
     
-    private func loadX(value: UInt8) {
+    private func loadX(_ value: UInt8) {
         state.x = value
         state.z = (value == 0)
         state.n = (value & 0x80 != 0)
     }
     
-    private func loadY(value: UInt8) {
+    private func loadY(_ value: UInt8) {
         state.y = value
         state.z = (value == 0)
         state.n = (value & 0x80 != 0)
@@ -1550,7 +1550,7 @@ final internal class CPU: Component, LineComponent {
     
     //MARK: ADC
     
-    private func adc(value: UInt8) {
+    private func adc(_ value: UInt8) {
         if state.d {
             var lowNybble = (state.a & 0x0F) &+ (value & 0x0F) &+ (state.c ? 1 : 0)
             var highNybble = (state.a >> 4) &+ (value >> 4)
@@ -1909,7 +1909,7 @@ final internal class CPU: Component, LineComponent {
     
     //MARK: CMP
     
-    private func cmp(value1: UInt8, _ value2: UInt8) {
+    private func cmp(_ value1: UInt8, _ value2: UInt8) {
         let diff = value1 &- value2
         state.z = (diff == 0)
         state.n = (diff & 0x80 != 0)
@@ -2563,7 +2563,7 @@ final internal class CPU: Component, LineComponent {
     
     //MARK: SBC
     
-    private func sbc(value: UInt8) {
+    private func sbc(_ value: UInt8) {
         if state.d {
             let tempA = UInt16(state.a)
             let sum = (tempA &- UInt16(value) &- (state.c ? 0 : 1))

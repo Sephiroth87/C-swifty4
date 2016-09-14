@@ -10,35 +10,35 @@ import Foundation
 
 internal protocol Memory: class {
     
-    func readByte(position: UInt16) -> UInt8
-    func readWord(position: UInt16) -> UInt16
-    func writeByte(position: UInt16, byte: UInt8)
+    func readByte(_ position: UInt16) -> UInt8
+    func readWord(_ position: UInt16) -> UInt16
+    func writeByte(_ position: UInt16, byte: UInt8)
     
 }
 
 internal struct C64MemoryState: ComponentState {
     
-    private var ram: [UInt8] = [UInt8](count: 0x10000, repeatedValue: 0)
-    private var colorRam: [UInt8] = [UInt8](count: 1024, repeatedValue: 0)
+    fileprivate var ram: [UInt8] = [UInt8](repeating: 0, count: 0x10000)
+    fileprivate var colorRam: [UInt8] = [UInt8](repeating: 0, count: 1024)
     
     //MARK: Helpers
-    private var characterRomVisible = false
-    private var kernalRomVisible = true
-    private var basicRomVisible = true
-    private var ioVisible = true
+    fileprivate var characterRomVisible = false
+    fileprivate var kernalRomVisible = true
+    fileprivate var basicRomVisible = true
+    fileprivate var ioVisible = true
     //MARK: -
     
-    static func extract(binaryDump: BinaryDump) -> C64MemoryState {
+    static func extract(_ binaryDump: BinaryDump) -> C64MemoryState {
         return C64MemoryState(ram: binaryDump.next(0x10000), colorRam: binaryDump.next(1024), characterRomVisible: binaryDump.next(), kernalRomVisible: binaryDump.next(), basicRomVisible: binaryDump.next(), ioVisible: binaryDump.next())
     }
     
 }
 
-final internal class C64Memory: Memory , Component {
+final internal class C64Memory: Memory, Component {
     
     internal var state = C64MemoryState()
     
-    private var rom: [UInt8] = [UInt8](count: 0x10000, repeatedValue: 0)
+    private var rom: [UInt8] = [UInt8](repeating: 0, count: 0x10000)
     
     internal weak var cpu: CPU!
     internal weak var cia1: CIA1!
@@ -56,33 +56,34 @@ final internal class C64Memory: Memory , Component {
         }
     }
     
-    private func writeRomData(data: UnsafePointer<UInt8>, position: Int, size: Int) {
+    private func writeRomData(_ data: Data, position: Int, size: Int) {
         for i in 0..<size {
             rom[position+i] = data[i]
         }
     }
     
-    internal func writeKernalData(data: UnsafePointer<UInt8>) {
+    internal func writeKernalData(_ data: Data) {
         writeRomData(data, position: 0xE000, size: 0x2000)
     }
     
-    internal func writeBasicData(data: UnsafePointer<UInt8>) {
+    internal func writeBasicData(_ data: Data) {
         writeRomData(data, position: 0xA000, size: 0x2000)
     }
     
-    internal func writeCharacterData(data: UnsafePointer<UInt8>) {
+    internal func writeCharacterData(_ data: Data) {
         writeRomData(data, position: 0xD000, size: 0x1000)
     }
     
-    internal func writeRamData(data: UnsafePointer<UInt8>, position: Int, size: Int) {
+    internal func writeRamData(_ data: Data, position: Int, size: Int) {
         for i in 0..<size {
             state.ram[position+i] = data[i]
         }
+        readByte(0)
     }
     
     //MARK: Read
     
-    internal func readByte(position: UInt16) -> UInt8 {
+    @discardableResult internal func readByte(_ position: UInt16) -> UInt8 {
         switch position {
         case 0x0000, 0x0001:
             return cpu.readByte(UInt8(truncatingBitPattern: position))
@@ -98,7 +99,7 @@ final internal class C64Memory: Memory , Component {
                 } else if position >= 0xD400 && position <= 0xD7FF {
                     return sid.readByte(UInt8(truncatingBitPattern: position & 0x1F))
                 } else if position >= 0xD800 && position <= 0xDBFF {
-                    return state.colorRam[Int(position - 0xD800)] & 0x0F | (UInt8(truncatingBitPattern: rand()) << 4)
+                    return state.colorRam[Int(position - 0xD800)] & 0x0F | (UInt8(truncatingBitPattern: arc4random()) << 4)
                 } else if position >= 0xDC00 && position <= 0xDCFF {
                     return cia1.readByte(UInt8(truncatingBitPattern: position & 0xF))
                 } else if position >= 0xDD00 && position <= 0xDDFF {
@@ -122,25 +123,25 @@ final internal class C64Memory: Memory , Component {
         }
     }
     
-    internal func readROMByte(position: UInt16) -> UInt8 {
+    internal func readROMByte(_ position: UInt16) -> UInt8 {
         return rom[Int(position)]
     }
     
-    internal func readRAMByte(position: UInt16) -> UInt8 {
+    internal func readRAMByte(_ position: UInt16) -> UInt8 {
         return state.ram[Int(position)]
     }
     
-    internal func readColorRAMByte(position: UInt16) -> UInt8 {
-        return state.colorRam[Int(position)] & 0x0F | (UInt8(truncatingBitPattern: rand()) << 4)
+    internal func readColorRAMByte(_ position: UInt16) -> UInt8 {
+        return state.colorRam[Int(position)] & 0x0F | (UInt8(truncatingBitPattern: arc4random()) << 4)
     }
     
-    internal func readWord(position: UInt16) -> UInt16 {
+    internal func readWord(_ position: UInt16) -> UInt16 {
         return UInt16(readByte(position)) + UInt16(readByte(position + 1)) << 8
     }
     
     //MARK: Write
     
-    internal func writeByte(position: UInt16, byte: UInt8) {
+    internal func writeByte(_ position: UInt16, byte: UInt8) {
         switch position {
         case 0x0000, 0x0001:
             cpu.writeByte(UInt8(truncatingBitPattern: position), byte: byte)

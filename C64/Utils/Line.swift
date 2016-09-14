@@ -8,15 +8,15 @@
 
 internal protocol LineComponent: class {
     
-    func pin(line: Line) -> Bool
-    func lineChanged(line: Line)
+    func pin(_ line: Line) -> Bool
+    func lineChanged(_ line: Line)
 
 }
 
 extension LineComponent {
     
-    func pin(line: Line) -> Bool { return true }
-    func lineChanged(line: Line) { }
+    func pin(_ line: Line) -> Bool { return true }
+    func lineChanged(_ line: Line) { }
     
 }
 
@@ -26,11 +26,11 @@ internal final class Line {
     
     private var components = [LineComponent]()
     
-    func addComponents(components: [LineComponent]) {
-        self.components.appendContentsOf(components)
+    func addComponents(_ components: [LineComponent]) {
+        self.components.append(contentsOf: components)
     }
     
-    func update(source: LineComponent) {
+    func update(_ source: LineComponent) {
         let oldState = state
         state = components.reduce(true) { return $0 && $1.pin(self) }
         if oldState != state {

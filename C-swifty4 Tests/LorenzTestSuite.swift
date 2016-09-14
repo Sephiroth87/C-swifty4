@@ -12,23 +12,23 @@ import C64
 
 class LorenzTestSuite: XCTestCase {
     
-    private var c64: C64!
-    private var expectation: XCTestExpectation!
-    private var fileName: String!
+    fileprivate var c64: C64!
+    fileprivate var expectation: XCTestExpectation!
+    fileprivate var fileName: String!
     
-    func setupTest(filename: String) {
+    func setupTest(_ filename: String) {
         self.fileName = filename
-        expectation = expectationWithDescription(name!)
+        expectation = self.expectation(description: name!)
         c64.run()
-        waitForExpectationsWithTimeout(100, handler: nil)
+        waitForExpectations(timeout: 100, handler: nil)
     }
     
     override func setUp() {
         super.setUp()
-        c64 = C64(kernalData: NSData(contentsOfFile: NSBundle(forClass: self.classForCoder).pathForResource("kernal", ofType: nil, inDirectory:"ROM")!)!,
-            basicData: NSData(contentsOfFile: NSBundle(forClass: self.classForCoder).pathForResource("basic", ofType: nil, inDirectory:"ROM")!)!,
-            characterData: NSData(contentsOfFile: NSBundle(forClass: self.classForCoder).pathForResource("chargen", ofType: nil, inDirectory:"ROM")!)!,
-            c1541Data: NSData(contentsOfFile: NSBundle(forClass: self.classForCoder).pathForResource("1541", ofType: nil, inDirectory:"ROM")!)!)
+        c64 = C64(kernalData: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "kernal", withExtension: nil, subdirectory:"ROM")!),
+            basicData: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
+            characterData: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!),
+            c1541Data: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))
         c64.delegate = self
         c64.setBreakpoint(0xE5CD)
         c64.setBreakpoint(0xFFE4)
@@ -1138,10 +1138,10 @@ class LorenzTestSuite: XCTestCase {
 
 extension LorenzTestSuite: C64Delegate {
     
-    func C64DidBreak(c64: C64) {
+    func C64DidBreak(_ c64: C64) {
         if c64.debugInfo()["pc"] == "e5cd" {
             c64.removeBreakpoint(0xE5CD)
-            c64.loadPRGFile(NSData(contentsOfFile: NSBundle(forClass: self.classForCoder).pathForResource(fileName, ofType: "prg", inDirectory:"Resources/Lorenz 2.15")!)!)
+            c64.loadPRGFile(try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: fileName, withExtension: "prg", subdirectory:"Resources/Lorenz 2.15")!))
             c64.setBreakpoint(0xE16F)
             c64.run()
             c64.loadString("RUN\n")
@@ -1154,12 +1154,12 @@ extension LorenzTestSuite: C64Delegate {
         }
     }
     
-    func C64DidCrash(c64: C64) {
+    func C64DidCrash(_ c64: C64) {
         XCTAssert(false, "Crash")
         expectation.fulfill()
     }
     
-    func C64VideoFrameReady(c64: C64) {
+    func C64VideoFrameReady(_ c64: C64) {
         
     }
     

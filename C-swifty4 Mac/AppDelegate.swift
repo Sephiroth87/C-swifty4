@@ -11,9 +11,9 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     
-    func applicationDidFinishLaunching(notification: NSNotification) {
-        dispatch_async(dispatch_get_global_queue (DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) { () -> Void in
-            NSFileManager.defaultManager().URLForUbiquityContainerIdentifier(nil)
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        DispatchQueue.global(qos: .default).async {
+            FileManager.default.url(forUbiquityContainerIdentifier: nil)
         }
     }
 

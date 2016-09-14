@@ -12,21 +12,21 @@ internal class VIA: LineComponent {
     internal weak var interruptLine: Line!
     
     //MARK: Registers
-    private var orb: UInt8 = 0 // Output Register B
-    private var irb: UInt8 = 0 // Input Register B
-    private var ora: UInt8 = 0 // Output Register A
-    private var ira: UInt8 = 0 // Input Register A
-    private var ddrb: UInt8 = 0 // Data Direction Register B
-    private var ddra: UInt8 = 0 // Data Direction Register A
-    private var t1c: UInt16 = 0 // Timer 1 Counter
-    private var t1ll: UInt8 = 0 // Timer 1 Low-Order Latch
-    private var t1lh: UInt8 = 0 // Timer 1 High-Order Latch
-    private var t2c: UInt16 = 0 // Timer 2 Counter
-    private var t2ll: UInt8 = 0 // Timer 2 Low-Order Latch
-    private var acr: UInt8 = 0 // Auxiliary Control Register
-    private var pcr: UInt8 = 0 // Peripheral Control Register
-    private var ifr: UInt8 = 0 // Interrupt Flag Register
-    private var ier: UInt8 = 0 // Interrupt Enable Register
+    fileprivate var orb: UInt8 = 0 // Output Register B
+    fileprivate var irb: UInt8 = 0 // Input Register B
+    fileprivate var ora: UInt8 = 0 // Output Register A
+    fileprivate var ira: UInt8 = 0 // Input Register A
+    fileprivate var ddrb: UInt8 = 0 // Data Direction Register B
+    fileprivate var ddra: UInt8 = 0 // Data Direction Register A
+    fileprivate var t1c: UInt16 = 0 // Timer 1 Counter
+    fileprivate var t1ll: UInt8 = 0 // Timer 1 Low-Order Latch
+    fileprivate var t1lh: UInt8 = 0 // Timer 1 High-Order Latch
+    fileprivate var t2c: UInt16 = 0 // Timer 2 Counter
+    fileprivate var t2ll: UInt8 = 0 // Timer 2 Low-Order Latch
+    fileprivate var acr: UInt8 = 0 // Auxiliary Control Register
+    fileprivate var pcr: UInt8 = 0 // Peripheral Control Register
+    fileprivate var ifr: UInt8 = 0 // Interrupt Flag Register
+    fileprivate var ier: UInt8 = 0 // Interrupt Enable Register
     //MARK: -
     
     //MARK: Lines
@@ -52,7 +52,7 @@ internal class VIA: LineComponent {
     //MARK: -
     
     //MARK: LineComponent
-    func pin(line: Line) -> Bool {
+    func pin(_ line: Line) -> Bool {
         return interruptPin
     }
     //MARK: -
@@ -84,7 +84,7 @@ internal class VIA: LineComponent {
         }
     }
     
-    internal func writeByte(position: UInt8, byte: UInt8) {
+    internal func writeByte(_ position: UInt8, byte: UInt8) {
         switch position {
         case 0x01:
             ora = byte
@@ -153,7 +153,7 @@ internal class VIA: LineComponent {
         }
     }
     
-    internal func readByte(position: UInt8) -> UInt8 {
+    internal func readByte(_ position: UInt8) -> UInt8 {
         switch position {
         case 0x04:
             ifr &= ~0x40
@@ -187,7 +187,7 @@ internal class VIA: LineComponent {
     
     func latchPA() { }
     
-    private func updateInterruptPin() {
+    fileprivate func updateInterruptPin() {
         interruptPin = (ifr & ier == 0x00)
         interruptLine.update(self)
     }
@@ -212,7 +212,7 @@ final internal class VIA1: VIA, IECDevice {
     private var atnaPin = false
     //MARK: -
     
-    override func writeByte(position: UInt8, byte: UInt8) {
+    override func writeByte(_ position: UInt8, byte: UInt8) {
         switch position {
         case 0x00:
             // Only set pins if data direction is 1 (output)
@@ -227,7 +227,7 @@ final internal class VIA1: VIA, IECDevice {
         }
     }
     
-    override func readByte(position: UInt8) -> UInt8 {
+    override func readByte(_ position: UInt8) -> UInt8 {
         switch position {
         case 0x00:
             // Latching?
@@ -254,7 +254,7 @@ final internal class VIA1: VIA, IECDevice {
         dataPin = oldDataPin
     }
     
-    func iecUpdatedLines(atnLineUpdated atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) {
+    func iecUpdatedLines(atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) {
         updatePins()
         if atnLineUpdated {
             // CA1 interrupt, ATN is inverted so a positive edge will be seen here as negative
@@ -271,7 +271,7 @@ final internal class VIA2: VIA {
     
     internal var pb7: Bool = false
 
-    override func writeByte(position: UInt8, byte: UInt8) {
+    override func writeByte(_ position: UInt8, byte: UInt8) {
         switch position {
         case 0x00:
             // Only set pins if data direction is 1 (output)
@@ -295,7 +295,7 @@ final internal class VIA2: VIA {
         }
     }
     
-    override func readByte(position: UInt8) -> UInt8 {
+    override func readByte(_ position: UInt8) -> UInt8 {
         switch position {
         case 0x00:
             //TODO: Implement actual pins

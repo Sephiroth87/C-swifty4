@@ -10,15 +10,15 @@ import UIKit
 
 class FilePickerViewController: UITableViewController {
     
-    var completionBlock: ((url: NSURL) -> Void)?
+    var completionBlock: ((_ url: URL) -> Void)?
 
-    private let dataSource: [NSURL] = {
-        var files =  [NSURL]()
-        if let txtFiles = NSBundle.mainBundle().URLsForResourcesWithExtension("txt", subdirectory: "Programs") {
-            files.appendContentsOf(txtFiles)
+    fileprivate let dataSource: [URL] = {
+        var files =  [URL]()
+        if let txtFiles = Bundle.main.urls(forResourcesWithExtension: "txt", subdirectory: "Programs") {
+            files.append(contentsOf: txtFiles)
         }
-        if let prgFiles = NSBundle.mainBundle().URLsForResourcesWithExtension("prg", subdirectory: "Programs") {
-            files.appendContentsOf(prgFiles)
+        if let prgFiles = Bundle.main.urls(forResourcesWithExtension: "prg", subdirectory: "Programs") {
+            files.append(contentsOf: prgFiles)
         }
         return files
     }()
@@ -26,22 +26,22 @@ class FilePickerViewController: UITableViewController {
     //MARK: Actions
     
     @IBAction func onCancelButton() {
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return dataSource.count
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("FileCell")!
-        cell.textLabel?.text = dataSource[indexPath.row].lastPathComponent
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FileCell")!
+        cell.textLabel?.text = dataSource[(indexPath as NSIndexPath).row].lastPathComponent
         return cell
     }
    
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        dismissViewControllerAnimated(true, completion: { () -> Void in
-            self.completionBlock?(url: self.dataSource[indexPath.row])
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        dismiss(animated: true, completion: { () -> Void in
+            self.completionBlock?(self.dataSource[(indexPath as NSIndexPath).row])
         })
     }
     

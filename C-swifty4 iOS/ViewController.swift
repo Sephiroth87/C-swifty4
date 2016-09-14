@@ -11,29 +11,29 @@ import C64
 
 class ViewController: UIViewController {
     
-    @IBOutlet private var graphicsView: ContextBackedView!
-    @IBOutlet private var playButton: UIButton!
-    @IBOutlet private var stepButton: UIButton!
-    @IBOutlet private var pcLabel: UILabel!
-    @IBOutlet private var instructionLabel: UILabel!
-    @IBOutlet private var aLabel: UILabel!
-    @IBOutlet private var xLabel: UILabel!
-    @IBOutlet private var yLabel: UILabel!
-    @IBOutlet private var spLabel: UILabel!
-    @IBOutlet private var flagNLabel: UILabel!
-    @IBOutlet private var flagVLabel: UILabel!
-    @IBOutlet private var flagBLabel: UILabel!
-    @IBOutlet private var flagDLabel: UILabel!
-    @IBOutlet private var flagILabel: UILabel!
-    @IBOutlet private var flagZLabel: UILabel!
-    @IBOutlet private var flagCLabel: UILabel!
-    @IBOutlet private var keyboardTextField: UITextField!
+    @IBOutlet fileprivate var graphicsView: ContextBackedView!
+    @IBOutlet fileprivate var playButton: UIButton!
+    @IBOutlet fileprivate var stepButton: UIButton!
+    @IBOutlet fileprivate var pcLabel: UILabel!
+    @IBOutlet fileprivate var instructionLabel: UILabel!
+    @IBOutlet fileprivate var aLabel: UILabel!
+    @IBOutlet fileprivate var xLabel: UILabel!
+    @IBOutlet fileprivate var yLabel: UILabel!
+    @IBOutlet fileprivate var spLabel: UILabel!
+    @IBOutlet fileprivate var flagNLabel: UILabel!
+    @IBOutlet fileprivate var flagVLabel: UILabel!
+    @IBOutlet fileprivate var flagBLabel: UILabel!
+    @IBOutlet fileprivate var flagDLabel: UILabel!
+    @IBOutlet fileprivate var flagILabel: UILabel!
+    @IBOutlet fileprivate var flagZLabel: UILabel!
+    @IBOutlet fileprivate var flagCLabel: UILabel!
+    @IBOutlet fileprivate var keyboardTextField: UITextField!
 
-    private let c64: C64 = {
-        C64(kernalData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("kernal", ofType: nil, inDirectory:"ROM")!)!,
-            basicData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("basic", ofType: nil, inDirectory:"ROM")!)!,
-            characterData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chargen", ofType: nil, inDirectory:"ROM")!)!,
-            c1541Data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("1541", ofType: nil, inDirectory:"ROM")!)!)
+    fileprivate let c64: C64 = {
+        C64(kernalData: try! Data(contentsOf: Bundle.main.url(forResource: "kernal", withExtension: nil, subdirectory:"ROM")!),
+            basicData: try! Data(contentsOf: Bundle.main.url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
+            characterData: try! Data(contentsOf: Bundle.main.url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!),
+            c1541Data: try! Data(contentsOf: Bundle.main.url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))
     }()
 
     override func viewDidLoad() {
@@ -43,7 +43,7 @@ class ViewController: UIViewController {
         onPlayButton()
     }
     
-    override func canBecomeFirstResponder() -> Bool {
+    override var canBecomeFirstResponder: Bool {
         return true
     }
     
@@ -63,17 +63,17 @@ class ViewController: UIViewController {
         flagCLabel.text = "-"
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "FilePickerSegue" {
-            if let filePicker = (segue.destinationViewController as? UINavigationController)?.topViewController as? FilePickerViewController {
+            if let filePicker = (segue.destination as? UINavigationController)?.topViewController as? FilePickerViewController {
                 filePicker.completionBlock = { (url) -> Void in
-                    switch String(url.pathExtension!).lowercaseString {
+                    switch url.pathExtension.lowercased() {
                     case "txt":
-                        if let string = try? String(contentsOfURL: url, encoding: NSUTF8StringEncoding) {
+                        if let string = try? String(contentsOf: url, encoding: String.Encoding.utf8) {
                             self.c64.loadString(string)
                         }
                     case "prg":
-                        self.c64.loadPRGFile(NSData(contentsOfURL: url)!)
+                        self.c64.loadPRGFile(NSData(contentsOf: url as URL)! as Data)
                     default:
                         break
                     }
@@ -87,11 +87,11 @@ class ViewController: UIViewController {
     @IBAction func onPlayButton() {
         if c64.running {
             c64.step()
-            playButton.setTitle("▶︎", forState: .Normal)
+            playButton.setTitle("▶︎", for: UIControlState())
         } else {
-            stepButton.enabled = false
+            stepButton.isEnabled = false
             stepButton.alpha = 0.5
-            playButton.setTitle("II", forState: .Normal)
+            playButton.setTitle("II", for: UIControlState())
             clearDebugInfo()
             c64.run()
         }
@@ -105,27 +105,27 @@ class ViewController: UIViewController {
         if c64.running {
             onPlayButton()
         }
-        let alert = UIAlertController(title: "Peek", message: nil, preferredStyle: .Alert)
-        alert.addTextFieldWithConfigurationHandler { (textField) -> Void in
-            textField.keyboardType = .NamePhonePad
+        let alert = UIAlertController(title: "Peek", message: nil, preferredStyle: .alert)
+        alert.addTextField { (textField) -> Void in
+            textField.keyboardType = .namePhonePad
         }
-        let action = UIAlertAction(title: "Ok", style: .Default) { (action) -> Void in
+        let action = UIAlertAction(title: "Ok", style: .default) { (action) -> Void in
             if let string = alert.textFields?[0].text{
-                let scanner = NSScanner(string: string)
+                let scanner = Scanner(string: string)
                 var address: UInt32 = 0
-                if scanner.scanHexInt(&address) {
-                    let outAlert = UIAlertController(title: String(format: "%02x", self.c64.peek(UInt16(truncatingBitPattern: address))), message: nil, preferredStyle: .Alert)
-                    outAlert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: nil))
-                    self.presentViewController(outAlert, animated: true, completion: nil)
+                if scanner.scanHexInt32(&address) {
+                    let outAlert = UIAlertController(title: String(format: "%02x", self.c64.peek(UInt16(truncatingBitPattern: address))), message: nil, preferredStyle: .alert)
+                    outAlert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                    self.present(outAlert, animated: true, completion: nil)
                 }
             }
         }
         alert.addAction(action)
-        self.presentViewController(alert, animated: true, completion: nil)
+        self.present(alert, animated: true, completion: nil)
     }
     
     @IBAction func onKeyboardButton() {
-        keyboardTextField.superview?.userInteractionEnabled = true
+        keyboardTextField.superview?.isUserInteractionEnabled = true
         keyboardTextField.becomeFirstResponder()
     }
     
@@ -137,30 +137,30 @@ class ViewController: UIViewController {
 
 extension ViewController: UITextFieldDelegate {
     
-    func textFieldDidEndEditing(textField: UITextField) {
-        keyboardTextField.superview?.userInteractionEnabled = false
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        keyboardTextField.superview?.isUserInteractionEnabled = false
     }
     
-    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if string.isEmpty {
-            c64.pressSpecialKey(.Backspace)
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 70000000), dispatch_get_main_queue()) { () -> Void in
-                self.c64.releaseSpecialKey(.Backspace)
+            c64.pressSpecialKey(.backspace)
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(70000000) / Double(NSEC_PER_SEC)) { () -> Void in
+                self.c64.releaseSpecialKey(.backspace)
             }
         } else {
             let char = string.utf8[string.utf8.startIndex]
             c64.pressKey(char)
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 70000000), dispatch_get_main_queue()) { () -> Void in
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(70000000) / Double(NSEC_PER_SEC)) { () -> Void in
                 self.c64.releaseKey(char)
             }
         }
         return true
     }
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
-        c64.pressSpecialKey(.Return)
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 70000000), dispatch_get_main_queue()) { () -> Void in
-            self.c64.releaseSpecialKey(.Return)
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        c64.pressSpecialKey(.return)
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(70000000) / Double(NSEC_PER_SEC)) { () -> Void in
+            self.c64.releaseSpecialKey(.return)
         }
         return false
     }
@@ -169,11 +169,11 @@ extension ViewController: UITextFieldDelegate {
 
 extension ViewController: C64Delegate {
     
-    func C64VideoFrameReady(c64: C64) {
+    func C64VideoFrameReady(_ c64: C64) {
         graphicsView.setData(c64.screenBuffer())
     }
     
-    func C64DidBreak(c64: C64) {
+    func C64DidBreak(_ c64: C64) {
         let debugInfo = c64.debugInfo()
         pcLabel.text = debugInfo["pc"]
         instructionLabel.text = debugInfo["description"]
@@ -189,14 +189,14 @@ extension ViewController: C64Delegate {
         flagZLabel.text = debugInfo["sr.z"]
         flagCLabel.text = debugInfo["sr.c"]
         
-        stepButton.enabled = true
+        stepButton.isEnabled = true
         stepButton.alpha = 1.0
-        playButton.setTitle("▶︎", forState: .Normal)
+        playButton.setTitle("▶︎", for: UIControlState())
         
         keyboardTextField.resignFirstResponder()
     }
     
-    func C64DidCrash(c64: C64) {
+    func C64DidCrash(_ c64: C64) {
         
     }
     

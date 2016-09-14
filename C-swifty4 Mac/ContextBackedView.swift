@@ -10,33 +10,33 @@ import Cocoa
 
 private class ContextBackedLayer: CALayer {
     
-    private var context: CGContextRef
+    private var context: CGContext
     
     required init?(coder aDecoder: NSCoder) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGBitmapContextCreate(nil, 418, 235, 8, 418 * 4, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
+        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 418 * 4, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         super.init(coder: aDecoder)
         self.actions = ["contents": NSNull()]
-        self.backgroundColor = NSColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0).CGColor
+        self.backgroundColor = NSColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0).cgColor
     }
     
     override init() {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGBitmapContextCreate(nil, 418, 235, 8, 418 * 4, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
+        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 418 * 4, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         super.init()
         self.actions = ["contents": NSNull()]
-        self.backgroundColor = NSColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0).CGColor
+        self.backgroundColor = NSColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0).cgColor
     }
     
     override func display() {
-        let CGImage = CGBitmapContextCreateImage(context)
+        let CGImage = context.makeImage()
         self.contents = CGImage
     }
     
-    private func setData(data: UnsafePointer<UInt32>) {
-        let address = CGBitmapContextGetData(context)
+    fileprivate func setData(_ data: UnsafePointer<UInt32>) {
+        let address = context.data
         memcpy(address, data, 418 * 235 * 4)
-        let cgImage = CGBitmapContextCreateImage(context)
+        let cgImage = context.makeImage()
         self.contents = cgImage
     }
     
@@ -71,7 +71,7 @@ class ContextBackedView: NSView {
         self.layer = ContextBackedLayer()
     }
     
-    internal func setData(data: UnsafePointer<UInt32>) {
+    internal func setData(_ data: UnsafePointer<UInt32>) {
         let layer = self.layer as! ContextBackedLayer
         layer.setData(data)
     }

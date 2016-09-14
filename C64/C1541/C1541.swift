@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol C1541Delegate: class {
-    func C1541UpdateLedStatus(c1541: C1541, ledOn: Bool)
+    func C1541UpdateLedStatus(_ c1541: C1541, ledOn: Bool)
 }
 
 final public class C1541 {
@@ -48,7 +48,7 @@ final public class C1541 {
     private var syncCounter: Int = 0
     private var speedZone: Int = 0
     
-    internal init(c1541Data: NSData) {
+    internal init(c1541Data: Data) {
         cpu = CPU(pc: 0xEAA0)
         memory = C1541Memory()
         via1 = VIA1()
@@ -67,7 +67,7 @@ final public class C1541 {
         via1.c1541 = self
         via2.c1541 = self
         
-        memory.writeC1541Data(UnsafePointer<UInt8>(c1541Data.bytes))
+        memory.writeC1541Data(c1541Data)
     }
     
     internal func cycle() {
@@ -75,16 +75,16 @@ final public class C1541 {
         via1.cycle()
         via2.cycle()
         cpu.executeInstruction()
-        if rotating {
+        if rotating, let disk = disk {
             if bitCounter > 0 {
                 bitCounter -= 16
             } else {
                 //TODO: implement read/write logic
                 shiftRegister <<= 1
-                let bit = (disk?.tracks[track].readBit(bitOffset) ?? 0)
+                let bit = disk.tracks[track].readBit(bitOffset)
                 shiftRegister |= bit
                 bitOffset += 1
-                if bitOffset >= disk?.tracks[track].length {
+                if bitOffset >= disk.tracks[track].length {
                     bitOffset = 0
                 }
                 if bit == 0x01 {
@@ -124,16 +124,16 @@ final public class C1541 {
         on = false
     }
     
-    internal func insertDisk(disk: Disk) {
+    internal func insertDisk(_ disk: Disk) {
         self.disk = disk
     }
     
-    internal func updateLedStatus(ledOn: Bool) {
+    internal func updateLedStatus(_ ledOn: Bool) {
         if ledOn != self.ledOn {
             self.ledOn = ledOn
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            DispatchQueue.main.async {
                 let _ = self.delegate?.C1541UpdateLedStatus(self, ledOn: ledOn)
-            })
+            }
         }
     }
     
@@ -153,7 +153,7 @@ final public class C1541 {
         }
     }
     
-    internal func setSpeedZone(speedZone: Int) {
+    internal func setSpeedZone(_ speedZone: Int) {
         guard on == true else { return }
         if speedZone != self.speedZone {
             self.speedZone = speedZone

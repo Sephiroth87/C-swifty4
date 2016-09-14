@@ -11,13 +11,13 @@ import C64
 
 class ViewController: UIViewController {
     
-    @IBOutlet private var graphicsView: ContextBackedView!
+    @IBOutlet fileprivate var graphicsView: ContextBackedView!
     
-    private let c64: C64 = {
-        C64(kernalData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("kernal", ofType: nil, inDirectory:"ROM")!)!,
-            basicData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("basic", ofType: nil, inDirectory:"ROM")!)!,
-            characterData: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("chargen", ofType: nil, inDirectory:"ROM")!)!,
-            c1541Data: NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("1541", ofType: nil, inDirectory:"ROM")!)!)
+    fileprivate let c64: C64 = {
+        C64(kernalData: try! Data(contentsOf: Bundle.main.url(forResource: "kernal", withExtension: nil, subdirectory:"ROM")!),
+            basicData: try! Data(contentsOf: Bundle.main.url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
+            characterData: try! Data(contentsOf: Bundle.main.url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!),
+            c1541Data: try! Data(contentsOf: Bundle.main.url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))
     }()
 
     override func viewDidLoad() {
@@ -31,14 +31,14 @@ class ViewController: UIViewController {
 
 extension ViewController: C64Delegate {
     
-    func C64VideoFrameReady(c64: C64) {
+    func C64VideoFrameReady(_ c64: C64) {
         graphicsView.setData(c64.screenBuffer())
     }
     
-    func C64DidBreak(c64: C64) {
+    func C64DidBreak(_ c64: C64) {
     }
     
-    func C64DidCrash(c64: C64) {
+    func C64DidCrash(_ c64: C64) {
     }
     
 }

@@ -9,11 +9,11 @@
 import Foundation
 
 public protocol C64Delegate: class {
-    func C64VideoFrameReady(c64: C64)
-    func C64DidBreak(c64: C64)
+    func C64VideoFrameReady(_ c64: C64)
+    func C64DidBreak(_ c64: C64)
     // This is temporary, the emulator itself should not crash, but it's useful for missing features ATM
     // (and abort/assert/exceptions don't work well with testing...)
-    func C64DidCrash(c64: C64)
+    func C64DidCrash(_ c64: C64)
 }
 
 internal typealias C64CrashHandler = (String) -> Void
@@ -22,7 +22,7 @@ final public class C64: NSObject {
     
     public var running: Bool = false
     public weak var delegate: C64Delegate?
-    private var dispatchQueue: dispatch_queue_t
+    private var dispatchQueue: DispatchQueue
     
     private var breakpoints: [UInt16: Bool] = [UInt16: Bool]()
     
@@ -44,16 +44,16 @@ final public class C64: NSObject {
     private var cycles = 0
     private var lines = 0
     
-    public init(kernalData: NSData, basicData: NSData, characterData: NSData, c1541Data: NSData) {
-        if (kernalData.length != 8192 || basicData.length != 8192 || characterData.length != 4096 || c1541Data.length != 16384) {
+    public init(kernalData: Data, basicData: Data, characterData: Data, c1541Data: Data) {
+        if (kernalData.count != 8192 || basicData.count != 8192 || characterData.count != 4096 || c1541Data.count != 16384) {
             assertionFailure("Wrong data found");
         }
 
         c1541 = C1541(c1541Data: c1541Data)
         
-        memory.writeKernalData(UnsafePointer<UInt8>(kernalData.bytes))
-        memory.writeBasicData(UnsafePointer<UInt8>(basicData.bytes))
-        memory.writeCharacterData(UnsafePointer<UInt8>(characterData.bytes))
+        memory.writeKernalData(kernalData)
+        memory.writeBasicData(basicData)
+        memory.writeCharacterData(characterData)
         
         cpu.memory = memory
         memory.cpu = cpu
@@ -79,16 +79,16 @@ final public class C64: NSObject {
         iec.connectDevice(cia2)
         c1541.iec = iec
 
-        dispatchQueue = dispatch_queue_create("main.loop", DISPATCH_QUEUE_SERIAL)
+        dispatchQueue = DispatchQueue(label: "main.loop", attributes: [])
         
         super.init()
         
         let crashHandler: C64CrashHandler = { (reason: String) in
             print(reason)
             self.running = false
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            DispatchQueue.main.async {
                 let _ = self.delegate?.C64DidCrash(self)
-            })
+            }
         }
         cpu.crashHandler = crashHandler
         cia1.crashHandler = crashHandler
@@ -103,9 +103,9 @@ final public class C64: NSObject {
             
             if cpu.state.isAtFetch && breakpoints[cpu.state.pc &- UInt16(1)] == true {
                 running = false
-                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                DispatchQueue.main.async {
                     let _ = self.delegate?.C64DidBreak(self)
-                })
+                }
             }
         }
     }
@@ -125,27 +125,27 @@ final public class C64: NSObject {
         
         if lines == 263 {
             lines = 0
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            DispatchQueue.main.async {
                 let _ = self.delegate?.C64VideoFrameReady(self)
-            })
+            }
         }
     }
     
-    private func executeToNextFetch(completion: () -> Void) {
+    private func executeToNextFetch(_ completion: @escaping () -> Void) {
         running = false
-        dispatch_async(dispatchQueue, { () -> Void in
+        dispatchQueue.async(execute: { () -> Void in
             self.executeOneCycle()
             while !self.cpu.state.isAtFetch {
                 self.executeOneCycle()
             }
-            dispatch_async(dispatch_get_main_queue(), completion)
+            DispatchQueue.main.async(execute: completion)
         })
     }
     
     public func run() {
         if !running {
             running = true
-            dispatch_async(dispatchQueue, mainLoop)
+            dispatchQueue.async(execute: mainLoop)
         }
     }
     
@@ -159,11 +159,11 @@ final public class C64: NSObject {
         }
     }
     
-    public func setBreakpoint(address: UInt16) {
+    public func setBreakpoint(_ address: UInt16) {
         breakpoints[address] = true
     }
     
-    public func removeBreakpoint(address: UInt16) {
+    public func removeBreakpoint(_ address: UInt16) {
         breakpoints[address] = false
     }
     
@@ -171,7 +171,7 @@ final public class C64: NSObject {
         return cpu.debugInfo()
     }
     
-    public func peek(address: UInt16) -> UInt8 {
+    public func peek(_ address: UInt16) -> UInt8 {
         return memory.readByte(address)
     }
     
@@ -181,43 +181,43 @@ final public class C64: NSObject {
     
     //MARK: Keyboard
     
-    public func pressKey(key: UInt8) {
+    public func pressKey(_ key: UInt8) {
         keyboard.pressKey(key)
     }
     
-    public func pressSpecialKey(key: SpecialKey) {
+    public func pressSpecialKey(_ key: SpecialKey) {
         keyboard.pressSpecialKey(key)
     }
     
-    public func releaseKey(key: UInt8) {
+    public func releaseKey(_ key: UInt8) {
         keyboard.releaseKey(key)
     }
     
-    public func releaseSpecialKey(key: SpecialKey) {
+    public func releaseSpecialKey(_ key: SpecialKey) {
         keyboard.releaseSpecialKey(key)
     }
     
     //MARK: Joystick
     
-    public func setJoystick2XAxis(status: JoystickXAxisStatus) {
+    public func setJoystick2XAxis(_ status: JoystickXAxisStatus) {
         joystick2.xAxis = status
     }
     
-    public func setJoystick2YAxis(status: JoystickYAxisStatus) {
+    public func setJoystick2YAxis(_ status: JoystickYAxisStatus) {
         joystick2.yAxis = status
     }
     
     public func pressJoystick2Button() {
-        joystick2.button = .Pressed
+        joystick2.button = .pressed
     }
     
     public func releaseJoystick2Button() {
-        joystick2.button = .Released
+        joystick2.button = .released
     }
     
     //MARK: Files
     
-    public func saveState(completion: (SaveState) -> Void) {
+    public func saveState(_ completion: @escaping (SaveState) -> Void) {
         let saveBlock = {
             completion(SaveState(c64: self))
         }
@@ -231,7 +231,7 @@ final public class C64: NSObject {
         }
     }
     
-    public func loadState(saveState: SaveState, completion: (Void) -> Void) {
+    public func loadState(_ saveState: SaveState, completion: @escaping (Void) -> Void) {
         let running = self.running
         executeToNextFetch {
             self.cpu.state = saveState.cpuState
@@ -246,11 +246,11 @@ final public class C64: NSObject {
         }
     }
     
-    public func loadPRGFile(data: NSData) {
-        if UnsafePointer<UInt8>(data.bytes)[0] == 0x01 && UnsafePointer<UInt8>(data.bytes)[1] == 0x08 {
-            memory.writeRamData(UnsafePointer<UInt8>(data.subdataWithRange(NSRange(location: 2, length: data.length - 2)).bytes), position: 0x801, size: data.length - 2)
+    public func loadPRGFile(_ data: Data) {
+        if data[0] == 0x01 && data[1] == 0x08 {
+            memory.writeRamData(data.subdata(in: data.startIndex.advanced(by: 2)..<data.endIndex), position: 0x801, size: data.count - 2)
             //HACK
-            let end = UInt16(0x801 + data.length - 2)
+            let end = UInt16(0x801 + data.count - 2)
             memory.writeByte(0x2D, byte: UInt8(truncatingBitPattern: end))
             memory.writeByte(0x2E, byte: UInt8(truncatingBitPattern: end >> 8))
             memory.writeByte(0x2F, byte: UInt8(truncatingBitPattern: end))
@@ -262,37 +262,41 @@ final public class C64: NSObject {
         }
     }
     
-    public func loadP00File(data: NSData) {
-        loadPRGFile(data.subdataWithRange(NSRange(location: 0x1A, length: data.length - 0x1A)))
+    public func loadP00File(_ data: Data) {
+        loadPRGFile(data.subdata(in: data.startIndex.advanced(by: 0x1A)..<data.endIndex))
     }
     
-    public func loadD64File(data: NSData) {
-        c1541.insertDisk(Disk(d64Data: UnsafeBufferPointer<UInt8>(start: UnsafePointer<UInt8>(data.bytes), count: data.length)))
+    public func loadD64File(_ data: Data) {
+        c1541.insertDisk(Disk(d64Data: UnsafeBufferPointer<UInt8>(start: (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count), count: data.count)))
     }
     
-    public func loadString(string: String) {
+    public func loadString(_ string: String) {
         let string = String(string)
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
-            for char in string.lowercaseString.characters {
+        DispatchQueue.global(qos: .default).async {
+            for char in (string?.lowercased().characters)! {
                 let key = String(char).utf8[String(char).utf8.startIndex]
-                dispatch_sync(dispatch_get_main_queue(), { () -> Void in
+                DispatchQueue.main.sync(execute: { () -> Void in
                     if key == 10 {
-                        self.keyboard.pressSpecialKey(.Return)
+                        self.keyboard.pressSpecialKey(.return)
                     } else {
                         self.keyboard.pressKey(key)
                     }
                 })
-                key == 10 ? usleep(60000) : usleep(30000)
-                dispatch_sync(dispatch_get_main_queue(), { () -> Void in
+                if key == 10 {
+                    _ = usleep(60000)
+                } else {
+                    _ = usleep(30000)
+                }
+                DispatchQueue.main.sync {
                     if key == 10 {
-                        self.keyboard.releaseSpecialKey(.Return)
+                        self.keyboard.releaseSpecialKey(.return)
                     } else {
                         self.keyboard.releaseKey(key)
                     }
-                })
-                usleep(30000)
+                }
+                _ = usleep(30000)
             }
-        })
+        }
     }
     
 }

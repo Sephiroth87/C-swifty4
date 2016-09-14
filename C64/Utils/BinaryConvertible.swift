@@ -31,12 +31,12 @@ class BinaryDump {
     }
     
     func next<T: BinaryConvertible>() -> T {
-        let item = T.extract(BinaryDump(data: data.suffixFrom(offset)))
+        let item = T.extract(BinaryDump(data: data.suffix(from: offset)))
         offset += Int(item.binarySize)
         return item
     }
     
-    func next<T: BinaryConvertible>(numberOfItems: Int) -> [T] {
+    func next<T: BinaryConvertible>(_ numberOfItems: Int) -> [T] {
         return (0..<numberOfItems).map { _ -> T in
             next()
         }
@@ -53,7 +53,7 @@ protocol BinaryDumpable {
 
 protocol BinaryConvertible: BinaryDumpable {
     
-    static func extract(binaryDump: BinaryDump) -> Self
+    static func extract(_ binaryDump: BinaryDump) -> Self
     
 }
 
@@ -64,7 +64,7 @@ extension BinaryConvertible {
         var out = [UInt8]()
         m.children.forEach { label, value in
             if let value = value as? BinaryDumpable {
-                out.appendContentsOf(value.dump())
+                out.append(contentsOf: value.dump())
             } else {
                 print("Skipping \(label)")
             }
@@ -78,7 +78,7 @@ extension BinaryConvertible {
             $0.value as? BinaryDumpable
             }.map {
                 $0.binarySize
-            }.reduce(0, combine: +)
+            }.reduce(0, +)
     }
     
 }
@@ -105,7 +105,7 @@ extension UInt8: BinaryConvertible {
         return 1
     }
     
-    static func extract(binaryDump: BinaryDump) -> UInt8 {
+    static func extract(_ binaryDump: BinaryDump) -> UInt8 {
         return binaryDump.next()
     }
     
@@ -121,7 +121,7 @@ extension UInt16: BinaryConvertible {
         return 2
     }
     
-    static func extract(binaryDump: BinaryDump) -> UInt16 {
+    static func extract(_ binaryDump: BinaryDump) -> UInt16 {
         return UInt16(binaryDump.next()) << 8 | UInt16(binaryDump.next())
     }
     
@@ -132,15 +132,15 @@ extension UInt32: BinaryConvertible {
     func dump() -> [UInt8] {
         return (0...3).map {
             UInt8(truncatingBitPattern: self >> ($0 * 8))
-            }.reverse()
+            }.reversed()
     }
     
     var binarySize: UInt {
         return 4
     }
     
-    static func extract(binaryDump: BinaryDump) -> UInt32 {
-        return (0...3).reverse().reduce(0) {
+    static func extract(_ binaryDump: BinaryDump) -> UInt32 {
+        return (0...3).reversed().reduce(0) {
             return $0 | UInt32(binaryDump.nextByte()) << ($1 * 8)
         }
     }
@@ -157,7 +157,7 @@ extension Int8: BinaryConvertible {
         return 1
     }
     
-    static func extract(binaryDump: BinaryDump) -> Int8 {
+    static func extract(_ binaryDump: BinaryDump) -> Int8 {
         return Int8(bitPattern: binaryDump.next())
     }
     
@@ -168,15 +168,15 @@ extension Int: BinaryConvertible {
     func dump() -> [UInt8] {
         return (0...7).map {
             UInt8(truncatingBitPattern: self >> ($0 * 8))
-        }.reverse()
+        }.reversed()
     }
     
     var binarySize: UInt {
         return 8
     }
     
-    static func extract(binaryDump: BinaryDump) -> Int {
-        return (0...7).reverse().reduce(0) {
+    static func extract(_ binaryDump: BinaryDump) -> Int {
+        return (0...7).reversed().reduce(0) {
             return $0 | Int(binaryDump.nextByte()) << ($1 * 8)
         }
     }
@@ -193,7 +193,7 @@ extension Bool: BinaryConvertible {
         return 1
     }
     
-    static func extract(binaryDump: BinaryDump) -> Bool {
+    static func extract(_ binaryDump: BinaryDump) -> Bool {
         return binaryDump.nextByte() > 0 ? true : false
     }
     

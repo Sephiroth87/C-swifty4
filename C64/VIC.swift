@@ -11,90 +11,90 @@ import Foundation
 internal struct VICState: ComponentState {
     
     //MARK: Memory
-    private var ioMemory: [UInt8] = [UInt8](count: 64, repeatedValue: 0)
-    private var videoMatrix: [UInt8] = [UInt8](count: 40, repeatedValue: 0)
-    private var colorLine: [UInt8] = [UInt8](count: 40, repeatedValue: 0)
-    private var mp: UInt8 = 0 // Sprite Pointer
-    private var screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: UnsafeMutablePointer(nilLiteral: ()), count: 0)
+    fileprivate var ioMemory: [UInt8] = [UInt8](repeating: 0, count: 64)
+    fileprivate var videoMatrix: [UInt8] = [UInt8](repeating: 0, count: 40)
+    fileprivate var colorLine: [UInt8] = [UInt8](repeating: 0, count: 40)
+    fileprivate var mp: UInt8 = 0 // Sprite Pointer
+    fileprivate var screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: nil, count: 0)
     //MARK: -
     
-    private var currentCycle: UInt8 = 1
-    private var currentLine: UInt16 = 0
+    fileprivate var currentCycle: UInt8 = 1
+    fileprivate var currentLine: UInt16 = 0
     
     //MARK: Registers
-    private var m_x: [UInt16] = [UInt16](count: 8, repeatedValue: 0) // X Coordinate Sprite
-    private var m_y: [UInt8] = [UInt8](count: 8, repeatedValue: 0) // Y Coordinate Sprite
-    private var yScroll: UInt8 = 0 // Y Scroll
-    private var den = false // Display Enable
-    private var bmm = false // Bit Map Mode
-    private var ecm = false // Extended Color Mode
-    private var mcm = false // Multi Color Mode
-    private var raster: UInt16 = 0 // Raster Counter
-    private var me: UInt8 = 0 // Sprite Enabled
-    private var mye: UInt8 = 0 // Sprite Y Expansion
-    private var vm: UInt8 = 0 // Video matrix base address
-    private var cb: UInt8 = 0 // Character base address
-    private var ir: UInt8 = 0 // Interrupt register
-    private var ier: UInt8 = 0 // Interrupt enable register
-    private var ec: UInt8 = 0 // Border Color
-    private var mmc: UInt8 = 0 // Sprite Multicolor
-    private var b0c: UInt8 = 0 // Background Color 0
-    private var b1c: UInt8 = 0 // Background Color 1
-    private var b2c: UInt8 = 0 // Background Color 2
-    private var b3c: UInt8 = 0 // Background Color 3
-    private var mm0: UInt8 = 0 // Sprite Multicolor 0
-    private var mm1: UInt8 = 0 // Sprite Multicolor 1
-    private var m_c: [UInt8] = [UInt8](count: 8, repeatedValue: 0) // Color Sprite
+    fileprivate var m_x: [UInt16] = [UInt16](repeating: 0, count: 8) // X Coordinate Sprite
+    fileprivate var m_y: [UInt8] = [UInt8](repeating: 0, count: 8) // Y Coordinate Sprite
+    fileprivate var yScroll: UInt8 = 0 // Y Scroll
+    fileprivate var den = false // Display Enable
+    fileprivate var bmm = false // Bit Map Mode
+    fileprivate var ecm = false // Extended Color Mode
+    fileprivate var mcm = false // Multi Color Mode
+    fileprivate var raster: UInt16 = 0 // Raster Counter
+    fileprivate var me: UInt8 = 0 // Sprite Enabled
+    fileprivate var mye: UInt8 = 0 // Sprite Y Expansion
+    fileprivate var vm: UInt8 = 0 // Video matrix base address
+    fileprivate var cb: UInt8 = 0 // Character base address
+    fileprivate var ir: UInt8 = 0 // Interrupt register
+    fileprivate var ier: UInt8 = 0 // Interrupt enable register
+    fileprivate var ec: UInt8 = 0 // Border Color
+    fileprivate var mmc: UInt8 = 0 // Sprite Multicolor
+    fileprivate var b0c: UInt8 = 0 // Background Color 0
+    fileprivate var b1c: UInt8 = 0 // Background Color 1
+    fileprivate var b2c: UInt8 = 0 // Background Color 2
+    fileprivate var b3c: UInt8 = 0 // Background Color 3
+    fileprivate var mm0: UInt8 = 0 // Sprite Multicolor 0
+    fileprivate var mm1: UInt8 = 0 // Sprite Multicolor 1
+    fileprivate var m_c: [UInt8] = [UInt8](repeating: 0, count: 8) // Color Sprite
     //MARK: -
     
     //MARK: Internal Registers
-    private var vc: UInt16 = 0
-    private var vcbase: UInt16 = 0
-    private var rc: UInt8 = 0
-    private var vmli: UInt16 = 0
-    private var displayState = false
-    private var rasterX: UInt16 = 0x19C // NTSC
-    private var rasterInterruptLine: UInt16 = 0
-    private var mainBorder = false
-    private var verticalBorder = false
-    private var ref: UInt8 = 0
-    private var mc: [UInt8] = [UInt8](count: 8, repeatedValue: 0)
-    private var mcbase: [UInt8] = [UInt8](count: 8, repeatedValue: 0)
-    private var yExpansion: [Bool] = [Bool](count: 8, repeatedValue: true)
+    fileprivate var vc: UInt16 = 0
+    fileprivate var vcbase: UInt16 = 0
+    fileprivate var rc: UInt8 = 0
+    fileprivate var vmli: UInt16 = 0
+    fileprivate var displayState = false
+    fileprivate var rasterX: UInt16 = 0x19C // NTSC
+    fileprivate var rasterInterruptLine: UInt16 = 0
+    fileprivate var mainBorder = false
+    fileprivate var verticalBorder = false
+    fileprivate var ref: UInt8 = 0
+    fileprivate var mc: [UInt8] = [UInt8](repeating: 0, count: 8)
+    fileprivate var mcbase: [UInt8] = [UInt8](repeating: 0, count: 8)
+    fileprivate var yExpansion: [Bool] = [Bool](repeating: true, count: 8)
     //MARK: -
     
     //MARK: Graphic Sequencer
-    private var graphicsSequencerData: UInt8 = 0
-    private var graphicsSequencerShiftRegister: UInt8 = 0
-    private var graphicsSequencerVideoMatrix: UInt8 = 0
-    private var graphicsSequencerColorLine: UInt8 = 0
+    fileprivate var graphicsSequencerData: UInt8 = 0
+    fileprivate var graphicsSequencerShiftRegister: UInt8 = 0
+    fileprivate var graphicsSequencerVideoMatrix: UInt8 = 0
+    fileprivate var graphicsSequencerColorLine: UInt8 = 0
     //MARK: -
     
     //MARK: Sprite Sequencers
-    private var spriteSequencerData: [UInt32] = [UInt32](count: 8, repeatedValue: 0)
+    fileprivate var spriteSequencerData: [UInt32] = [UInt32](repeating: 0, count: 8)
     //MARK: -
     
     //MARK: Bus
-    private var addressBus: UInt16 = 0
-    private var dataBus: UInt8 = 0
+    fileprivate var addressBus: UInt16 = 0
+    fileprivate var dataBus: UInt8 = 0
     //MARK: -
     
     //MARK: Helpers
-    private var memoryBankAddress: UInt16 = 0
-    private var bufferPosition: Int = 0
-    private var badLinesEnabled = false
-    private var isBadLine = false
-    private var currentSprite: UInt8 = 2
-    private var spriteDma: [Bool] = [Bool](count: 8, repeatedValue: false)
-    private var spriteDisplay: [Bool] = [Bool](count: 8, repeatedValue: false)
-    private var anySpriteDisplaying = false
-    private var spriteShiftRegisterCount: [Int] = [Int](count: 8, repeatedValue: 0)
+    fileprivate var memoryBankAddress: UInt16 = 0
+    fileprivate var bufferPosition: Int = 0
+    fileprivate var badLinesEnabled = false
+    fileprivate var isBadLine = false
+    fileprivate var currentSprite: UInt8 = 2
+    fileprivate var spriteDma: [Bool] = [Bool](repeating: false, count: 8)
+    fileprivate var spriteDisplay: [Bool] = [Bool](repeating: false, count: 8)
+    fileprivate var anySpriteDisplaying = false
+    fileprivate var spriteShiftRegisterCount: [Int] = [Int](repeating: 0, count: 8)
     //MARK: -
     
-    static func extract(binaryDump: BinaryDump) -> VICState {
+    static func extract(_ binaryDump: BinaryDump) -> VICState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
-        let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32))), count: 512 * 512)
+        let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
         return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_x: binaryDump.next(8), m_y: binaryDump.next(8), yScroll: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), mcm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mmc: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), graphicsSequencerData: binaryDump.next(), graphicsSequencerShiftRegister: binaryDump.next(), graphicsSequencerVideoMatrix: binaryDump.next(), graphicsSequencerColorLine: binaryDump.next(), spriteSequencerData: binaryDump.next(8), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteShiftRegisterCount: binaryDump.next(8))
     }
     
@@ -106,12 +106,12 @@ final internal class VIC: Component, LineComponent {
     
     internal weak var memory: C64Memory!
     internal weak var irqLine: Line!
-    
-    private let screenBuffer1 = UnsafeMutableBufferPointer<UInt32>(start: UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32))), count: 512 * 512)
-    private let screenBuffer2 = UnsafeMutableBufferPointer<UInt32>(start: UnsafeMutablePointer<UInt32>(calloc(512 * 512, sizeof(UInt32))), count: 512 * 512)
+ 
+    private let screenBuffer1 = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
+    private let screenBuffer2 = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
     internal var screenBuffer: UnsafeMutablePointer<UInt32> {
         get {
-            return state.screenBuffer.baseAddress == screenBuffer1.baseAddress ? screenBuffer2.baseAddress : screenBuffer1.baseAddress
+            return (state.screenBuffer.baseAddress == screenBuffer1.baseAddress ? screenBuffer2.baseAddress : screenBuffer1.baseAddress)!
         }
     }
     
@@ -145,7 +145,7 @@ final internal class VIC: Component, LineComponent {
     ]
     
     //MARK: LineComponent
-    func pin(line: Line) -> Bool {
+    func pin(_ line: Line) -> Bool {
         return state.ir & 0x80 == 0
     }
     //MARK: -
@@ -155,7 +155,7 @@ final internal class VIC: Component, LineComponent {
         state.raster = topLine
     }
     
-    internal func readByte(position: UInt8) -> UInt8 {
+    internal func readByte(_ position: UInt8) -> UInt8 {
         switch position {
         case 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E:
             return UInt8(truncatingBitPattern: state.m_x[Int(position >> 1)])
@@ -210,7 +210,7 @@ final internal class VIC: Component, LineComponent {
         }
     }
     
-    internal func writeByte(position:UInt8, byte: UInt8) {
+    internal func writeByte(_ position:UInt8, byte: UInt8) {
         switch position {
         case 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E:
             state.m_x[Int(position >> 1)] = (state.m_x[Int(position >> 1)] & 0xFF00) | UInt16(byte)
@@ -271,11 +271,11 @@ final internal class VIC: Component, LineComponent {
         state.ioMemory[Int(position)] = byte
     }
     
-    internal func setMemoryBank(bankNumber: UInt8) {
+    internal func setMemoryBank(_ bankNumber: UInt8) {
         state.memoryBankAddress = UInt16(~bankNumber & 0x3) << 14
     }
 
-    private func memoryAccess(position: UInt16) -> UInt8 {
+    private func memoryAccess(_ position: UInt16) -> UInt8 {
         state.addressBus = state.memoryBankAddress &+ position
         if state.addressBus & 0x7000 == 0x1000 { // address in 0x1000...0x1FFF or 0x9000...0x9FFF
             // Read from character ROM
@@ -411,7 +411,7 @@ final internal class VIC: Component, LineComponent {
                     state.spriteDisplay[i] = false
                 }
             }
-            if state.anySpriteDisplaying && state.spriteDisplay.indexOf(true) == nil {
+            if state.anySpriteDisplaying && state.spriteDisplay.index(of: true) == nil {
                 state.anySpriteDisplaying = false
             }
         case cyclesPerRaster - 3, cyclesPerRaster - 1:
@@ -497,7 +497,7 @@ final internal class VIC: Component, LineComponent {
     }
     
     // Sprite data access
-    private func sAccess(accessNumber: Int) {
+    private func sAccess(_ accessNumber: Int) {
         let data = memoryAccess(UInt16(state.mp) << 6 | UInt16(state.mc[Int(state.currentSprite)]))
         state.spriteSequencerData[Int(state.currentSprite)] |= UInt32(data) << UInt32(8 * (2 - accessNumber))
         state.mc[Int(state.currentSprite)] += 1
@@ -505,7 +505,7 @@ final internal class VIC: Component, LineComponent {
     
     // DRAM refresh
     private func rAccess() {
-        memoryAccess(0x3F00 | UInt16(state.ref))
+        _ = memoryAccess(0x3F00 | UInt16(state.ref))
         state.ref = state.ref &- 1
     }
     

@@ -12,14 +12,14 @@ import Foundation
 private struct CIATimerState: BinaryConvertible {
     
     private struct CIATimerStateFlags {
-        private static let Count0: UInt8 = 0x01
-        private static let Count1: UInt8 = 0x02
-        private static let Count2: UInt8 = 0x04
-        private static let Count3: UInt8 = 0x08
-        private static let Load0: UInt8 = 0x10
-        private static let Load1: UInt8 = 0x20
-        private static let Load2: UInt8 = 0x40
-        private static let OneShot: UInt8 = 0x80
+        fileprivate static let Count0: UInt8 = 0x01
+        fileprivate static let Count1: UInt8 = 0x02
+        fileprivate static let Count2: UInt8 = 0x04
+        fileprivate static let Count3: UInt8 = 0x08
+        fileprivate static let Load0: UInt8 = 0x10
+        fileprivate static let Load1: UInt8 = 0x20
+        fileprivate static let Load2: UInt8 = 0x40
+        fileprivate static let OneShot: UInt8 = 0x80
     }
     
     private var delay: UInt8 = 0
@@ -104,15 +104,15 @@ private struct CIATimerState: BinaryConvertible {
     
     //MARK: BinaryConvertible
     
-    private func dump() -> [UInt8] {
+    fileprivate func dump() -> [UInt8] {
         return [delay, feed, interruptDelay]
     }
     
-    private var binarySize: UInt {
+    fileprivate var binarySize: UInt {
         return 3
     }
     
-    private static func extract(binaryDump: BinaryDump) -> CIATimerState {
+    fileprivate static func extract(_ binaryDump: BinaryDump) -> CIATimerState {
         return CIATimerState(delay: binaryDump.next(), feed: binaryDump.next(), interruptDelay: binaryDump.next())
     }
     
@@ -121,55 +121,55 @@ private struct CIATimerState: BinaryConvertible {
 internal struct CIAState: ComponentState {
     
     //MARK: Registers
-    private var pra: UInt8 = 0xFF // Data Port Register A
-    private var prb: UInt8 = 0xFF // Data Port Register B
-    private var ddra: UInt8 = 0 // Data Direction Register A
-    private var ddrb: UInt8 = 0 // Data Direction Register B
-    private var tod10ths: UInt8 = 0 // 10ths of seconds register
-    private var todSec: UInt8 = 0 // Seconds register
-    private var todMin: UInt8 = 0 // Minutes register
-    private var todHr: UInt8 = 1 // Hours — AM/PM register
-    private var imr: UInt8 = 0 // Interrupts Mask Register
-    private var icr: UInt8 = 0 // Interrupts Control Register
-    private var cra: UInt8 = 0 // Control Register A
-    private var crb: UInt8 = 0 // Control Register B
+    fileprivate var pra: UInt8 = 0xFF // Data Port Register A
+    fileprivate var prb: UInt8 = 0xFF // Data Port Register B
+    fileprivate var ddra: UInt8 = 0 // Data Direction Register A
+    fileprivate var ddrb: UInt8 = 0 // Data Direction Register B
+    fileprivate var tod10ths: UInt8 = 0 // 10ths of seconds register
+    fileprivate var todSec: UInt8 = 0 // Seconds register
+    fileprivate var todMin: UInt8 = 0 // Minutes register
+    fileprivate var todHr: UInt8 = 1 // Hours — AM/PM register
+    fileprivate var imr: UInt8 = 0 // Interrupts Mask Register
+    fileprivate var icr: UInt8 = 0 // Interrupts Control Register
+    fileprivate var cra: UInt8 = 0 // Control Register A
+    fileprivate var crb: UInt8 = 0 // Control Register B
     //MARK: -
     
     //MARK: Internal Registers
-    private var latchA: UInt16 = 0
-    private var counterA: UInt16 = 0xFFFF
-    private var latchB: UInt16 = 0
-    private var counterB: UInt16 = 0xFFFF
-    private var alarm10ths: UInt8 = 0
-    private var latch10ths: UInt8 = 0
-    private var alarmSec: UInt8 = 0
-    private var latchSec: UInt8 = 0
-    private var alarmMin: UInt8 = 0
-    private var latchMin: UInt8 = 0
-    private var alarmHr: UInt8 = 0
-    private var latchHr: UInt8 = 0
+    fileprivate var latchA: UInt16 = 0
+    fileprivate var counterA: UInt16 = 0xFFFF
+    fileprivate var latchB: UInt16 = 0
+    fileprivate var counterB: UInt16 = 0xFFFF
+    fileprivate var alarm10ths: UInt8 = 0
+    fileprivate var latch10ths: UInt8 = 0
+    fileprivate var alarmSec: UInt8 = 0
+    fileprivate var latchSec: UInt8 = 0
+    fileprivate var alarmMin: UInt8 = 0
+    fileprivate var latchMin: UInt8 = 0
+    fileprivate var alarmHr: UInt8 = 0
+    fileprivate var latchHr: UInt8 = 0
     //MARK: -
     
     //MARK: Helpers
-    private var interruptPin: Bool = true
-    private var timerAState: CIATimerState = CIATimerState()
-    private var timerBState: CIATimerState = CIATimerState()
-    private var todLatched: Bool = false
-    private var todRunning: Bool = false
-    private var todCounter: UInt32 = 0
-    private var pb6Toggle: Bool = false
-    private var pb6Pulse: Bool = false
-    private var pb7Toggle: Bool = false
-    private var pb7Pulse: Bool = false
+    fileprivate var interruptPin: Bool = true
+    fileprivate var timerAState: CIATimerState = CIATimerState()
+    fileprivate var timerBState: CIATimerState = CIATimerState()
+    fileprivate var todLatched: Bool = false
+    fileprivate var todRunning: Bool = false
+    fileprivate var todCounter: UInt32 = 0
+    fileprivate var pb6Toggle: Bool = false
+    fileprivate var pb6Pulse: Bool = false
+    fileprivate var pb7Toggle: Bool = false
+    fileprivate var pb7Pulse: Bool = false
     //MARK: -
     
     //MARK: IECDevice lines for CIA2
-    private var atnPin: Bool = true
-    private var clkPin: Bool = true
-    private var dataPin: Bool = true
+    fileprivate var atnPin: Bool = true
+    fileprivate var clkPin: Bool = true
+    fileprivate var dataPin: Bool = true
     //MARK: -
     
-    static func extract(binaryDump: BinaryDump) -> CIAState {
+    static func extract(_ binaryDump: BinaryDump) -> CIAState {
         return CIAState(pra: binaryDump.next(), prb: binaryDump.next(), ddra: binaryDump.next(), ddrb: binaryDump.next(), tod10ths: binaryDump.next(), todSec: binaryDump.next(), todMin: binaryDump.next(), todHr: binaryDump.next(), imr: binaryDump.next(), icr: binaryDump.next(), cra: binaryDump.next(), crb: binaryDump.next(), latchA: binaryDump.next(), counterA: binaryDump.next(), latchB: binaryDump.next(), counterB: binaryDump.next(), alarm10ths: binaryDump.next(), latch10ths: binaryDump.next(), alarmSec: binaryDump.next(), latchSec: binaryDump.next(), alarmMin: binaryDump.next(), latchMin: binaryDump.next(), alarmHr: binaryDump.next(), latchHr: binaryDump.next(), interruptPin: binaryDump.next(), timerAState: binaryDump.next(), timerBState: binaryDump.next(), todLatched: binaryDump.next(), todRunning: binaryDump.next(), todCounter: binaryDump.next(), pb6Toggle: binaryDump.next(), pb6Pulse: binaryDump.next(), pb7Toggle: binaryDump.next(), pb7Pulse: binaryDump.next(), atnPin: binaryDump.next(), clkPin: binaryDump.next(), dataPin: binaryDump.next())
     }
     
@@ -183,7 +183,7 @@ internal class CIA: Component, LineComponent {
     internal var crashHandler: C64CrashHandler?
     
     //MARK: LineComponent
-    func pin(line: Line) -> Bool {
+    func pin(_ line: Line) -> Bool {
         return state.interruptPin
     }
     //MARK: -
@@ -281,7 +281,7 @@ internal class CIA: Component, LineComponent {
         }
     }
     
-    internal func writeByte(position: UInt8, byte: UInt8) {
+    internal func writeByte(_ position: UInt8, byte: UInt8) {
         switch position {
         case 0x01:
             state.prb = byte | ~state.ddrb
@@ -430,7 +430,7 @@ internal class CIA: Component, LineComponent {
         }
     }
     
-    internal func readByte(position: UInt8) -> UInt8 {
+    internal func readByte(_ position: UInt8) -> UInt8 {
         switch position {
         case 0x02:
             return state.ddra
@@ -499,7 +499,7 @@ internal class CIA: Component, LineComponent {
         }
     }
     
-    private func incrementBCD(value: UInt8) -> UInt8 {
+    private func incrementBCD(_ value: UInt8) -> UInt8 {
         return ((value & 0x0F) == 0x09) ? (value & 0xF0) + 0x10 : (value & 0xF0) + ((value + 0x01) & 0x0F)
     }
     
@@ -515,7 +515,7 @@ final internal class CIA1: CIA {
         state.ddra = 0xFF
     }
     
-    internal override func writeByte(position: UInt8, byte: UInt8) {
+    internal override func writeByte(_ position: UInt8, byte: UInt8) {
         switch position {
         case 0x00:
             state.pra = byte | ~state.ddra
@@ -525,27 +525,27 @@ final internal class CIA1: CIA {
         }
     }
     
-    internal override func readByte(position: UInt8) -> UInt8 {
+    internal override func readByte(_ position: UInt8) -> UInt8 {
         switch position {
         case 0x00:
             var joystick: UInt8 = 0xFF
             switch joystick2.xAxis {
-            case .Left:
+            case .left:
                 joystick &= ~UInt8(0x04)
-            case .Right:
+            case .right:
                 joystick &= ~UInt8(0x08)
-            case .None:
+            case .none:
                 break
             }
             switch joystick2.yAxis {
-            case .Up:
+            case .up:
                 joystick &= ~UInt8(0x01)
-            case .Down:
+            case .down:
                 joystick &= ~UInt8(0x02)
-            case .None:
+            case .none:
                 break
             }
-            if joystick2.button == .Pressed {
+            if joystick2.button == .pressed {
                 joystick &= ~UInt8(0x10)
             }
             return state.pra & joystick
@@ -596,7 +596,7 @@ final internal class CIA2: CIA, IECDevice {
         state.ddra = 0x3F
     }
     
-    internal override func writeByte(position: UInt8, byte: UInt8) {
+    internal override func writeByte(_ position: UInt8, byte: UInt8) {
         switch position {
         case 0x00:
             state.pra = byte | ~state.ddra
@@ -610,7 +610,7 @@ final internal class CIA2: CIA, IECDevice {
         }
     }
     
-    internal override func readByte(position: UInt8) -> UInt8 {
+    internal override func readByte(_ position: UInt8) -> UInt8 {
         switch position {
         case 0x00:
             return ((state.pra | ~state.ddra) & 0x3F) | (iec.clkLine ? 0x40 : 0x00) | (iec.dataLine ? 0x80 : 0x00)
@@ -636,6 +636,6 @@ final internal class CIA2: CIA, IECDevice {
         }
     }
     
-    func iecUpdatedLines(atnLineUpdated atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) { }
+    func iecUpdatedLines(atnLineUpdated: Bool, clkLineUpdated: Bool, dataLineUpdated: Bool) { }
     
 }

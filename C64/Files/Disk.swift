@@ -16,7 +16,7 @@ internal final class Track {
         self.length = UInt(data.count) * 8
     }
     
-    func readBit(offset: UInt) -> UInt8 {
+    func readBit(_ offset: UInt) -> UInt8 {
         return data[Int(offset / 8)] & UInt8(0x80 >> (offset % 8)) != 0x00 ? 0x01 : 0x00
     }
     
@@ -24,7 +24,7 @@ internal final class Track {
 
 let gcr: [UInt64] = [0x0A, 0x0B, 0x12, 0x13, 0x0E, 0x0F, 0x16, 0x17, 0x09, 0x19, 0x1A, 0x1B, 0x0D, 0x1D, 0x1E, 0x15]
 
-private func encodeGCR(bytes: [UInt8]) -> [UInt8] {
+private func encodeGCR(_ bytes: [UInt8]) -> [UInt8] {
     var encoded: UInt64 = 0
     encoded |= gcr[Int(bytes[0] >> 4)] << 35
     encoded |= gcr[Int(bytes[0] & 0x0F)] << 30
@@ -65,8 +65,8 @@ internal final class Disk {
                 trackData.append(0xFF); trackData.append(0xFF); trackData.append(0xFF); trackData.append(0xFF); trackData.append(0xFF);
                 // Header info
                 let headerChecksum = UInt8(sectorNumber) ^ trackNumber ^ diskIDLow ^ diskIDHigh
-                trackData.appendContentsOf(encodeGCR([0x08, headerChecksum, sectorNumber, trackNumber]))
-                trackData.appendContentsOf(encodeGCR([diskIDLow, diskIDHigh, 0x0F, 0x0F]))
+                trackData.append(contentsOf: encodeGCR([0x08, headerChecksum, sectorNumber, trackNumber]))
+                trackData.append(contentsOf: encodeGCR([diskIDLow, diskIDHigh, 0x0F, 0x0F]))
                 // Header gap
                 trackData.append(0x55); trackData.append(0x55); trackData.append(0x55); trackData.append(0x55); trackData.append(0x55);
                 trackData.append(0x55); trackData.append(0x55); trackData.append(0x55); trackData.append(0x55);
@@ -74,13 +74,13 @@ internal final class Disk {
                 trackData.append(0xFF); trackData.append(0xFF); trackData.append(0xFF); trackData.append(0xFF); trackData.append(0xFF);
                 // Data block
                 var dataChecksum: UInt8 = d64Data[dataOffset] ^ d64Data[dataOffset + 1] ^ d64Data[dataOffset + 2]
-                trackData.appendContentsOf(encodeGCR([0x07, d64Data[dataOffset + 0], d64Data[dataOffset + 1], d64Data[dataOffset + 2]]))
-                for i in (dataOffset + 3).stride(to: dataOffset + 255, by: 4) {
+                trackData.append(contentsOf: encodeGCR([0x07, d64Data[dataOffset + 0], d64Data[dataOffset + 1], d64Data[dataOffset + 2]]))
+                for i in stride(from: (dataOffset + 3), to: dataOffset + 255, by: 4) {
                     dataChecksum ^= d64Data[i] ^ d64Data[i+1] ^ d64Data[i+2] ^ d64Data[i+3]
-                    trackData.appendContentsOf(encodeGCR([d64Data[i], d64Data[i+1], d64Data[i+2], d64Data[i+3]]))
+                    trackData.append(contentsOf: encodeGCR([d64Data[i], d64Data[i+1], d64Data[i+2], d64Data[i+3]]))
                 }
                 dataChecksum ^= d64Data[dataOffset + 255]
-                trackData.appendContentsOf(encodeGCR([d64Data[dataOffset + 255], dataChecksum, 0x00, 0x0]))
+                trackData.append(contentsOf: encodeGCR([d64Data[dataOffset + 255], dataChecksum, 0x00, 0x0]))
                 // Inter-sector gap
                 trackData.append(0x55); trackData.append(0x55); trackData.append(0x55); trackData.append(0x55); trackData.append(0x55);
                 trackData.append(0x55); trackData.append(0x55); trackData.append(0x55); trackData.append(0x55);

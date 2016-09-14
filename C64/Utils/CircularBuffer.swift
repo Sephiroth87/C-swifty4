@@ -10,25 +10,25 @@ import Foundation
 
 public final class CircularBuffer<T: CustomStringConvertible> {
     
-    private var buffer: Array<T?>
-    private var index = 0
+    fileprivate var buffer: Array<T?>
+    fileprivate var index = 0
     
     public init(capacity: Int) {
-        self.buffer = Array<T?>(count: capacity, repeatedValue: nil)
+        self.buffer = Array<T?>(repeating: nil, count: capacity)
     }
     
-    public func add(item: T) {
+    public func add(_ item: T) {
         index = (index + 1) % buffer.count
         buffer[index] = item
     }
     
 }
 
-extension CircularBuffer: SequenceType {
+extension CircularBuffer: Sequence {
     
-    public func generate() -> AnyGenerator<T> {
+    public func makeIterator() -> AnyIterator<T> {
         var index = self.index
-        return AnyGenerator(body: { () -> T? in
+        return AnyIterator {
             if index - 1 == self.index {
                 return nil
             } else {
@@ -39,7 +39,7 @@ extension CircularBuffer: SequenceType {
                 }
                 return value
             }
-        })
+        }
     }
     
 }

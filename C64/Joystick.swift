@@ -7,26 +7,26 @@
 //
 
 public enum JoystickXAxisStatus {
-    case None
-    case Left
-    case Right
+    case none
+    case left
+    case right
 }
 
 public enum JoystickYAxisStatus {
-    case None
-    case Up
-    case Down
+    case none
+    case up
+    case down
 }
 
 public enum JoystickButtonStatus {
-    case Released
-    case Pressed
+    case released
+    case pressed
 }
 
 final internal class Joystick {
     
-    internal var xAxis: JoystickXAxisStatus = .None
-    internal var yAxis: JoystickYAxisStatus = .None
-    internal var button: JoystickButtonStatus = .Released
+    internal var xAxis: JoystickXAxisStatus = .none
+    internal var yAxis: JoystickYAxisStatus = .none
+    internal var button: JoystickButtonStatus = .released
     
 }

@@ -7,14 +7,14 @@
 //
 
 public enum SpecialKey: UInt16 {
-    case Return    = 0x0001
-    case Shift     = 0x0107
-    case Backspace = 0x0000
+    case `return`    = 0x0001
+    case shift     = 0x0107
+    case backspace = 0x0000
 }
 
 final internal class Keyboard {
     
-    private var matrix = [UInt8](count: 8, repeatedValue: 0xFF)
+    private var matrix = [UInt8](repeating: 0xFF, count: 8)
     private let keyMap: [UInt8: UInt16] = [
         UInt8(ascii: "a") : UInt16(0x0102),
         UInt8(ascii: "b") : UInt16(0x0304),
@@ -69,45 +69,45 @@ final internal class Keyboard {
         UInt8(ascii: "$") : UInt16(0x1103)
     ]
     
-    private func pressKey(keyValue: UInt16) {
+    private func pressKey(_ keyValue: UInt16) {
         let row = Int(keyValue >> 8)
         matrix[row] &= 0xFF - UInt8(1 << (keyValue & 0xFF))
     }
     
-    internal func pressKey(key: UInt8) {
+    internal func pressKey(_ key: UInt8) {
         if var keyValue = keyMap[key] {
             if keyValue & 0xF000 != 0 {
-                pressSpecialKey(.Shift)
+                pressSpecialKey(.shift)
                 keyValue &= 0x0FFF
             }
             pressKey(keyValue)
         }
     }
     
-    internal func pressSpecialKey(key: SpecialKey) {
+    internal func pressSpecialKey(_ key: SpecialKey) {
         pressKey(key.rawValue)
     }
     
-    private func releaseKey(keyValue: UInt16) {
+    private func releaseKey(_ keyValue: UInt16) {
         let row = Int(keyValue >> 8)
         matrix[row] |= UInt8(1 << (keyValue & 0xFF))
     }
     
-    internal func releaseKey(key: UInt8) {
+    internal func releaseKey(_ key: UInt8) {
         if var keyValue = keyMap[key] {
             if keyValue & 0xF000 != 0 {
-                releaseSpecialKey(.Shift)
+                releaseSpecialKey(.shift)
                 keyValue &= 0x0FFF
             }
             releaseKey(keyValue)
         }
     }
     
-    internal func releaseSpecialKey(key: SpecialKey) {
+    internal func releaseSpecialKey(_ key: SpecialKey) {
         releaseKey(key.rawValue)
     }
     
-    internal func readMatrix(mask: UInt8) -> UInt8 {
+    internal func readMatrix(_ mask: UInt8) -> UInt8 {
         var values: UInt8 = 0xFF
         for i in 0..<8 {
             if mask & UInt8(1 << i) == 0 {

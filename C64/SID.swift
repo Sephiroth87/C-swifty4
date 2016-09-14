@@ -8,11 +8,11 @@
 
 final internal class SID {
    
-    internal func readByte(position: UInt8) -> UInt8 {
+    internal func readByte(_ position: UInt8) -> UInt8 {
         return 0
     }
     
-    internal func writeByte(position: UInt8, byte: UInt8) {
+    internal func writeByte(_ position: UInt8, byte: UInt8) {
 
     }
 }

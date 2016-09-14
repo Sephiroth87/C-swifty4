@@ -10,31 +10,31 @@ import UIKit
 
 private class ContextBackedLayer: CALayer {
     
-    private var context: CGContextRef
+    fileprivate var context: CGContext
     
     required init?(coder aDecoder: NSCoder) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGBitmapContextCreate(nil, 418, 235, 8, 1680, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
+        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 1680, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         super.init(coder: aDecoder)
         self.actions = ["contents": NSNull()]
     }
     
     override init() {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGBitmapContextCreate(nil, 418, 235, 8, 1680, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue)!
+        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 1680, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         super.init()
         self.actions = ["contents": NSNull()]
     }
     
     override func display() {
-        let CGImage = CGBitmapContextCreateImage(context)
+        let CGImage = context.makeImage()
         self.contents = CGImage
     }
     
-    private func setData(data: UnsafePointer<UInt32>) {
-        let address = CGBitmapContextGetData(context)
+    fileprivate func setData(_ data: UnsafePointer<UInt32>) {
+        let address = context.data
         memcpy(address, data, 418 * 235 * 4)
-        let cgImage = CGBitmapContextCreateImage(context)
+        let cgImage = context.makeImage()
         self.contents = cgImage
     }
     
@@ -57,14 +57,14 @@ private class ContextBackedLayer: CALayer {
 
 class ContextBackedView: UIView {
     
-    override class func layerClass() -> AnyClass {
+    override class var layerClass : AnyClass {
         return ContextBackedLayer.self
     }
 
-    override func drawRect(rect: CGRect) {
+    override func draw(_ rect: CGRect) {
     }
 
-    internal func setData(data: UnsafePointer<UInt32>) {
+    internal func setData(_ data: UnsafePointer<UInt32>) {
         let layer = self.layer as! ContextBackedLayer
         layer.setData(data)
     }
