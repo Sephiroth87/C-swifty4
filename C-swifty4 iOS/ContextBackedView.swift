@@ -14,14 +14,14 @@ private class ContextBackedLayer: CALayer {
     
     required init?(coder aDecoder: NSCoder) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 1680, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 418 * 4, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         super.init(coder: aDecoder)
         self.actions = ["contents": NSNull()]
     }
     
     override init() {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 1680, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 418 * 4, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         super.init()
         self.actions = ["contents": NSNull()]
     }
