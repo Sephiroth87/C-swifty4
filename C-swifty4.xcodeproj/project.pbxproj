@@ -25,6 +25,8 @@
 		E567E4B81A8D17C200CF079D /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
 		E567E4B91A8D17C200CF079D /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
 		E567E4BB1A8D197E00CF079D /* FilePickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E567E4BA1A8D197E00CF079D /* FilePickerViewController.swift */; };
+		E5C552751D9C6542004DE54C /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E5C552761D9C6589004DE54C /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E5DEFB9A1A9CE60E00A76AE3 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = E5DEFB991A9CE60E00A76AE3 /* Resources */; };
 		E5DEFB9C1A9CE63500A76AE3 /* LorenzTestSuite.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DEFB9B1A9CE63500A76AE3 /* LorenzTestSuite.swift */; };
 		E5EE30731BF8EAF600404BE0 /* C64.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; };
@@ -85,16 +87,18 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				E5C552761D9C6589004DE54C /* C64.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		E59AD4B61A6344310081F81F /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				E5C552751D9C6542004DE54C /* C64.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
