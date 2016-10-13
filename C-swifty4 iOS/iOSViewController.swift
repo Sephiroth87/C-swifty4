@@ -25,8 +25,14 @@ final class iOSViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        becomeFirstResponder()
+
         c64.delegate = self
         c64.run()
+    }
+
+    override var canBecomeFirstResponder: Bool {
+        return true
     }
 
 }
@@ -51,4 +57,44 @@ extension iOSViewController: C64Delegate {
 
     func C64DidCrash(_ c64: C64) {}
     
+}
+
+extension iOSViewController: UIKeyInput {
+
+    var autocorrectionType: UITextAutocorrectionType {
+        get { return .no }
+        set {}
+    }
+
+    var keyboardAppearance: UIKeyboardAppearance {
+        get { return .dark }
+        set {}
+    }
+
+    var hasText: Bool {
+        return true
+    }
+
+    func insertText(_ text: String) {
+        if text == "\n" {
+            c64.pressSpecialKey(.return)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.07) {
+                self.c64.releaseSpecialKey(.return)
+            }
+        } else {
+            let char = text.utf8[text.utf8.startIndex]
+            c64.pressKey(char)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.07) {
+                self.c64.releaseKey(char)
+            }
+        }
+    }
+
+    func deleteBackward() {
+        c64.pressSpecialKey(.backspace)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.07) {
+            self.c64.releaseSpecialKey(.backspace)
+        }
+    }
+
 }
