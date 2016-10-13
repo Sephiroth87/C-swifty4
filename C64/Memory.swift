@@ -10,8 +10,8 @@ import Foundation
 
 internal protocol Memory: class {
     
-    func readByte(_ position: UInt16) -> UInt8
-    func readWord(_ position: UInt16) -> UInt16
+    @discardableResult func readByte(_ position: UInt16) -> UInt8
+    @discardableResult func readWord(_ position: UInt16) -> UInt16
     func writeByte(_ position: UInt16, byte: UInt8)
     
 }
@@ -135,7 +135,7 @@ final internal class C64Memory: Memory, Component {
         return state.colorRam[Int(position)] & 0x0F | (UInt8(truncatingBitPattern: arc4random()) << 4)
     }
     
-    internal func readWord(_ position: UInt16) -> UInt16 {
+    @discardableResult internal func readWord(_ position: UInt16) -> UInt16 {
         return UInt16(readByte(position)) + UInt16(readByte(position + 1)) << 8
     }
     
