@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11523"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -22,8 +23,21 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wdP-eu-NcM" customClass="ContextBackedView" customModule="C_swifty4" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="211"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="wdP-eu-NcM" secondAttribute="height" multiplier="418:235" id="xWj-8i-2ed"/>
+                                </constraints>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="xWj-8i-2ed"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=compact">
+                                    <mask key="constraints">
+                                        <include reference="xWj-8i-2ed"/>
+                                    </mask>
+                                </variation>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nli-nS-vFP">
                                 <rect key="frame" x="367" y="659" width="0.0" height="0.0"/>
@@ -41,6 +55,11 @@
                             <constraint firstAttribute="bottom" secondItem="Nli-nS-vFP" secondAttribute="bottom" constant="8" id="keW-yn-zsQ"/>
                             <constraint firstAttribute="trailing" secondItem="wdP-eu-NcM" secondAttribute="trailing" id="tSD-iL-LZN"/>
                         </constraints>
+                        <variation key="heightClass=regular-widthClass=compact">
+                            <mask key="constraints">
+                                <exclude reference="3Dd-vB-TXc"/>
+                            </mask>
+                        </variation>
                     </view>
                     <connections>
                         <outlet property="fpsLabel" destination="Nli-nS-vFP" id="aYY-VS-6fw"/>
