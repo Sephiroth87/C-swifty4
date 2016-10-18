@@ -140,8 +140,8 @@ extension UInt32: BinaryConvertible {
     }
     
     static func extract(_ binaryDump: BinaryDump) -> UInt32 {
-        return (0...3).reversed().reduce(0) {
-            return $0 | UInt32(binaryDump.nextByte()) << ($1 * 8)
+        return (0...3).reversed().reduce(0) { (v: UInt32, i: Int) -> UInt32 in
+            return v | UInt32(binaryDump.nextByte()) << UInt32(i * 8)
         }
     }
     
@@ -176,8 +176,8 @@ extension Int: BinaryConvertible {
     }
     
     static func extract(_ binaryDump: BinaryDump) -> Int {
-        return (0...7).reversed().reduce(0) {
-            return $0 | Int(binaryDump.nextByte()) << ($1 * 8)
+        return (0...7).reversed().reduce(0) { (v: Int, i: Int) -> Int in
+            return v | Int(binaryDump.nextByte()) << Int(i * 8)
         }
     }
     
