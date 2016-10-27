@@ -249,14 +249,6 @@ final public class C64: NSObject {
     public func loadPRGFile(_ data: Data) {
         if data[0] == 0x01 && data[1] == 0x08 {
             memory.writeRamData(data.subdata(in: data.startIndex.advanced(by: 2)..<data.endIndex), position: 0x801, size: data.count - 2)
-            //HACK
-            let end = UInt16(0x801 + data.count - 2)
-            memory.writeByte(0x2D, byte: UInt8(truncatingBitPattern: end))
-            memory.writeByte(0x2E, byte: UInt8(truncatingBitPattern: end >> 8))
-            memory.writeByte(0x2F, byte: UInt8(truncatingBitPattern: end))
-            memory.writeByte(0x30, byte: UInt8(truncatingBitPattern: end >> 8))
-            memory.writeByte(0x31, byte: UInt8(truncatingBitPattern: end))
-            memory.writeByte(0x32, byte: UInt8(truncatingBitPattern: end >> 8))
         } else {
             print("Unsupported file format")
         }
