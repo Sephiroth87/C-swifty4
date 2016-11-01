@@ -1,29 +1,32 @@
+#Lorenz Test Suite 2.15
+261/273
+All except tests for new CIA, cpuport, trap16, trap17
 #VICE testprogs
 ##CIA
 #####ciavarious
--[x] cia1.prg
--[x] cia2.prg
--[ ] cia3.prg
--[ ] cia3a.prg
--[ ] cia4.prg
--[x] cia5.prg
--[x] cia6.prg
--[x] cia7prg
--[ ] cia8.prg
--[x] cia9.prg
--[x] cia10.prg
--[x] cia11.prg
--[x] cia12.prg
--[x] cia13.prg
--[x] cia14.prg
--[x] cia15.prg
+- [x] cia1.prg
+- [x] cia2.prg
+- [ ] cia3.prg
+- [ ] cia3a.prg
+- [ ] cia4.prg
+- [x] cia5.prg
+- [x] cia6.prg
+- [x] cia7prg
+- [ ] cia8.prg
+- [x] cia9.prg
+- [x] cia10.prg
+- [x] cia11.prg
+- [x] cia12.prg
+- [x] cia13.prg
+- [x] cia14.prg
+- [x] cia15.prg
 #####reload0
--[x] reload0a.prg
--[x] reload0b.prg
+- [x] reload0a.prg
+- [x] reload0b.prg
 #####timerbasics
--[x] test.prg
--[ ] timer_test1.prg
--[x] timer.prg
+- [x] test.prg
+- [ ] timer_test1.prg
+- [x] timer.prg
 #####tod
 - [x] 0alarm.prg
 - [x] 1alarm.prg

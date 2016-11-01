@@ -718,14 +718,6 @@ class LorenzTestSuite: XCTestCase {
         setupTest("mmufetch")
     }
     
-    func test_nextdisk1() {
-        setupTest("nextdisk1")
-    }
-    
-    func test_nextdisk2() {
-        setupTest("nextdisk2")
-    }
-    
     func test_nmi() {
         setupTest("nmi")
     }

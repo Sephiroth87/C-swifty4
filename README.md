@@ -45,15 +45,10 @@ Then just open the project file, build and run.
 * Joystick 1
 * Timers
 * VIC interrupts
-* Loading tapes/disks
+* Loading tapes
 * Playing games probably
-* Some opcodes
 * FPS limiting (runs as fast as it can right now)
 * A lot of things basically...
-
-#### Lorenz Test Suite compatibility
-
-Passing 257/275 tests
 
 License
 -----------------------------
