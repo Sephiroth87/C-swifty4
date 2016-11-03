@@ -1,6 +1,6 @@
 #Lorenz Test Suite 2.15
-261/273
-All except tests for new CIA, cpuport, trap16, trap17
+262/273
+All except tests for new CIA, trap16, trap17
 #VICE testprogs
 ##CIA
 #####ciavarious
@@ -25,7 +25,7 @@ All except tests for new CIA, cpuport, trap16, trap17
 - [x] reload0b.prg
 #####timerbasics
 - [x] test.prg
-- [ ] timer_test1.prg
+- [x] timer_test1.prg
 - [x] timer.prg
 #####tod
 - [x] 0alarm.prg

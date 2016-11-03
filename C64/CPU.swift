@@ -1360,9 +1360,9 @@ final internal class CPU: Component, LineComponent {
         state.isAtFetch = true
         state.currentOpcode = UInt16(memory.readByte(state.pc))
         state.pc = state.pc &+ UInt16(1)
-        if state.currentOpcode == 0x78 && state.i && state.irqDelayCounter >= 0 {
+        if state.currentOpcode == 0x78 && state.irqDelayCounter >= 0 {
             // Only trigger pending interrupts after SEI if I was false before, else delay to next instruction
-            state.irqDelayCounter = 2
+            state.irqDelayCounter = state.i ? 3 : 2
         }
         if state.currentOpcode == 0x58 && state.i && state.irqDelayCounter >= 0 {
             // Delay interrupts during CLI to the next instruction
