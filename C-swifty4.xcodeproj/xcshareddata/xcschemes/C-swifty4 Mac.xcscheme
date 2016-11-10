@@ -20,62 +20,6 @@
                ReferencedContainer = "container:C-swifty4.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E5065E5F1A63028F00CECED1"
-               BuildableName = "C-swifty4 MacTests.xctest"
-               BlueprintName = "C-swifty4 MacTests"
-               ReferencedContainer = "container:C-swifty4.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E5065E7C1A6302B900CECED1"
-               BuildableName = "C-swifty4 Framework MacTests.xctest"
-               BlueprintName = "C-swifty4 Framework MacTests"
-               ReferencedContainer = "container:C-swifty4.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E5065EA31A63052800CECED1"
-               BuildableName = "C64Tests.xctest"
-               BlueprintName = "C64Tests"
-               ReferencedContainer = "container:C-swifty4.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E5065EC71A6305B200CECED1"
-               BuildableName = "C64 MacTests.xctest"
-               BlueprintName = "C64 MacTests"
-               ReferencedContainer = "container:C-swifty4.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -84,46 +28,6 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E5065E5F1A63028F00CECED1"
-               BuildableName = "C-swifty4 MacTests.xctest"
-               BlueprintName = "C-swifty4 MacTests"
-               ReferencedContainer = "container:C-swifty4.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E5065E7C1A6302B900CECED1"
-               BuildableName = "C-swifty4 Framework MacTests.xctest"
-               BlueprintName = "C-swifty4 Framework MacTests"
-               ReferencedContainer = "container:C-swifty4.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E5065EA31A63052800CECED1"
-               BuildableName = "C64Tests.xctest"
-               BlueprintName = "C64Tests"
-               ReferencedContainer = "container:C-swifty4.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E5065EC71A6305B200CECED1"
-               BuildableName = "C64 MacTests.xctest"
-               BlueprintName = "C64 MacTests"
-               ReferencedContainer = "container:C-swifty4.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

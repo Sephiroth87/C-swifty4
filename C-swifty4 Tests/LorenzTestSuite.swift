@@ -10,27 +10,15 @@ import Cocoa
 import XCTest
 import C64
 
-class LorenzTestSuite: XCTestCase {
+class LorenzTestSuite: BaseTest {
     
-    fileprivate var c64: C64!
-    fileprivate var expectation: XCTestExpectation!
-    fileprivate var fileName: String!
-    
-    func setupTest(_ filename: String) {
-        self.fileName = filename
-        expectation = self.expectation(description: name!)
-        c64.run()
-        waitForExpectations(timeout: 100, handler: nil)
+    override var subdirectory: String {
+        return "Resources/Lorenz 2.15"
     }
     
     override func setUp() {
         super.setUp()
-        c64 = C64(kernalData: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "kernal", withExtension: nil, subdirectory:"ROM")!),
-            basicData: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
-            characterData: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!),
-            c1541Data: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))
-        c64.delegate = self
-        c64.setBreakpoint(0xE5CD)
+        
         c64.setBreakpoint(0xFFE4)
     }
     
@@ -1125,34 +1113,17 @@ class LorenzTestSuite: XCTestCase {
     func test_tyan() {
         setupTest("tyan")
     }
-    
-}
 
-extension LorenzTestSuite: C64Delegate {
-    
-    func C64DidBreak(_ c64: C64) {
-        if c64.debugInfo()["pc"] == "e5cd" {
-            c64.removeBreakpoint(0xE5CD)
-            c64.loadPRGFile(try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: fileName, withExtension: "prg", subdirectory:"Resources/Lorenz 2.15")!))
-            c64.setBreakpoint(0xE16F)
-            c64.run()
-            c64.loadString("RUN\n")
-        } else if c64.debugInfo()["pc"] == "e16f" {
+    override func C64DidBreak(_ c64: C64) {
+        super.C64DidBreak(c64)
+        
+        if c64.debugInfo()["pc"] == "e16f" {
             expectation.fulfill()
             XCTAssert(true, "Pass")
         } else if c64.debugInfo()["pc"] == "ffe4" {
             XCTAssert(false, "Fail")
             expectation.fulfill()
         }
-    }
-    
-    func C64DidCrash(_ c64: C64) {
-        XCTAssert(false, "Crash")
-        expectation.fulfill()
-    }
-    
-    func C64VideoFrameReady(_ c64: C64) {
-        
     }
     
 }
