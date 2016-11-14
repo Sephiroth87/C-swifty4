@@ -150,7 +150,9 @@ final public class C64: NSObject {
     }
     
     public func pause() {
-        executeToNextFetch {}
+        if running {
+            executeToNextFetch {}
+        }
     }
     
     public func step() {

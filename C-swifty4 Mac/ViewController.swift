@@ -48,9 +48,32 @@ class ViewController: NSViewController {
             return true
         }
     }
-    
+
+    @discardableResult
+    public func handleFile(url: URL) -> Bool {
+        var result = true
+        switch String(url.pathExtension).lowercased() {
+        case "txt":
+            if let string = try? String(contentsOf: url, encoding: String.Encoding.utf8) {
+                c64.loadString(string)
+            } else {
+                result = false
+            }
+        case "prg":
+            c64.loadPRGFile(try! Data(contentsOf: url))
+        case "d64":
+            c64.loadD64File(try! Data(contentsOf: url))
+        case "p00":
+            c64.loadP00File(try! Data(contentsOf: url))
+        default:
+            result = false
+        }
+        c64.run()
+        return result
+    }
+
     //MARK: Actions
-    
+
     @IBAction func onPlayButton(_ sender: AnyObject) {
         if c64.running {
             c64.step()
@@ -71,25 +94,13 @@ class ViewController: NSViewController {
         c64.pause()
         let panel = NSOpenPanel()
         panel.allowedFileTypes = ["prg", "txt", "d64", "p00"]
-        panel.beginSheetModal(for: self.view.window!, completionHandler: { (result) -> Void in
+        panel.beginSheetModal(for: self.view.window!) { result in
             if let url = panel.urls.first , result == NSFileHandlingPanelOKButton {
-                switch String(url.pathExtension).lowercased() {
-                case "txt":
-                    if let string = try? String(contentsOf: url, encoding: String.Encoding.utf8) {
-                        self.c64.loadString(string)
-                    }
-                case "prg":
-                    self.c64.loadPRGFile(try! Data(contentsOf: url))
-                case "d64":
-                    self.c64.loadD64File(try! Data(contentsOf: url))
-                case "p00":
-                    self.c64.loadP00File(try! Data(contentsOf: url))
-                default:
-                    break
-                }
+                self.handleFile(url: url)
+            } else {
+                self.c64.run()
             }
-            self.c64.run()
-        })
+        }
     }
     
     @IBAction func saveState(_ sender: AnyObject) {
