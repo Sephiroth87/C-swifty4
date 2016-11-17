@@ -21,6 +21,7 @@
 		E52FEA931A9BA0F700851C83 /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
 		E53411BA1DD49E3000CC04A0 /* BaseTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53411B91DD49E3000CC04A0 /* BaseTest.swift */; };
 		E53411BC1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53411BB1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift */; };
+		E55B345D1DDDF47A0001DBDA /* PerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55B345C1DDDF47A0001DBDA /* PerformanceTests.swift */; };
 		E567E4B31A8D0EC000CF079D /* ROM in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B11A8D0EC000CF079D /* ROM */; };
 		E567E4B41A8D0EC000CF079D /* ROM in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B11A8D0EC000CF079D /* ROM */; };
 		E567E4B81A8D17C200CF079D /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
@@ -126,6 +127,7 @@
 		E53411B91DD49E3000CC04A0 /* BaseTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseTest.swift; sourceTree = "<group>"; };
 		E53411BB1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestprogsCIACiavarious.swift; sourceTree = "<group>"; };
 		E55AC12E1C17311B000017F1 /* C-swifty4.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "C-swifty4.entitlements"; sourceTree = "<group>"; };
+		E55B345C1DDDF47A0001DBDA /* PerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerformanceTests.swift; sourceTree = "<group>"; };
 		E567E4B11A8D0EC000CF079D /* ROM */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ROM; sourceTree = "<group>"; };
 		E567E4B71A8D17C200CF079D /* Programs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Programs; sourceTree = "<group>"; };
 		E5DEFB991A9CE60E00A76AE3 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
@@ -250,6 +252,7 @@
 			isa = PBXGroup;
 			children = (
 				E53411B91DD49E3000CC04A0 /* BaseTest.swift */,
+				E55B345C1DDDF47A0001DBDA /* PerformanceTests.swift */,
 				E5DEFB9B1A9CE63500A76AE3 /* LorenzTestSuite.swift */,
 				E53411BB1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift */,
 				E5DEFB991A9CE60E00A76AE3 /* Resources */,
@@ -514,6 +517,7 @@
 			files = (
 				E53411BA1DD49E3000CC04A0 /* BaseTest.swift in Sources */,
 				E53411BC1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift in Sources */,
+				E55B345D1DDDF47A0001DBDA /* PerformanceTests.swift in Sources */,
 				E5DEFB9C1A9CE63500A76AE3 /* LorenzTestSuite.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
