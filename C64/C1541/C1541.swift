@@ -12,8 +12,29 @@ public protocol C1541Delegate: class {
     func C1541UpdateLedStatus(_ c1541: C1541, ledOn: Bool)
 }
 
-final public class C1541 {
+public struct C1541ROMConfiguration {
+
+    let c1541Data: Data
+
+    public init(c1541Data: Data) {
+        self.c1541Data = c1541Data
+    }
     
+}
+
+public struct C1541Configuration {
+
+    public var rom: C1541ROMConfiguration
+
+    public init(rom: C1541ROMConfiguration) {
+        self.rom = rom
+    }
+    
+}
+
+final public class C1541 {
+
+    public let configuration: C1541Configuration
     public weak var delegate: C1541Delegate?
     internal var crashHandler: C64CrashHandler? {
         didSet {
@@ -48,7 +69,12 @@ final public class C1541 {
     private var syncCounter: Int = 0
     private var speedZone: Int = 0
     
-    internal init(c1541Data: Data) {
+    internal init(configuration: C1541Configuration) {
+        if configuration.rom.c1541Data.count != 16384 {
+            assertionFailure("Wrong data found");
+        }
+        self.configuration = configuration
+
         cpu = CPU(pc: 0xEAA0)
         memory = C1541Memory()
         via1 = VIA1()
@@ -67,7 +93,7 @@ final public class C1541 {
         via1.c1541 = self
         via2.c1541 = self
         
-        memory.writeC1541Data(c1541Data)
+        memory.writeC1541Data(configuration.rom.c1541Data)
     }
     
     internal func cycle() {

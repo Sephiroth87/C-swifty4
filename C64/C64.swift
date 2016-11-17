@@ -16,10 +16,39 @@ public protocol C64Delegate: class {
     func C64DidCrash(_ c64: C64)
 }
 
+public struct C64ROMConfiguration {
+
+    let kernalData: Data
+    let basicData: Data
+    let characterData: Data
+
+    public init(kernalData: Data, basicData: Data, characterData: Data) {
+        self.kernalData = kernalData
+        self.basicData = basicData
+        self.characterData = characterData
+    }
+
+}
+
+public struct C64Configuration {
+
+    public var rom: C64ROMConfiguration
+    public var vic: VICConfiguration
+    public var c1541: C1541Configuration
+
+    public init(rom: C64ROMConfiguration, vic: VICConfiguration, c1541: C1541Configuration) {
+        self.rom = rom
+        self.vic = vic
+        self.c1541 = c1541
+    }
+
+}
+
 internal typealias C64CrashHandler = (String) -> Void
 
 final public class C64: NSObject {
-    
+
+    public let configuration: C64Configuration
     public var running: Bool = false
     public weak var delegate: C64Delegate?
     private var dispatchQueue: DispatchQueue
@@ -31,7 +60,7 @@ final public class C64: NSObject {
     internal let cia1 = CIA1()
     internal let cia2 = CIA2()
     internal let sid = SID()
-    internal let vic = VIC()
+    internal let vic: VIC
     private let keyboard = Keyboard()
     private let joystick1 = Joystick()
     private let joystick2 = Joystick()
@@ -44,16 +73,20 @@ final public class C64: NSObject {
     private var cycles = 0
     private var lines = 0
     
-    public init(kernalData: Data, basicData: Data, characterData: Data, c1541Data: Data) {
-        if (kernalData.count != 8192 || basicData.count != 8192 || characterData.count != 4096 || c1541Data.count != 16384) {
+    public init(configuration: C64Configuration) {
+        if configuration.rom.kernalData.count != 8192 ||
+            configuration.rom.basicData.count != 8192 ||
+            configuration.rom.characterData.count != 4096 {
             assertionFailure("Wrong data found");
         }
+        self.configuration = configuration
 
-        c1541 = C1541(c1541Data: c1541Data)
+        vic = VIC(configuration: configuration.vic)
+        c1541 = C1541(configuration: configuration.c1541)
         
-        memory.writeKernalData(kernalData)
-        memory.writeBasicData(basicData)
-        memory.writeCharacterData(characterData)
+        memory.writeKernalData(configuration.rom.kernalData)
+        memory.writeBasicData(configuration.rom.basicData)
+        memory.writeCharacterData(configuration.rom.characterData)
         
         cpu.memory = memory
         memory.cpu = cpu

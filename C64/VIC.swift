@@ -8,6 +8,21 @@
 
 import Foundation
 
+public struct VICConfiguration {
+
+    private enum VICModel {
+        case mos6567R56A
+        case mos6567R8
+        case mos6569
+    }
+    private let model: VICModel
+
+    static public let pal = VICConfiguration(model: .mos6569)
+    static public let ntsc = VICConfiguration(model: .mos6567R8)
+    static public let ntscOld = VICConfiguration(model: .mos6567R56A)
+
+}
+
 internal struct VICState: ComponentState {
     
     //MARK: Memory
@@ -101,7 +116,8 @@ internal struct VICState: ComponentState {
 }
 
 final internal class VIC: Component, LineComponent {
-    
+
+    private let configuration: VICConfiguration
     internal var state = VICState()
     
     internal weak var memory: C64Memory!
@@ -150,7 +166,8 @@ final internal class VIC: Component, LineComponent {
     }
     //MARK: -
     
-    init() {
+    init(configuration: VICConfiguration) {
+        self.configuration = configuration
         state.screenBuffer = screenBuffer1
         state.raster = topLine
     }
