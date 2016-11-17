@@ -19,7 +19,15 @@ class LorenzTestSuite: BaseTest {
     override func setUp() {
         super.setUp()
         
-        c64.setBreakpoint(0xFFE4)
+        c64.setBreakpoint(at: 0xE16F) {
+            self.expectation.fulfill()
+            XCTAssert(true, "Pass")
+        }
+        
+        c64.setBreakpoint(at: 0xFFE4) {
+            XCTAssert(false, "Fail")
+            self.expectation.fulfill()
+        }
     }
     
     func test_adca() {
@@ -1112,18 +1120,6 @@ class LorenzTestSuite: BaseTest {
     
     func test_tyan() {
         setupTest("tyan")
-    }
-
-    override func C64DidBreak(_ c64: C64) {
-        super.C64DidBreak(c64)
-        
-        if c64.debugInfo()["pc"] == "e16f" {
-            expectation.fulfill()
-            XCTAssert(true, "Pass")
-        } else if c64.debugInfo()["pc"] == "ffe4" {
-            XCTAssert(false, "Fail")
-            expectation.fulfill()
-        }
     }
     
 }

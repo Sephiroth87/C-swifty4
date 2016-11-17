@@ -44,6 +44,7 @@ public struct C64Configuration {
 
 }
 
+internal typealias C64BreakpointHandler = (Void) -> Void
 internal typealias C64CrashHandler = (String) -> Void
 
 final public class C64: NSObject {
@@ -53,7 +54,7 @@ final public class C64: NSObject {
     public weak var delegate: C64Delegate?
     private var dispatchQueue: DispatchQueue
     
-    private var breakpoints: [UInt16: Bool] = [UInt16: Bool]()
+    private var breakpoints: [UInt16: C64BreakpointHandler] = [UInt16: C64BreakpointHandler]()
     
     internal let cpu = CPU(pc: 0xFCE2)
     internal let memory = C64Memory()
@@ -134,10 +135,11 @@ final public class C64: NSObject {
         while running {
             executeOneCycle()
             
-            if cpu.state.isAtFetch && breakpoints[cpu.state.pc &- UInt16(1)] == true {
+            if cpu.state.isAtFetch, let bh = breakpoints[cpu.state.pc &- UInt16(1)] {
                 running = false
                 DispatchQueue.main.async {
-                    let _ = self.delegate?.C64DidBreak(self)
+                    bh()
+                    self.delegate?.C64DidBreak(self)
                 }
             }
         }
@@ -190,16 +192,12 @@ final public class C64: NSObject {
     
     public func step() {
         executeToNextFetch {
-            let _ = self.delegate?.C64DidBreak(self)
+            self.delegate?.C64DidBreak(self)
         }
     }
     
-    public func setBreakpoint(_ address: UInt16) {
-        breakpoints[address] = true
-    }
-    
-    public func removeBreakpoint(_ address: UInt16) {
-        breakpoints[address] = false
+    public func setBreakpoint(at address: UInt16, handler: ((Void)->Void)?) {
+        breakpoints[address] = handler
     }
     
     public func debugInfo() -> [String: String] {

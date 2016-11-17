@@ -38,22 +38,19 @@ class BaseTest: XCTestCase {
                   characterData: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!),
                   c1541Data: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))
         c64.delegate = self
-        c64.setBreakpoint(0xE5CD)
+        c64.setBreakpoint(at: 0xE5CD) {
+            self.c64.setBreakpoint(at: 0xE5CD, handler: nil)
+            self.c64.loadPRGFile(try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: self.fileName, withExtension: "prg", subdirectory: self.subdirectory)!))
+            self.c64.run()
+            self.c64.loadString("RUN\n")
+        }
     }
 
 }
 
 extension BaseTest: C64Delegate {
     
-    func C64DidBreak(_ c64: C64) {
-        if c64.debugInfo()["pc"] == "e5cd" {
-            c64.removeBreakpoint(0xE5CD)
-            c64.loadPRGFile(try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: fileName, withExtension: "prg", subdirectory: subdirectory)!))
-            c64.setBreakpoint(0xE16F)
-            c64.run()
-            c64.loadString("RUN\n")
-        }
-    }
+    func C64DidBreak(_ c64: C64) {}
     
     func C64DidCrash(_ c64: C64) {
         XCTAssert(false, "Crash")

@@ -234,9 +234,7 @@ extension ViewController: C64Delegate {
         playButton.title = "▶︎"
     }
     
-    func C64DidCrash(_ c64: C64) {
-        
-    }
+    func C64DidCrash(_ c64: C64) {}
     
 }
 
