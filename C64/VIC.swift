@@ -10,16 +10,28 @@ import Foundation
 
 public struct VICConfiguration {
 
-    private enum VICModel {
-        case mos6567R56A
-        case mos6567R8
-        case mos6569
-    }
-    private let model: VICModel
+    public let resolution: (width: Int, height: Int)
+    fileprivate let vblankLines: (first: UInt16, last: UInt16)
+    fileprivate let topLine: UInt16
+    fileprivate let totalLines: UInt16
+    fileprivate let xLimits: (first: UInt16, last: UInt16)
+    fileprivate let visibleX: (first: UInt16, last: UInt16)
+    fileprivate let cyclesPerRaster: UInt8
 
-    static public let pal = VICConfiguration(model: .mos6569)
-    static public let ntsc = VICConfiguration(model: .mos6567R8)
-    static public let ntscOld = VICConfiguration(model: .mos6567R56A)
+    static public let pal = VICConfiguration(resolution: (width: 403, height: 284),
+                                             vblankLines: (first: 300, last: 15),
+                                             topLine: 0,
+                                             totalLines: 312,
+                                             xLimits: (first: 404, last: 503),
+                                             visibleX: (first: 480, last: 380),
+                                             cyclesPerRaster: 63)
+    static public let ntsc = VICConfiguration(resolution: (width: 418, height: 235),
+                                              vblankLines: (first: 13, last: 40),
+                                              topLine: 27,
+                                              totalLines: 263,
+                                              xLimits: (first: 412, last: 511),
+                                              visibleX: (first: 489, last: 396),
+                                              cyclesPerRaster: 65)
 
 }
 
@@ -68,7 +80,7 @@ internal struct VICState: ComponentState {
     fileprivate var rc: UInt8 = 0
     fileprivate var vmli: UInt16 = 0
     fileprivate var displayState = false
-    fileprivate var rasterX: UInt16 = 0x19C // NTSC
+    fileprivate var rasterX: UInt16 = 0
     fileprivate var rasterInterruptLine: UInt16 = 0
     fileprivate var mainBorder = false
     fileprivate var verticalBorder = false
@@ -130,17 +142,9 @@ final internal class VIC: Component, LineComponent {
             return (state.screenBuffer.baseAddress == screenBuffer1.baseAddress ? screenBuffer2.baseAddress : screenBuffer1.baseAddress)!
         }
     }
-    
-    private let firstVBlankLine: UInt16 = 13
-    private let lastVBLankLine: UInt16 = 40
-    private let topLine: UInt16 = 27
-    private let totalLines: UInt16 = 263
-    
-    private let borderLeftComparisonValue: UInt16 = 24
-    private let borderRightComparisonValue: UInt16 = 344
-    private let borderTopComparisonValue: UInt16 = 51
-    private let borderBottomComparisonValue: UInt16 = 251
-    
+
+    private let borderComparison = (top: UInt16(51), left: UInt16(24), bottom: UInt16(251), right: UInt16(344))
+
     private let colors: [UInt32] = [
         UInt32(truncatingBitPattern: (0xFF101010 as UInt64)),
         UInt32(truncatingBitPattern: (0xFFFFFFFF as UInt64)),
@@ -169,7 +173,8 @@ final internal class VIC: Component, LineComponent {
     init(configuration: VICConfiguration) {
         self.configuration = configuration
         state.screenBuffer = screenBuffer1
-        state.raster = topLine
+        state.raster = configuration.topLine
+        state.rasterX = configuration.xLimits.first
     }
     
     internal func readByte(_ position: UInt8) -> UInt8 {
@@ -314,7 +319,18 @@ final internal class VIC: Component, LineComponent {
             irqLine.update(self)
         }
     }
-    
+
+    private func endOfRasterline() {
+        state.raster += 1
+        if state.raster == configuration.totalLines {
+            state.raster = 0
+        }
+        if state.raster == configuration.topLine {
+            state.bufferPosition = 0
+            state.screenBuffer = state.screenBuffer.baseAddress == screenBuffer1.baseAddress ? screenBuffer2 : screenBuffer1
+        }
+    }
+
     internal func cycle() {
         
         // Initial cycle operations
@@ -354,26 +370,22 @@ final internal class VIC: Component, LineComponent {
                 state.rc = (state.rc + 1) & 7
             }
         case 63:
-            if state.raster == borderBottomComparisonValue {
+            if state.raster == borderComparison.bottom {
                 state.verticalBorder = true
-            } else if state.raster == borderTopComparisonValue && state.den {
+            } else if state.raster == borderComparison.top && state.den {
                 state.verticalBorder = false
             }
+            if configuration.cyclesPerRaster == 63 {
+                endOfRasterline()
+            }
         case 65:
-            state.raster += 1
-            if state.raster == totalLines {
-                state.raster = 0
-            }
-            if state.raster == topLine {
-                state.bufferPosition = 0
-                state.screenBuffer = state.screenBuffer.baseAddress == screenBuffer1.baseAddress ? screenBuffer2 : screenBuffer1
-            }
+            endOfRasterline()
         default:
             break
         }
         
         // First half-cycle
-        let cyclesPerRaster: UInt8 = 65 // NTSC
+        let cyclesPerRaster = configuration.cyclesPerRaster
         if state.currentCycle != cyclesPerRaster {
             draw()
         }
@@ -529,8 +541,8 @@ final internal class VIC: Component, LineComponent {
     // Draw 4 pixels (half cycle)
     private func draw() {
         for i in 0...3 {
-            if (state.rasterX >= 0x1E9 || state.rasterX < 0x18B) && // 0x1E9 first visible X coord. 0x18C last visible NTSC
-                (state.raster > lastVBLankLine || state.raster < firstVBlankLine) {
+            if (state.rasterX >= configuration.visibleX.first || state.rasterX < configuration.visibleX.last - 1) &&
+                (state.raster > configuration.vblankLines.last || state.raster < configuration.vblankLines.first) {
                 if !state.mainBorder && !state.verticalBorder {
                     if state.bmm {
                         if state.mcm {
@@ -638,16 +650,16 @@ final internal class VIC: Component, LineComponent {
             }
         
             state.rasterX += 1
-            if state.rasterX == 0x200 {
+            if state.rasterX == configuration.xLimits.last + 1 {
                 state.rasterX = 0
             }
             
-            if state.rasterX == borderRightComparisonValue {
+            if state.rasterX == borderComparison.right {
                 state.mainBorder = true
-            } else if state.rasterX == borderLeftComparisonValue {
-                if state.raster == borderBottomComparisonValue {
+            } else if state.rasterX == borderComparison.left {
+                if state.raster == borderComparison.bottom {
                     state.verticalBorder = true
-                } else if state.raster == borderTopComparisonValue && state.den {
+                } else if state.raster == borderComparison.top && state.den {
                     state.verticalBorder = false
                 }
                 if !state.verticalBorder {

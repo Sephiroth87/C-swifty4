@@ -20,7 +20,7 @@ class ViewController: NSViewController {
     fileprivate var startTime: CFTimeInterval = 0
     fileprivate var frames = 0
 
-    private let c64: C64 = {
+    fileprivate let c64: C64 = {
         let romConfig = C64ROMConfiguration(
             kernalData: try! Data(contentsOf: Bundle.main.url(forResource: "kernal", withExtension: nil, subdirectory:"ROM")!),
             basicData: try! Data(contentsOf: Bundle.main.url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
@@ -33,6 +33,9 @@ class ViewController: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        let resolution = c64.configuration.vic.resolution
+        graphicsView.size = NSSize(width: resolution.width, height: resolution.height)
         
         c64.delegate = self
         c64.c1541.delegate = self
@@ -42,9 +45,12 @@ class ViewController: NSViewController {
     
     override func viewWillAppear() {
         super.viewWillAppear()
-        
-        self.view.window?.makeFirstResponder(self)
-        self.view.window?.delegate = self
+
+        let size = NSSize(width: graphicsView.size.width, height: graphicsView.size.height + 22.0)
+        view.window?.setContentSize(size)
+        view.window?.contentMinSize = size
+        view.window?.makeFirstResponder(self)
+        view.window?.delegate = self
     }
     
     override var acceptsFirstResponder: Bool {
@@ -204,8 +210,9 @@ extension ViewController: NSWindowDelegate {
     func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
         var newSize = frameSize
         newSize.width = max(newSize.width, sender.contentMinSize.width)
-        newSize.height = max(newSize.height, sender.contentMinSize.height + 22)
-        sender.contentAspectRatio = NSSize(width: newSize.width, height: (newSize.width / (418.0 / 235.0)) + 22.0)
+        newSize.height = max(newSize.height, sender.contentMinSize.height)
+        let vicResolution = c64.configuration.vic.resolution
+        sender.contentAspectRatio = NSSize(width: newSize.width, height: (newSize.width / CGFloat(Float(vicResolution.width) / Float(vicResolution.height))) + 22.0)
         return newSize
     }
 

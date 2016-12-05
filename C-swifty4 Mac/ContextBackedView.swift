@@ -9,25 +9,23 @@
 import Cocoa
 
 private class ContextBackedLayer: CALayer {
-    
-    private var context: CGContext
-    
-    required init?(coder aDecoder: NSCoder) {
+
+    private let size: NSSize
+    private let context: CGContext
+
+    required init(size: NSSize) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 418 * 4, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        super.init(coder: aDecoder)
-        self.actions = ["contents": NSNull()]
-        self.backgroundColor = NSColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0).cgColor
-    }
-    
-    override init() {
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 418 * 4, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        self.size = size
+        context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: Int(size.width) * 4, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         super.init()
         self.actions = ["contents": NSNull()]
-        self.backgroundColor = NSColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0).cgColor
+        self.backgroundColor = NSColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0).cgColor
     }
     
+    required init?(coder aDecoder: NSCoder) {
+        fatalError()
+    }
+
     override func display() {
         let CGImage = context.makeImage()
         self.contents = CGImage
@@ -35,15 +33,15 @@ private class ContextBackedLayer: CALayer {
     
     fileprivate func setData(_ data: UnsafePointer<UInt32>) {
         let address = context.data
-        memcpy(address, data, 418 * 235 * 4)
+        memcpy(address, data, Int(size.width) * Int(size.height) * 4)
         let cgImage = context.makeImage()
         self.contents = cgImage
     }
     
     override var bounds: CGRect {
         didSet {
-            var wScale = bounds.width / 418.0
-            var hScale = bounds.height / 235.0
+            var wScale = bounds.width / size.width
+            var hScale = bounds.height / size.height
             if wScale > hScale {
                 wScale /= hScale
                 hScale = 1.0
@@ -59,18 +57,13 @@ private class ContextBackedLayer: CALayer {
 
 class ContextBackedView: NSView {
 
-    override init(frame frameRect: NSRect) {
-        super.init(frame: frameRect)
-        self.wantsLayer = true
-        self.layer = ContextBackedLayer()
+    var size: NSSize = .zero {
+        didSet {
+            self.wantsLayer = true
+            self.layer = ContextBackedLayer(size: size)
+        }
     }
 
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        self.wantsLayer = true
-        self.layer = ContextBackedLayer()
-    }
-    
     internal func setData(_ data: UnsafePointer<UInt32>) {
         let layer = self.layer as! ContextBackedLayer
         layer.setData(data)

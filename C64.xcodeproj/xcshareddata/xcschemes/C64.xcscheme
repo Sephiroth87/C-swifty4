@@ -37,6 +37,11 @@
                BlueprintName = "C-swifty4 Tests"
                ReferencedContainer = "container:C-swifty4.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "BaseTest">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>
