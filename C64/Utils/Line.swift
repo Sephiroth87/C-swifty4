@@ -32,10 +32,14 @@ internal final class Line {
     
     func update(_ source: LineComponent) {
         let oldState = state
-        state = components.reduce(true) { return $0 && $1.pin(self) }
-        if oldState != state {
-            for otherComponent in components where otherComponent !== source {
-                otherComponent.lineChanged(self)
+        if components.count == 1 {
+            state = components[0].pin(self)
+        } else {
+            state = components.reduce(true) { return $0 && $1.pin(self) }
+            if oldState != state {
+                for otherComponent in components where otherComponent !== source {
+                    otherComponent.lineChanged(self)
+                }
             }
         }
     }
