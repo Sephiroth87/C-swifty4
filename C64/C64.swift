@@ -71,8 +71,8 @@ final public class C64: NSObject {
     private let irqLine = Line()
     private let nmiLine = Line()
 
-    private var cycles = 0
-    private var lines = 0
+    private var cycles: UInt8 = 0
+    private var lines: UInt16 = 0
     
     public init(configuration: C64Configuration) {
         if configuration.rom.kernalData.count != 8192 ||
@@ -153,12 +153,12 @@ final public class C64: NSObject {
         c1541.cycle()
         
         cycles += 1
-        if cycles == 65 {
+        if cycles == vic.configuration.cyclesPerRaster {
             cycles = 0
             lines += 1
         }
         
-        if lines == 263 {
+        if lines == vic.configuration.totalLines {
             lines = 0
             DispatchQueue.main.async {
                 let _ = self.delegate?.C64VideoFrameReady(self)

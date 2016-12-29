@@ -26,7 +26,7 @@ class ViewController: NSViewController {
             basicData: try! Data(contentsOf: Bundle.main.url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
             characterData: try! Data(contentsOf: Bundle.main.url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!))
         let config = C64Configuration(rom: romConfig,
-                                      vic: VICConfiguration.ntsc,
+                                      vic: VICConfiguration.pal,
                                       c1541: C1541Configuration(rom: C1541ROMConfiguration(c1541Data: try! Data(contentsOf: Bundle.main.url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))))
         return C64(configuration: config)
     }()
@@ -41,6 +41,10 @@ class ViewController: NSViewController {
         c64.c1541.delegate = self
         c64.c1541.turnOn()
         onPlayButton(self)
+
+//        c64.setBreakpoint(at: 0x08E7) {
+//            print("")
+//        }
     }
     
     override func viewWillAppear() {
@@ -69,7 +73,7 @@ class ViewController: NSViewController {
             } else {
                 result = false
             }
-        case "prg":
+        case "prg", "rw":
             c64.loadPRGFile(try! Data(contentsOf: url))
         case "d64":
             c64.loadD64File(try! Data(contentsOf: url))
@@ -103,7 +107,7 @@ class ViewController: NSViewController {
     @IBAction func onDiskButton(_ sender: AnyObject) {
         c64.pause()
         let panel = NSOpenPanel()
-        panel.allowedFileTypes = ["prg", "txt", "d64", "p00"]
+        panel.allowedFileTypes = ["prg", "txt", "d64", "p00", "rw"]
         panel.beginSheetModal(for: self.view.window!) { result in
             if let url = panel.urls.first , result == NSFileHandlingPanelOKButton {
                 self.handleFile(url: url)
@@ -234,8 +238,10 @@ extension ViewController: C64Delegate {
     }
     
     func C64DidBreak(_ c64: C64) {
-        print(c64.debugInfo())
-        
+//        print(c64.cpu)
+
+        c64.tracing = true
+
         stepButton.isEnabled = true
         stepButton.alphaValue = 1.0
         playButton.title = "▶︎"

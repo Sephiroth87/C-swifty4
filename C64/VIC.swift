@@ -13,25 +13,28 @@ public struct VICConfiguration {
     public let resolution: (width: Int, height: Int)
     fileprivate let vblankLines: (first: UInt16, last: UInt16)
     fileprivate let topLine: UInt16
-    fileprivate let totalLines: UInt16
+    internal let totalLines: UInt16
     fileprivate let xLimits: (first: UInt16, last: UInt16)
     fileprivate let visibleX: (first: UInt16, last: UInt16)
-    fileprivate let cyclesPerRaster: UInt8
+    internal let cyclesPerRaster: UInt8
+    fileprivate let lastDrawCycle: UInt8
 
     static public let pal = VICConfiguration(resolution: (width: 403, height: 284),
                                              vblankLines: (first: 300, last: 15),
                                              topLine: 0,
                                              totalLines: 312,
-                                             xLimits: (first: 404, last: 503),
+                                             xLimits: (first: 404, last: 504),
                                              visibleX: (first: 480, last: 380),
-                                             cyclesPerRaster: 63)
+                                             cyclesPerRaster: 63,
+                                             lastDrawCycle: 63)
     static public let ntsc = VICConfiguration(resolution: (width: 418, height: 235),
                                               vblankLines: (first: 13, last: 40),
                                               topLine: 27,
                                               totalLines: 263,
-                                              xLimits: (first: 412, last: 511),
+                                              xLimits: (first: 412, last: 512),
                                               visibleX: (first: 489, last: 396),
-                                              cyclesPerRaster: 65)
+                                              cyclesPerRaster: 65,
+                                              lastDrawCycle: 64) // According to vic-ii.txt by Christian Bauer, in the 6567R8 the X coordinate doesn't increase for one cycle, not really explain why
 
 }
 
@@ -129,7 +132,7 @@ internal struct VICState: ComponentState {
 
 final internal class VIC: Component, LineComponent {
 
-    private let configuration: VICConfiguration
+    internal let configuration: VICConfiguration
     internal var state = VICState()
     
     internal weak var memory: C64Memory!
@@ -650,14 +653,14 @@ final internal class VIC: Component, LineComponent {
             }
         
             state.rasterX += 1
-            if state.rasterX == configuration.xLimits.last + 1 {
+            if state.rasterX == configuration.xLimits.last {
                 state.rasterX = 0
             }
             
-            if state.rasterX == borderComparison.right {
+            if state.rasterX == borderComparison.right + 1 {
                 state.mainBorder = true
             } else if state.rasterX == borderComparison.left {
-                if state.raster == borderComparison.bottom {
+                if state.raster == borderComparison.bottom + 1 {
                     state.verticalBorder = true
                 } else if state.raster == borderComparison.top && state.den {
                     state.verticalBorder = false

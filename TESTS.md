@@ -1,6 +1,6 @@
 #Lorenz Test Suite 2.15
 262/273
-All except tests for new CIA, trap16, trap17
+All except tests for new CIA, trap17
 #VICE testprogs
 ##CIA
 #####ciavarious
