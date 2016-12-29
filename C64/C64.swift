@@ -47,7 +47,7 @@ public struct C64Configuration {
 internal typealias C64BreakpointHandler = (Void) -> Void
 internal typealias C64CrashHandler = (String) -> Void
 
-final public class C64: NSObject {
+final public class C64 {
 
     public let configuration: C64Configuration
     public var running: Bool = false
@@ -70,6 +70,7 @@ final public class C64: NSObject {
     
     private let irqLine = Line()
     private let nmiLine = Line()
+    private let rdyLine = Line()
 
     private var cycles: UInt8 = 0
     private var lines: UInt16 = 0
@@ -110,13 +111,15 @@ final public class C64: NSObject {
         cpu.nmiLine = nmiLine
         nmiLine.addComponents([cpu, cia2])
         
+        cpu.rdyLine = rdyLine
+        vic.rdyLine = rdyLine
+        rdyLine.addComponents([vic])
+        
         iec.connectDevice(cia2)
         c1541.iec = iec
 
         dispatchQueue = DispatchQueue(label: "main.loop", attributes: [])
-        
-        super.init()
-        
+
         let crashHandler: C64CrashHandler = { (reason: String) in
             print(reason)
             self.running = false

@@ -44,6 +44,22 @@ internal struct CPUState: ComponentState {
         return CPUState(pc: binaryDump.next(), isAtFetch: binaryDump.next(), a: binaryDump.next(), x: binaryDump.next(), y: binaryDump.next(), sp: binaryDump.next(), c: binaryDump.next(), z: binaryDump.next(), i: binaryDump.next(), d: binaryDump.next(), b: binaryDump.next(), v: binaryDump.next(), n: binaryDump.next(), portDirection: binaryDump.next(), port: binaryDump.next(), portExternal: binaryDump.next(), nmiLine: binaryDump.next(), currentOpcode: binaryDump.next(), cycle: binaryDump.next(), irqDelayCounter: binaryDump.next(), nmiDelayCounter: binaryDump.next(), data: binaryDump.next(), addressLow: binaryDump.next(), addressHigh: binaryDump.next(), pointer: binaryDump.next(), pageBoundaryCrossed: binaryDump.next())
     }
 
+    var description: String {
+        var string = "🎓 " + String(format: "%04X", pc - 1).uppercased() + " "
+        string += String(format: "%02X", a).uppercased() + " "
+        string += String(format: "%02X", x).uppercased() + " "
+        string += String(format: "%02X", y).uppercased() + " "
+        string += String(format: "%02X", sp).uppercased() + " "
+        string += n ? "n" : "-"
+        string += v ? "v-" : "--"
+        string += b ? "b" : "-"
+        string += d ? "d" : "-"
+        string += i ? "i" : "-"
+        string += z ? "z" : "-"
+        string += c ? "c" : "-"
+        return string
+    }
+
 }
 
 final internal class CPU: Component, LineComponent {
@@ -52,10 +68,11 @@ final internal class CPU: Component, LineComponent {
 
     internal weak var irqLine: Line!
     internal weak var nmiLine: Line!
+    internal weak var rdyLine: Line!
     internal weak var memory: Memory!
     internal var crashHandler: C64CrashHandler?
 
-    private var pcl: UInt8 {
+    internal var pcl: UInt8 {
         set {
             state.pc = (state.pc & 0xFF00) | UInt16(newValue)
         }
@@ -63,7 +80,7 @@ final internal class CPU: Component, LineComponent {
             return UInt8(truncatingBitPattern: state.pc)
         }
     }
-    private var pch: UInt8 {
+    internal var pch: UInt8 {
         set {
             state.pc = (state.pc & 0x00FF) | UInt16(newValue) << 8
         }
@@ -72,7 +89,7 @@ final internal class CPU: Component, LineComponent {
         }
     }
 
-    private var address: UInt16 {
+    internal var address: UInt16 {
         get {
             return UInt16(state.addressHigh) << 8 | UInt16(state.addressLow)
         }
@@ -1320,27 +1337,27 @@ final internal class CPU: Component, LineComponent {
     
     //MARK: Helpers
     
-    private func updateNFlag(_ value: UInt8) {
+    internal func updateNFlag(_ value: UInt8) {
         state.n = (value & 0x80 != 0)
     }
     
-    private func updateZFlag(_ value: UInt8) {
+    internal func updateZFlag(_ value: UInt8) {
         state.z = (value == 0)
     }
     
-    private func loadA(_ value: UInt8) {
+    internal func loadA(_ value: UInt8) {
         state.a = value
         state.z = (value == 0)
         state.n = (value & 0x80 != 0)
     }
     
-    private func loadX(_ value: UInt8) {
+    internal func loadX(_ value: UInt8) {
         state.x = value
         state.z = (value == 0)
         state.n = (value & 0x80 != 0)
     }
     
-    private func loadY(_ value: UInt8) {
+    internal func loadY(_ value: UInt8) {
         state.y = value
         state.z = (value == 0)
         state.n = (value & 0x80 != 0)
@@ -1357,49 +1374,107 @@ final internal class CPU: Component, LineComponent {
             state.currentOpcode = 0xFFFF
             return
         }
-        state.isAtFetch = true
-        state.currentOpcode = UInt16(memory.readByte(state.pc))
-        state.pc = state.pc &+ UInt16(1)
-        if state.currentOpcode == 0x78 && state.irqDelayCounter >= 0 {
-            // Only trigger pending interrupts after SEI if I was false before, else delay to next instruction
-            state.irqDelayCounter = state.i ? 3 : 2
-        }
-        if state.currentOpcode == 0x58 && state.i && state.irqDelayCounter >= 0 {
-            // Delay interrupts during CLI to the next instruction
-            state.irqDelayCounter = 3
+        if rdyLine.state {
+            state.isAtFetch = true
+            state.currentOpcode = UInt16(memory.readByte(state.pc))
+            state.pc = state.pc &+ UInt16(1)
+            if state.currentOpcode == 0x78 && state.irqDelayCounter >= 0 {
+                // Only trigger pending interrupts after SEI if I was false before, else delay to next instruction
+                state.irqDelayCounter = state.i ? 3 : 2
+            }
+            if state.currentOpcode == 0x58 && state.i && state.irqDelayCounter >= 0 {
+                // Delay interrupts during CLI to the next instruction
+                state.irqDelayCounter = 3
+            }
+        } else {
+            state.cycle -= 1
         }
     }
     
-    private func pushPch() {
+    internal func pushPch() {
         memory.writeByte(0x100 &+ state.sp, byte: pch)
         state.sp = state.sp &- 1
     }
     
-    private func pushPcl() {
+    internal func pushPcl() {
         memory.writeByte(0x100 &+ state.sp, byte: pcl)
         state.sp = state.sp &- 1
     }
     
     //MARK: Memory Reading
     
-    private func loadAddressLow() {
-        state.addressLow = memory.readByte(state.pc)
-        state.pc = state.pc &+ UInt16(1)
+    internal func loadAddressLow() -> Bool {
+        if rdyLine.state {
+            state.addressLow = memory.readByte(state.pc)
+            state.pc = state.pc &+ UInt16(1)
+            return true
+        } else {
+            state.cycle -= 1
+            return false
+        }
     }
     
-    private func loadAddressHigh() {
-        state.addressHigh = memory.readByte(state.pc)
-        state.pc = state.pc &+ UInt16(1)
+    internal func loadAddressHigh() -> Bool {
+        if rdyLine.state {
+            state.addressHigh = memory.readByte(state.pc)
+            state.pc = state.pc &+ UInt16(1)
+            return true
+        } else {
+            state.cycle -= 1
+            return false
+        }
     }
     
-    private func loadPointer() {
-        state.pointer = memory.readByte(state.pc)
-        state.pc = state.pc &+ UInt16(1)
+    internal func loadPointer() -> Bool {
+        if rdyLine.state {
+            state.pointer = memory.readByte(state.pc)
+            state.pc = state.pc &+ UInt16(1)
+            return true
+        } else {
+            state.cycle -= 1
+            return false
+        }
     }
     
-    private func loadDataImmediate() {
-        state.data = memory.readByte(state.pc)
-        state.pc = state.pc &+ UInt16(1)
+    internal func loadDataImmediate() -> Bool {
+        if rdyLine.state {
+            state.data = memory.readByte(state.pc)
+            state.pc = state.pc &+ UInt16(1)
+            return true
+        } else {
+            state.cycle -= 1
+            return false
+        }
+    }
+    
+    internal func loadDataAbsolute() -> Bool {
+        if rdyLine.state {
+            state.data = memory.readByte(address)
+            return true
+        } else {
+            state.cycle -= 1
+            return false
+        }
+    }
+    
+    internal func loadDataZeroPage() -> Bool {
+        if rdyLine.state {
+            state.data = memory.readByte(UInt16(state.addressLow))
+            return true
+        } else {
+            state.cycle -= 1
+            return false
+        }
+    }
+    
+    internal func idleReadImplied() -> Bool {
+        if rdyLine.state {
+            memory.readByte(state.pc)
+            return true
+        } else {
+            state.cycle -= 1
+            return false
+        }
     }
     
     //MARK: Interrupts
@@ -1427,30 +1502,30 @@ final internal class CPU: Component, LineComponent {
         pch = memory.readByte(0xFFFF)
         state.cycle = 0
     }
-    
+
     private func nmi() {
         state.data = memory.readByte(0xFFFA)
     }
-    
+
     private func nmi2() {
         pcl = state.data
         pch = memory.readByte(0xFFFB)
         state.cycle = 0
     }
-    
+
     //MARK: Opcodes
     
     //MARK: Addressing
     
     private func zeroPage() {
-        loadAddressLow()
+        _ = loadAddressLow()
     }
     
     private func zeroPage2() {
-        state.data = memory.readByte(UInt16(state.addressLow))
+        _ = loadDataZeroPage()
     }
     
-    private func zeroPageWriteUpdateNZ() {
+    internal func zeroPageWriteUpdateNZ() {
         memory.writeByte(UInt16(state.addressLow), byte: state.data)
         state.z = (state.data == 0)
         state.n = (state.data & 0x80 != 0)
@@ -1458,28 +1533,30 @@ final internal class CPU: Component, LineComponent {
     }
     
     private func zeroPageX() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        state.addressLow = state.addressLow &+ state.x
+        if loadDataZeroPage() {
+            state.addressLow = state.addressLow &+ state.x
+        }
     }
     
     private func zeroPageY() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        state.addressLow = state.addressLow &+ state.y
+        if loadDataZeroPage() {
+            state.addressLow = state.addressLow &+ state.y
+        }
     }
     
     private func absolute() {
-        loadAddressLow()
+        _ = loadAddressLow()
     }
     
     private func absolute2() {
-        loadAddressHigh()
+        _ = loadAddressHigh()
     }
     
     private func absolute3() {
-        state.data = memory.readByte(address)
+        _ = loadDataAbsolute()
     }
     
-    private func absoluteWriteUpdateNZ() {
+    internal func absoluteWriteUpdateNZ() {
         memory.writeByte(address, byte: state.data)
         state.z = (state.data == 0)
         state.n = (state.data & 0x80 != 0)
@@ -1487,1358 +1564,92 @@ final internal class CPU: Component, LineComponent {
     }
     
     private func absoluteX() {
-        loadAddressHigh()
-        state.pageBoundaryCrossed = (UInt16(state.addressLow) &+ state.x >= 0x100)
-        state.addressLow = state.addressLow &+ state.x
+        if loadAddressHigh() {
+            state.pageBoundaryCrossed = (UInt16(state.addressLow) &+ state.x >= 0x100)
+            state.addressLow = state.addressLow &+ state.x
+        }
     }
     
     private func absoluteY() {
-        loadAddressHigh()
-        state.pageBoundaryCrossed = (UInt16(state.addressLow) &+ state.y >= 0x100)
-        state.addressLow = state.addressLow &+ state.y
+        if loadAddressHigh() {
+            state.pageBoundaryCrossed = (UInt16(state.addressLow) &+ state.y >= 0x100)
+            state.addressLow = state.addressLow &+ state.y
+        }
     }
     
     private func absoluteFixPage() {
-        memory.readByte(address)
+        if loadDataAbsolute() {
         if state.pageBoundaryCrossed {
             state.addressHigh = state.addressHigh &+ 1
+        }
         }
     }
     
     private func indirect() {
-        state.data = memory.readByte(address)
+        _ = loadDataAbsolute()
     }
     
     private func indirectIndex() {
-        loadPointer()
+        _ = loadPointer()
     }
     
     private func indirectIndex2() {
-        state.addressLow = memory.readByte(UInt16(state.pointer))
-        state.pointer = state.pointer &+ 1
+        if rdyLine.state {
+            state.addressLow = memory.readByte(UInt16(state.pointer))
+            state.pointer = state.pointer &+ 1
+        } else {
+            state.cycle -= 1
+        }
     }
-    
+
     private func indirectX() {
-        memory.readByte(UInt16(state.pointer))
-        state.pointer = state.pointer &+ state.x
+        if rdyLine.state {
+            memory.readByte(UInt16(state.pointer))
+            state.pointer = state.pointer &+ state.x
+        } else {
+            state.cycle -= 1
+        }
     }
-    
+
     private func indirectX2() {
-        state.addressHigh = memory.readByte(UInt16(state.pointer))
-        state.pointer = state.pointer &+ 1
+        if rdyLine.state {
+            state.addressHigh = memory.readByte(UInt16(state.pointer))
+            state.pointer = state.pointer &+ 1
+        } else {
+            state.cycle -= 1
+        }
     }
-    
+
     private func indirectY() {
-        state.addressHigh = memory.readByte(UInt16(state.pointer))
-        state.pointer = state.pointer &+ 1
-        state.pageBoundaryCrossed = (UInt16(state.addressLow) &+ state.y >= 0x100)
-        state.addressLow = state.addressLow &+ state.y
+        if rdyLine.state {
+            state.addressHigh = memory.readByte(UInt16(state.pointer))
+            state.pointer = state.pointer &+ 1
+            state.pageBoundaryCrossed = (UInt16(state.addressLow) &+ state.y >= 0x100)
+            state.addressLow = state.addressLow &+ state.y
+        } else {
+            state.cycle -= 1
+        }
     }
-    
+
     private func implied() {
-        memory.readByte(state.pc)
+        if rdyLine.state {
+            memory.readByte(state.pc)
+        } else {
+            state.cycle -= 1
+        }
     }
-    
+
     private func implied2() {
         state.sp = state.sp &+ 1
     }
     
     private func immediate() {
-        memory.readByte(state.pc)
-        state.pc = state.pc &+ UInt16(1)
-    }
-    
-    //MARK: ADC
-    
-    private func adc(_ value: UInt8) {
-        if state.d {
-            var lowNybble = (state.a & 0x0F) &+ (value & 0x0F) &+ (state.c ? 1 : 0)
-            var highNybble = (state.a >> 4) &+ (value >> 4)
-            if lowNybble > 9 {
-                lowNybble = lowNybble &+ 6
-            }
-            if lowNybble > 0x0F {
-                highNybble = highNybble &+ 1
-            }
-            state.z = ((state.a &+ value &+ (state.c ? 1 : 0)) & 0xFF == 0)
-            state.n = (highNybble & 0x08 != 0)
-            state.v = ((((highNybble << 4) ^ state.a) & 0x80) != 0 && ((state.a ^ value) & 0x80) == 0)
-            if highNybble > 9 {
-                highNybble = highNybble &+ 6
-            }
-            state.c = (highNybble > 0x0F)
-            state.a = (highNybble << 4) | (lowNybble & 0x0F)
+        if rdyLine.state {
+            memory.readByte(state.pc)
+            state.pc = state.pc &+ UInt16(1)
         } else {
-            let tempA = UInt16(state.a)
-            let sum = (tempA + UInt16(value) + (state.c ? 1 : 0))
-            state.c = (sum > 0xFF)
-            state.v = (((tempA ^ UInt16(value)) & 0x80) == 0 && ((tempA ^ sum) & 0x80) != 0)
-            loadA(UInt8(truncatingBitPattern: sum))
-        }
-    }
-    
-    private func adcImmediate() {
-        loadDataImmediate()
-        adc(state.data)
-        state.cycle = 0
-    }
-    
-    private func adcZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        adc(state.data)
-        state.cycle = 0
-    }
-    
-    private func adcPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            adc(state.data)
-            state.cycle = 0
-        }
-    }
-    
-    private func adcAbsolute() {
-        state.data = memory.readByte(address)
-        adc(state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: ALR*
-    
-    private func alrImmediate() {
-        loadDataImmediate()
-        let a = state.a & state.data
-        state.c = ((a & 1) != 0)
-        loadA(a >> 1)
-        state.cycle = 0
-    }
-    
-    //MARK: ANC*
-    
-    private func ancImmediate() {
-        loadDataImmediate()
-        loadA(state.a & state.data)
-        state.c = state.n
-        state.cycle = 0
-    }
-    
-    //MARK: AND
-    
-    private func andImmediate() {
-        loadDataImmediate()
-        loadA(state.a & state.data)
-        state.cycle = 0
-    }
-    
-    private func andZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        loadA(state.a & state.data)
-        state.cycle = 0
-    }
-    
-    private func andPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            loadA(state.a & state.data)
-            state.cycle = 0
-        }
-    }
-    
-    private func andAbsolute() {
-        state.data = memory.readByte(address)
-        loadA(state.a & state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: ANE*
-    
-    private func aneImmediate() {
-        loadDataImmediate()
-        //TODO: From http://www.zimmers.net/anonftp/pub/cbm/documents/chipdata/64doc, number might be different than 0xEE
-        loadA((state.a | 0xEE) & state.x & state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: ARR*
-    
-    private func arrImmediate() {
-        loadDataImmediate()
-        let tempA = state.a & state.data
-        state.a = (tempA >> 1) + (state.c ? 0x80 : 0)
-        if state.d {
-            state.n = state.c
-            state.z = (state.a == 0)
-            state.v = (((tempA ^ state.a) & 0x40) != 0)
-            
-            if (tempA & 0x0F) + (tempA & 0x01) > 5 {
-                state.a = (state.a & 0xF0) | ((state.a &+ 6) & 0x0F)
-            }
-            if UInt16(tempA & 0xF0) &+ UInt16(tempA & 0x10) > 0x50 {
-                state.c = true
-                state.a = state.a &+ 0x60
-            } else {
-                state.c = false
-            }
-        } else {
-            state.z = (state.a == 0)
-            state.n = (state.a & 0x80 != 0)
-            state.c = ((state.a & 0x40) != 0)
-            state.v = (((state.a & 0x40) ^ ((state.a & 0x20) << 1)) != 0)
-        }
-        state.cycle = 0
-    }
-    
-    //MARK: ASL
-    
-    private func aslAccumulator() {
-        memory.readByte(state.pc)
-        state.c = ((state.a & 0x80) != 0)
-        loadA(state.a << 1)
-        state.cycle = 0
-    }
-    
-    private func aslZeroPage() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        state.c = ((state.data & 0x80) != 0)
-        state.data = state.data << 1
-    }
-    
-    private func aslAbsolute() {
-        memory.writeByte(address, byte: state.data)
-        state.c = ((state.data & 0x80) != 0)
-        state.data = state.data << 1
-    }
-
-    //MARK: BCC
-    
-    private func branch() {
-        memory.readByte(state.pc)
-        let oldPch = pch
-        state.pc = state.pc &+ Int8(bitPattern: state.data)
-        if pch == oldPch {
-            if state.irqDelayCounter >= 0 {
-                state.irqDelayCounter += 1
-            }
-            if state.nmiDelayCounter >= 0 {
-                state.nmiDelayCounter += 1
-            }
-            state.cycle = 0
-        }
-    }
-    
-    private func branchOverflow() {
-        if state.data & 0x80 != 0 {
-            memory.readByte(state.pc &+ UInt16(0x100))
-        } else {
-            memory.readByte(state.pc &- UInt16(0x100))
-        }
-        state.cycle = 0
-    }
-    
-    private func bccRelative() {
-        loadDataImmediate()
-        if state.c {
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: BCS
-    
-    private func bcsRelative() {
-        loadDataImmediate()
-        if !state.c {
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: BEQ
-    
-    private func beqRelative() {
-        loadDataImmediate()
-        if !state.z {
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: BIT
-
-    private func bitZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        state.n = ((state.data & 128) != 0)
-        state.v = ((state.data & 64) != 0)
-        state.z = ((state.data & state.a) == 0)
-        state.cycle = 0
-    }
-    
-    private func bitAbsolute() {
-        state.data = memory.readByte(address)
-        state.n = ((state.data & 128) != 0)
-        state.v = ((state.data & 64) != 0)
-        state.z = ((state.data & state.a) == 0)
-        state.cycle = 0
-    }
-    
-    //MARK: BMI
-    
-    private func bmiRelative() {
-        loadDataImmediate()
-        if !state.n {
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: BNE
-    
-    private func bneRelative() {
-        loadDataImmediate()
-        if state.z {
-            state.cycle = 0
+            state.cycle -= 1
         }
     }
 
-    //MARK: BPL
-    
-    private func bplRelative() {
-        loadDataImmediate()
-        if state.n {
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: BRK
-    
-    private func brkImplied() {
-        state.b = true
-        pushPch()
-    }
-    
-    private func brkImplied2() {
-        pushPcl()
-    }
-    
-    private func brkImplied3() {
-        let p = UInt8((state.c ? 0x01 : 0) |
-            (state.z ? 0x02 : 0) |
-            (state.i ? 0x04 : 0) |
-            (state.d ? 0x08 : 0) |
-            (state.b ? 0x10 : 0) |
-            0x20 |
-            (state.v ? 0x40 : 0) |
-            (state.n ? 0x80 : 0))
-        memory.writeByte(0x100 &+ state.sp, byte: p)
-        state.sp = state.sp &- 1
-    }
-    
-    private func brkImplied4() {
-        if state.nmiDelayCounter == 0 {
-            state.data = memory.readByte(0xFFFA)
-        } else {
-            state.data = memory.readByte(0xFFFE)
-            if state.nmiDelayCounter == 1 {
-                state.nmiDelayCounter = 2
-            }
-        }
-    }
-    
-    private func brkImplied5() {
-        pcl = state.data
-        if state.nmiDelayCounter == 0 {
-            pch = memory.readByte(0xFFFB)
-            state.nmiDelayCounter = -1
-        } else {
-            pch = memory.readByte(0xFFFF)
-            //TODO: there might be some delays here if NMI is not converted, but I'm not sure
-        }
-        state.i = true
-        state.cycle = 0
-    }
-    
-    //MARK: BVC
-    
-    private func bvcRelative() {
-        loadDataImmediate()
-        if state.v {
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: BVS
-    
-    private func bvsRelative() {
-        loadDataImmediate()
-        if !state.v {
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: CLC
-    
-    private func clcImplied() {
-        memory.readByte(state.pc)
-        state.c = false
-        state.cycle = 0
-    }
-    
-    //MARK: CLD
-    
-    private func cldImplied() {
-        memory.readByte(state.pc)
-        state.d = false
-        state.cycle = 0
-    }
-    
-    //MARK: CLI
-    
-    private func cliImplied() {
-        memory.readByte(state.pc)
-        state.i = false
-        state.cycle = 0
-    }
-    
-    //MARK: CLV
-    
-    private func clvImplied() {
-        memory.readByte(state.pc)
-        state.v = false
-        state.cycle = 0
-    }
-    
-    //MARK: CMP
-    
-    private func cmp(_ value1: UInt8, _ value2: UInt8) {
-        let diff = value1 &- value2
-        state.z = (diff == 0)
-        state.n = (diff & 0x80 != 0)
-        state.c = (value1 >= value2)
-    }
-    
-    private func cmpImmediate() {
-        loadDataImmediate()
-        cmp(state.a, state.data)
-        state.cycle = 0
-    }
-    
-    private func cmpZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        cmp(state.a, state.data)
-        state.cycle = 0
-    }
-
-    private func cmpAbsolute() {
-        state.data = memory.readByte(address)
-        cmp(state.a, state.data)
-        state.cycle = 0
-    }
-    
-    private func cmpPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            cmp(state.a, state.data)
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: CPX
-    
-    private func cpxImmediate() {
-        loadDataImmediate()
-        cmp(state.x, state.data)
-        state.cycle = 0
-    }
-
-    private func cpxZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        cmp(state.x, state.data)
-        state.cycle = 0
-    }
-    
-    private func cpxAbsolute() {
-        state.data = memory.readByte(address)
-        cmp(state.x, state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: CPY
-    
-    private func cpyImmediate() {
-        loadDataImmediate()
-        cmp(state.y, state.data)
-        state.cycle = 0
-    }
-
-    private func cpyZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        cmp(state.y, state.data)
-        state.cycle = 0
-    }
-    
-    private func cpyAbsolute() {
-        state.data = memory.readByte(address)
-        cmp(state.y, state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: DCP*
-    
-    private func dcpZeroPage() {
-        decZeroPage()
-    }
-    
-    private func dcpZeroPage2() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        cmp(state.a, state.data)
-        state.cycle = 0
-    }
-    
-    private func dcpAbsolute() {
-        decAbsolute()
-    }
-    
-    private func dcpAbsolute2() {
-        memory.writeByte(address, byte: state.data)
-        cmp(state.a, state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: DEC
-    
-    private func decZeroPage() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        state.data = state.data &- 1
-    }
-    
-    private func decAbsolute() {
-        memory.writeByte(address, byte: state.data)
-        state.data = state.data &- 1
-    }
-    
-    //MARK: DEX
-    
-    private func dexImplied() {
-        loadX(state.x &- 1)
-        state.cycle = 0
-    }
-    
-    //MARK: DEY
-    
-    private func deyImplied() {
-        loadY(state.y &- 1)
-        state.cycle = 0
-    }
-    
-    //MARK: EOR
-    
-    private func eorImmediate() {
-        loadDataImmediate()
-        loadA(state.a ^ state.data)
-        state.cycle = 0
-    }
-
-    private func eorZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        loadA(state.a ^ state.data)
-        state.cycle = 0
-    }
-    
-    private func eorAbsolute() {
-        state.data = memory.readByte(address)
-        loadA(state.a ^ state.data)
-        state.cycle = 0
-    }
-    
-    private func eorPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            loadA(state.a ^ state.data)
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: INC
-
-    private func incZeroPage() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        state.data = state.data &+ 1
-    }
-    
-    private func incAbsolute() {
-        memory.writeByte(address, byte: state.data)
-        state.data = state.data &+ 1
-    }
-    
-    //MARK: INX
-    
-    private func inxImplied() {
-        memory.readByte(state.pc)
-        loadX(state.x &+ 1)
-        state.cycle = 0
-    }
-    
-    //MARK: INY
-    
-    private func inyImplied() {
-        memory.readByte(state.pc)
-        loadY(state.y &+ 1)
-        state.cycle = 0
-    }
-    
-    //MARK: ISB*
-    
-    private func isbZeroPage() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        state.data = state.data &+ 1
-    }
-    
-    private func isbZeroPage2() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        zeroPageWriteUpdateNZ()
-        sbc(state.data)
-        state.cycle = 0
-    }
-    
-    private func isbAbsolute() {
-        memory.writeByte(address, byte: state.data)
-        state.data = state.data &+ 1
-    }
-    
-    private func isbAbsolute2() {
-        memory.writeByte(address, byte: state.data)
-        absoluteWriteUpdateNZ()
-        sbc(state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: JMP
-    
-    private func jmpAbsolute() {
-        state.addressHigh = memory.readByte(state.pc)
-        state.pc = address
-        state.cycle = 0
-    }
-
-    private func jmpIndirect() {
-        pcl = state.data
-        state.addressLow = state.addressLow &+ 1
-        pch = memory.readByte(address)
-        state.cycle = 0
-    }
-    
-    //MARK: JSR
-    
-    private func jsrAbsolute() {
-        state.addressHigh = memory.readByte(state.pc)
-        state.pc = address
-        state.cycle = 0
-    }
-    
-    //MARK: LAS*
-    
-    private func lasPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            state.data &= state.sp
-            state.sp = state.data
-            state.x = state.data
-            loadA(state.data)
-            state.cycle = 0
-        }
-    }
-    
-    private func lasAbsolute() {
-        state.data = memory.readByte(address)
-        state.data &= state.sp
-        state.sp = state.data
-        state.x = state.data
-        loadA(state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: LAX*
-    
-    private func laxZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        loadA(state.data)
-        loadX(state.data)
-        state.cycle = 0
-    }
-    
-    private func laxPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            loadA(state.data)
-            loadX(state.data)
-            state.cycle = 0
-        }
-    }
-    
-    private func laxAbsolute() {
-        state.data = memory.readByte(address)
-        loadA(state.data)
-        loadX(state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: LDA
-    
-    private func ldaImmediate() {
-        loadDataImmediate()
-        loadA(state.data)
-        state.cycle = 0
-    }
-    
-    private func ldaZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        loadA(state.data)
-        state.cycle = 0
-    }
-
-    private func ldaAbsolute() {
-        state.data = memory.readByte(address)
-        loadA(state.data)
-        state.cycle = 0
-    }
-    
-    private func ldaPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            loadA(state.data)
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: LDX
-    
-    private func ldxImmediate() {
-        loadDataImmediate()
-        loadX(state.data)
-        state.cycle = 0
-    }
-    
-    private func ldxZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        loadX(state.data)
-        state.cycle = 0
-    }
-    
-    private func ldxAbsolute() {
-        state.data = memory.readByte(address)
-        loadX(state.data)
-        state.cycle = 0
-    }
-    
-    private func ldxPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            loadX(state.data)
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: LDY
-    
-    private func ldyImmediate() {
-        loadDataImmediate()
-        loadY(state.data)
-        state.cycle = 0
-    }
-    
-    private func ldyZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        loadY(state.data)
-        state.cycle = 0
-    }
-    
-    private func ldyAbsolute() {
-        state.data = memory.readByte(address)
-        loadY(state.data)
-        state.cycle = 0
-    }
-    
-    private func ldyPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            loadY(state.data)
-            state.cycle = 0
-        }
-    }
-    
-    //MARK: LSR
-    
-    private func lsrAccumulator() {
-        memory.readByte(state.pc)
-        state.c = ((state.a & 1) != 0)
-        loadA(state.a >> 1)
-        state.cycle = 0
-    }
-
-    private func lsrZeroPage() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        state.c = ((state.data & 1) != 0)
-        state.data = state.data >> 1
-    }
-    
-    private func lsrAbsolute() {
-        memory.writeByte(address, byte: state.data)
-        state.c = ((state.data & 1) != 0)
-        state.data = state.data >> 1
-    }
-    
-    //MARK: LXA*
-    
-    private func lxaImmediate() {
-        loadDataImmediate()
-        //TODO: From http://www.zimmers.net/anonftp/pub/cbm/documents/chipdata/64doc, number might be different than 0xEE
-        state.x = state.data & (state.a | 0xEE)
-        loadA(state.x)
-        state.cycle = 0
-    }
-    
-    //MARK: NOP
-    
-    private func nop() {
-        memory.readByte(state.pc)
-        state.cycle = 0
-    }
-    
-    private func nopZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        state.cycle = 0
-    }
-    
-    private func nopImmediate() {
-        loadDataImmediate()
-        state.cycle = 0
-    }
-    
-    private func nopPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            state.cycle = 0
-        }
-    }
-    
-    private func nopAbsolute() {
-        state.data = memory.readByte(address)
-        state.cycle = 0
-    }
-    
-    //MARK: ORA
-    
-    private func oraImmediate() {
-        loadDataImmediate()
-        loadA(state.a | state.data)
-        state.cycle = 0
-    }
-    
-    private func oraZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        loadA(state.a | state.data)
-        state.cycle = 0
-    }
-    
-    private func oraPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            loadA(state.a | state.data)
-            state.cycle = 0
-        }
-    }
-
-    private func oraAbsolute() {
-        state.data = memory.readByte(address)
-        loadA(state.a | state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: PHA
-    
-    private func phaImplied() {
-        memory.writeByte(0x100 &+ state.sp, byte: state.a)
-        state.sp = state.sp &- 1
-        state.cycle = 0
-    }
-    
-    //MARK: PHP
-    
-    private func phpImplied() {
-        let p = UInt8((state.c ? 0x01 : 0) |
-            (state.z ? 0x02 : 0) |
-            (state.i ? 0x04 : 0) |
-            (state.d ? 0x08 : 0) |
-            (state.b ? 0x10 : 0) |
-            0x20 |
-            (state.v ? 0x40 : 0) |
-            (state.n ? 0x80 : 0))
-        memory.writeByte(0x100 &+ state.sp, byte: p)
-        state.sp = state.sp &- 1
-        state.cycle = 0
-    }
-    
-    //MARK: PLA
-
-    private func plaImplied() {
-        loadA(memory.readByte(0x100 &+ state.sp))
-        state.cycle = 0
-    }
-    
-    //MARK: PLP
-
-    private func plpImplied() {
-        let p =  memory.readByte(0x100 &+ state.sp)
-        state.c = ((p & 0x01) != 0)
-        state.z = ((p & 0x02) != 0)
-        state.i = ((p & 0x04) != 0)
-        state.d = ((p & 0x08) != 0)
-        state.v = ((p & 0x40) != 0)
-        state.n = ((p & 0x80) != 0)
-        state.cycle = 0
-    }
-    
-    //MARK: RLA*
-    
-    private func rlaZeroPage() {
-        rolZeroPage()
-    }
-    
-    private func rlaZeroPage2() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        loadA(state.a & state.data)
-        state.cycle = 0
-    }
-    
-    private func rlaAbsolute() {
-        rolAbsolute()
-    }
-    
-    private func rlaAbsolute2() {
-        memory.writeByte(address, byte: state.data)
-        loadA(state.a & state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: ROL
-    
-    private func rolAccumulator() {
-        memory.readByte(state.pc)
-        let hasCarry = state.c
-        state.c = ((state.a & 0x80) != 0)
-        loadA((state.a << 1) + (hasCarry ? 1 : 0))
-        state.cycle = 0
-    }
-    
-    private func rolZeroPage() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        let hasCarry = state.c
-        state.c = ((state.data & 0x80) != 0)
-        state.data = (state.data << 1) + (hasCarry ? 1 : 0)
-    }
-    
-    private func rolAbsolute() {
-        memory.writeByte(address, byte: state.data)
-        let hasCarry = state.c
-        state.c = ((state.data & 0x80) != 0)
-        state.data = (state.data << 1) + (hasCarry ? 1 : 0)
-    }
-    
-    //MARK: ROR
-    
-    private func rorAccumulator() {
-        memory.readByte(state.pc)
-        let hasCarry = state.c
-        state.c = ((state.a & 1) != 0)
-        loadA((state.a >> 1) + (hasCarry ? 0x80 : 0))
-        state.cycle = 0
-    }
-
-    private func rorZeroPage() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        let hasCarry = state.c
-        state.c = ((state.data & 1) != 0)
-        state.data = (state.data >> 1) + (hasCarry ? 0x80 : 0)
-    }
-    
-    private func rorAbsolute() {
-        memory.writeByte(address, byte: state.data)
-        let hasCarry = state.c
-        state.c = ((state.data & 1) != 0)
-        state.data = (state.data >> 1) + (hasCarry ? 0x80 : 0)
-    }
-    
-    //MARK: RRA*
-    
-    private func rraZeroPage() {
-        rorZeroPage()
-    }
-    
-    private func rraZeroPage2() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        adc(state.data)
-        state.cycle = 0
-    }
-    
-    private func rraAbsolute() {
-        rorAbsolute()
-    }
-    
-    private func rraAbsolute2() {
-        memory.writeByte(address, byte: state.data)
-        adc(state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: RTI
-    
-    private func rtiImplied() {
-        let p = memory.readByte(0x100 &+ state.sp)
-        state.c = (p & 0x01 != 0)
-        state.z = (p & 0x02 != 0)
-        state.i = (p & 0x04 != 0)
-        state.d = (p & 0x08 != 0)
-        state.v = (p & 0x40 != 0)
-        state.n = (p & 0x80 != 0)
-        state.sp = state.sp &+ 1
-    }
-    
-    private func rtiImplied2() {
-        pcl = memory.readByte(0x100 &+ state.sp)
-        state.sp = state.sp &+ 1
-    }
-    
-    private func rtiImplied3() {
-        pch = memory.readByte(0x100 &+ state.sp)
-        state.cycle = 0
-    }
-    
-    //MARK: RTS
-
-    private func rtsImplied() {
-        pcl = memory.readByte(0x100 &+ state.sp)
-        state.sp = state.sp &+ 1
-    }
-    
-    private func rtsImplied2() {
-        pch = memory.readByte(0x100 &+ state.sp)
-    }
-    
-    private func rtsImplied3() {
-        state.pc += 1
-        state.cycle = 0
-    }
-    
-    //MARK: SAX*
-    
-    private func saxZeroPage() {
-        state.data = state.a & state.x
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        state.cycle = 0
-    }
-    
-    private func saxAbsolute() {
-        state.data = state.a & state.x
-        memory.writeByte(address, byte: state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: SBC
-    
-    private func sbc(_ value: UInt8) {
-        if state.d {
-            let tempA = UInt16(state.a)
-            let sum = (tempA &- UInt16(value) &- (state.c ? 0 : 1))
-            var lowNybble = (state.a & 0x0F) &- (value & 0x0F) &- (state.c ? 0 : 1)
-            var highNybble = (state.a >> 4) &- (value >> 4)
-            if lowNybble & 0x10 != 0 {
-                lowNybble = lowNybble &- 6
-                highNybble = highNybble &- 1
-            }
-            if highNybble & 0x10 != 0 {
-                highNybble = highNybble &- 6
-            }
-            state.c = (sum < 0x100)
-            state.v = (((tempA ^ sum) & 0x80) != 0 && ((tempA ^ UInt16(value)) & 0x80) != 0)
-            state.z = (UInt8(truncatingBitPattern: sum) == 0)
-            state.n = (sum & 0x80 != 0)
-            state.a = (highNybble << 4) | (lowNybble & 0x0F)
-        } else {
-            let tempA = UInt16(state.a)
-            let sum = (tempA &- UInt16(value) &- (state.c ? 0 : 1))
-            state.c = (sum <= 0xFF)
-            state.v = (((UInt16(state.a) ^ sum) & 0x80) != 0 && ((UInt16(state.a) ^ UInt16(value)) & 0x80) != 0)
-            loadA(UInt8(truncatingBitPattern: sum))
-        }
-    }
-    
-    private func sbcImmediate() {
-        loadDataImmediate()
-        sbc(state.data)
-        state.cycle = 0
-    }
-
-    private func sbcZeroPage() {
-        state.data = memory.readByte(UInt16(state.addressLow))
-        sbc(state.data)
-        state.cycle = 0
-    }
-    
-    private func sbcPageBoundary() {
-        state.data = memory.readByte(address)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        } else {
-            sbc(state.data)
-            state.cycle = 0
-        }
-    }
-    
-    private func sbcAbsolute() {
-        state.data = memory.readByte(address)
-        sbc(state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: SBX*
-    
-    private func sbxImmediate() {
-        loadDataImmediate()
-        let value = state.a & state.x
-        let diff = value &- state.data
-        state.c = (value >= diff)
-        loadX(diff)
-        state.cycle = 0
-    }
-    
-    //MARK: SEC
-    
-    private func secImplied() {
-        memory.readByte(state.pc)
-        state.c = true
-        state.cycle = 0
-    }
-    
-    //MARK: SED
-    
-    private func sedImplied() {
-        memory.readByte(state.pc)
-        state.d = true
-        state.cycle = 0
-    }
-    
-    //MARK: SEI
-    
-    private func seiImplied() {
-        memory.readByte(state.pc)
-        state.i = true
-        state.cycle = 0
-    }
-    
-    //MARK: SHA*
-    
-    private func shaAbsolute() {
-        state.data = state.a & state.x & (state.addressHigh &+ 1)
-        memory.writeByte(address, byte: state.data)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.data
-        }
-        state.cycle = 0
-    }
-    
-    //MARK: SHS*
-    
-    private func shsAbsolute() {
-        memory.readByte(address)
-        state.sp = state.x & state.a
-        state.data = state.sp & (state.addressHigh &+ 1)
-        memory.writeByte(address, byte: state.data)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.data
-        }
-        state.cycle = 0
-    }
-    
-    //MARK: SHX*
-    
-    private func shxAbsolute() {
-        state.data = state.x & (state.addressHigh &+ 1)
-        memory.writeByte(address, byte: state.data)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.data
-        }
-        state.cycle = 0
-    }
-    
-    //MARK: SHY*
-    
-    private func shyAbsolute() {
-        state.data = state.y & (state.addressHigh &+ 1)
-        memory.writeByte(address, byte: state.data)
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.data
-        }
-        state.cycle = 0
-    }
-    
-    //MARK: SLO*
-    
-    private func sloZeroPage() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        state.c = ((state.data & 0x80) != 0)
-        state.data <<= 1
-    }
-    
-    private func sloZeroPage2() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        loadA(state.a | state.data)
-        state.cycle = 0
-    }
-    
-    private func sloAbsolute() {
-        memory.writeByte(address, byte: state.data)
-        state.c = ((state.data & 0x80) != 0)
-        state.data <<= 1
-    }
-    
-    private func sloAbsolute2() {
-        memory.writeByte(address, byte: state.data)
-        loadA(state.a | state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: SRE*
-    
-    private func sreZeroPage() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        state.c = ((state.data & 0x01) != 0)
-        state.data >>= 1
-    }
-    
-    private func sreZeroPage2() {
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        loadA(state.a ^ state.data)
-        state.cycle = 0
-    }
-    
-    private func sreAbsolute() {
-        memory.writeByte(address, byte: state.data)
-        state.c = ((state.data & 0x01) != 0)
-        state.data >>= 1
-    }
-    
-    private func sreAbsolute2() {
-        memory.writeByte(address, byte: state.data)
-        loadA(state.a ^ state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: STA
-    
-    private func staZeroPage() {
-        state.data = state.a
-        memory.writeByte(UInt16(state.addressLow), byte: state.a)
-        state.cycle = 0
-    }
-
-    private func staAbsolute() {
-        state.data = state.a
-        memory.writeByte(address, byte: state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: STX
-
-    private func stxZeroPage() {
-        state.data = state.x
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        state.cycle = 0
-    }
-    
-    private func stxAbsolute() {
-        state.data = state.x
-        memory.writeByte(address, byte: state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: STY
-    
-    private func styZeroPage() {
-        state.data = state.y
-        memory.writeByte(UInt16(state.addressLow), byte: state.data)
-        state.cycle = 0
-    }
-    
-    private func styAbsolute() {
-        state.data = state.y
-        memory.writeByte(address, byte: state.data)
-        state.cycle = 0
-    }
-    
-    //MARK: TAX
-    
-    private func taxImplied() {
-        memory.readByte(state.pc)
-        loadX(state.a)
-        state.cycle = 0
-    }
-    
-    //MARK: TAY
-    
-    private func tayImplied() {
-        memory.readByte(state.pc)
-        loadY(state.a)
-        state.cycle = 0
-    }
-    
-    //MARK: TSX
-    
-    private func tsxImplied() {
-        memory.readByte(state.pc)
-        loadX(state.sp)
-        state.cycle = 0
-    }
-    
-    //MARK: TXA
-    
-    private func txaImplied() {
-        memory.readByte(state.pc)
-        loadA(state.x)
-        state.cycle = 0
-    }
-    
-    //MARK: TXS
-    
-    private func txsImplied() {
-        memory.readByte(state.pc)
-        state.sp = state.x
-        state.cycle = 0
-    }
-    
-    //MARK: TYA
-    
-    private func tyaImplied() {
-        memory.readByte(state.pc)
-        loadA(state.y)
-        state.cycle = 0
-    }
-    
 }

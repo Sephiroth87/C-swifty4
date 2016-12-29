@@ -47,7 +47,8 @@ final public class C1541 {
     private let via1: VIA1
     private let via2: VIA2
     
-    private let irqLine: Line
+    private let irqLine = Line()
+    private let rdyLine = Line()
     
     internal weak var iec: IEC! {
         didSet {
@@ -84,11 +85,12 @@ final public class C1541 {
         memory.via1 = via1
         memory.via2 = via2
         
-        irqLine = Line()
         cpu.irqLine = irqLine
         via1.interruptLine = irqLine
         via2.interruptLine = irqLine
         irqLine.addComponents([cpu, via1, via2])
+        
+        cpu.rdyLine = rdyLine
         
         via1.c1541 = self
         via2.c1541 = self

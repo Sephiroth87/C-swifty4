@@ -55,12 +55,14 @@ internal struct VICState: ComponentState {
     fileprivate var m_x: [UInt16] = [UInt16](repeating: 0, count: 8) // X Coordinate Sprite
     fileprivate var m_y: [UInt8] = [UInt8](repeating: 0, count: 8) // Y Coordinate Sprite
     fileprivate var yScroll: UInt8 = 0 // Y Scroll
-    fileprivate var den = false // Display Enable
+    fileprivate var rsel = true // (Rows selection)?
+    fileprivate var den = true // Display Enable
     fileprivate var bmm = false // Bit Map Mode
     fileprivate var ecm = false // Extended Color Mode
-    fileprivate var mcm = false // Multi Color Mode
     fileprivate var raster: UInt16 = 0 // Raster Counter
     fileprivate var me: UInt8 = 0 // Sprite Enabled
+    fileprivate var csel = true // (Columns selection)?
+    fileprivate var mcm = false // Multi Color Mode
     fileprivate var mye: UInt8 = 0 // Sprite Y Expansion
     fileprivate var vm: UInt8 = 0 // Video matrix base address
     fileprivate var cb: UInt8 = 0 // Character base address
@@ -114,6 +116,7 @@ internal struct VICState: ComponentState {
     fileprivate var bufferPosition: Int = 0
     fileprivate var badLinesEnabled = false
     fileprivate var isBadLine = false
+    fileprivate var baPin = true
     fileprivate var currentSprite: UInt8 = 2
     fileprivate var spriteDma: [Bool] = [Bool](repeating: false, count: 8)
     fileprivate var spriteDisplay: [Bool] = [Bool](repeating: false, count: 8)
@@ -125,7 +128,7 @@ internal struct VICState: ComponentState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
         let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
-        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_x: binaryDump.next(8), m_y: binaryDump.next(8), yScroll: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), mcm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mmc: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), graphicsSequencerData: binaryDump.next(), graphicsSequencerShiftRegister: binaryDump.next(), graphicsSequencerVideoMatrix: binaryDump.next(), graphicsSequencerColorLine: binaryDump.next(), spriteSequencerData: binaryDump.next(8), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteShiftRegisterCount: binaryDump.next(8))
+        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_x: binaryDump.next(8), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mmc: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), graphicsSequencerData: binaryDump.next(), graphicsSequencerShiftRegister: binaryDump.next(), graphicsSequencerVideoMatrix: binaryDump.next(), graphicsSequencerColorLine: binaryDump.next(), spriteSequencerData: binaryDump.next(8), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteShiftRegisterCount: binaryDump.next(8))
     }
     
 }
@@ -137,6 +140,7 @@ final internal class VIC: Component, LineComponent {
     
     internal weak var memory: C64Memory!
     internal weak var irqLine: Line!
+    internal weak var rdyLine: Line!
  
     private let screenBuffer1 = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
     private let screenBuffer2 = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
@@ -146,7 +150,7 @@ final internal class VIC: Component, LineComponent {
         }
     }
 
-    private let borderComparison = (top: UInt16(51), left: UInt16(24), bottom: UInt16(251), right: UInt16(344))
+    private var borderComparison = (top: UInt16(51), left: UInt16(24), bottom: UInt16(250), right: UInt16(343)) // Default value (RSEL = 1, CSEL = 1)
 
     private let colors: [UInt32] = [
         UInt32(truncatingBitPattern: (0xFF101010 as UInt64)),
@@ -169,7 +173,12 @@ final internal class VIC: Component, LineComponent {
     
     //MARK: LineComponent
     func pin(_ line: Line) -> Bool {
-        return state.ir & 0x80 == 0
+        if line === irqLine {
+            return state.ir & 0x80 == 0
+        } else if line === rdyLine {
+            return state.baPin
+        }
+        return false
     }
     //MARK: -
     
@@ -197,13 +206,13 @@ final internal class VIC: Component, LineComponent {
             value |= (state.m_x[7] & 0xFF00) >> 1
             return UInt8(truncatingBitPattern: value)
         case 0x11:
-            return state.yScroll | (state.den ? 0x10 : 0) | (state.bmm ? 0x20 : 0) | (state.ecm ? 0x40 : 0) | UInt8((state.raster & 0x100) >> 1)
+            return (state.yScroll & 0x07) | (state.rsel ? 0x08 : 0) | (state.den ? 0x10 : 0) | (state.bmm ? 0x20 : 0) | (state.ecm ? 0x40 : 0) | UInt8((state.raster & 0x100) >> 1)
         case 0x12:
             return UInt8(truncatingBitPattern: state.raster)
         case 0x15:
             return state.me
         case 0x16:
-            return (state.mcm ? 0x10 : 0) //TODO: missing bit registers
+            return (state.csel ? 0x08 : 0) | (state.mcm ? 0x10 : 0) | 0xC0 //TODO: missing bit registers
         case 0x17:
             return state.mye
         case 0x18:
@@ -252,15 +261,33 @@ final internal class VIC: Component, LineComponent {
             state.m_x[7] = UInt16(byte & 0x80) << 1 | (state.m_x[7] & 0x00FF)
         case 0x11:
             state.yScroll = byte & 0x07
+            state.rsel = byte & 0x08 != 0
+            borderComparison.top = state.rsel ? 51 : 55
+            borderComparison.bottom = state.rsel ? 250 : 246
             state.den = byte & 0x10 != 0
             state.bmm = byte & 0x20 != 0
             state.ecm = byte & 0x40 != 0
-            state.rasterInterruptLine = UInt16(byte & 0x80) << 1 | (state.rasterInterruptLine & 0x00FF)
+            if case let newRasterInterruptLine = UInt16(byte & 0x80) << 1 | (state.rasterInterruptLine & 0x00FF), newRasterInterruptLine != state.rasterInterruptLine {
+                state.rasterInterruptLine = newRasterInterruptLine
+                if state.raster == state.rasterInterruptLine {
+                    state.ir |= 0x01
+                    updateIRQLine()
+                }
+            }
         case 0x12:
-            state.rasterInterruptLine = (state.rasterInterruptLine & 0xFF00) | UInt16(byte)
+            if case let newRasterInterruptLine = (state.rasterInterruptLine & 0xFF00) | UInt16(byte), newRasterInterruptLine != state.rasterInterruptLine {
+                state.rasterInterruptLine = newRasterInterruptLine
+                if state.raster == state.rasterInterruptLine {
+                    state.ir |= 0x01
+                    updateIRQLine()
+                }
+            }
         case 0x15:
             state.me = byte
         case 0x16:
+            state.csel = byte & 0x08 != 0
+            borderComparison.left = state.csel ? 24 : 31
+            borderComparison.right = state.csel ? 343 : 334
             state.mcm = byte & 0x10 != 0
         case 0x17:
             state.mye = byte
@@ -268,7 +295,7 @@ final internal class VIC: Component, LineComponent {
             state.cb = (byte & 0x0E) >> 1
             state.vm = (byte & 0xF0) >> 4
         case 0x19:
-            state.ir = (state.ir & 0x80) | (~byte & 0x0F)
+            state.ir = (state.ir & 0x80) | (state.ir & (~byte & 0x0F))
             updateIRQLine()
         case 0x1A:
             state.ier = byte & 0x0F
@@ -349,6 +376,12 @@ final internal class VIC: Component, LineComponent {
                 state.displayState = true
             }
         }
+        if state.currentCycle >= 12 && state.currentCycle <= 54 {
+            if state.isBadLine {
+                state.baPin = false
+                rdyLine.update(self)
+            }
+        }
         switch state.currentCycle {
         case 1:
             if state.raster == 0 {
@@ -373,23 +406,18 @@ final internal class VIC: Component, LineComponent {
                 state.rc = (state.rc + 1) & 7
             }
         case 63:
-            if state.raster == borderComparison.bottom {
+            if state.raster == borderComparison.bottom + 1 {
                 state.verticalBorder = true
             } else if state.raster == borderComparison.top && state.den {
                 state.verticalBorder = false
             }
-            if configuration.cyclesPerRaster == 63 {
-                endOfRasterline()
-            }
-        case 65:
-            endOfRasterline()
         default:
             break
         }
         
         // First half-cycle
         let cyclesPerRaster = configuration.cyclesPerRaster
-        if state.currentCycle != cyclesPerRaster {
+        if state.currentCycle <= configuration.lastDrawCycle {
             draw()
         }
         switch state.currentCycle {
@@ -464,7 +492,7 @@ final internal class VIC: Component, LineComponent {
         }
         
         // Second half-cycle
-        if state.currentCycle != cyclesPerRaster {
+        if state.currentCycle <= configuration.lastDrawCycle {
             draw()
         }
         switch state.currentCycle {
@@ -478,6 +506,11 @@ final internal class VIC: Component, LineComponent {
             }
         case 15...54:
             cAccess()
+        case 55:
+            if state.isBadLine {
+                state.baPin = true
+                rdyLine.update(self)
+            }
         case cyclesPerRaster - 5, cyclesPerRaster - 3, cyclesPerRaster - 1:
             if state.spriteDma[Int(state.currentSprite)] {
                 sAccess(0)
@@ -491,6 +524,7 @@ final internal class VIC: Component, LineComponent {
         }
 
         if state.currentCycle == cyclesPerRaster {
+            endOfRasterline()
             state.currentCycle = 0
         }
         state.currentCycle += 1
@@ -518,7 +552,10 @@ final internal class VIC: Component, LineComponent {
             state.vc = (state.vc + 1) & 0x3FF
             state.vmli = (state.vmli + 1) & 0x3F
         } else {
-            //TODO: something here
+            state.graphicsSequencerData = state.ecm ? memoryAccess(0x39FF) : memoryAccess(0x3FFF)
+            state.graphicsSequencerShiftRegister = state.graphicsSequencerData
+            state.graphicsSequencerVideoMatrix = 0
+            state.graphicsSequencerColorLine = 0
         }
     }
     
@@ -540,76 +577,74 @@ final internal class VIC: Component, LineComponent {
         _ = memoryAccess(0x3F00 | UInt16(state.ref))
         state.ref = state.ref &- 1
     }
-    
+
     // Draw 4 pixels (half cycle)
     private func draw() {
         for i in 0...3 {
             if (state.rasterX >= configuration.visibleX.first || state.rasterX < configuration.visibleX.last - 1) &&
                 (state.raster > configuration.vblankLines.last || state.raster < configuration.vblankLines.first) {
-                if !state.mainBorder && !state.verticalBorder {
-                    if state.bmm {
-                        if state.mcm {
-                            switch (state.graphicsSequencerShiftRegister & 0xC0) >> 6 {
-                            case 0:
-                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
-                            case 1:
-                                state.screenBuffer[state.bufferPosition] = colors[Int((state.graphicsSequencerVideoMatrix & 0xF0) >> 4)]
-                            case 2:
-                                state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerVideoMatrix & 0x0F)]
-                            case 3:
-                                state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine)]
-                            default:
-                                break
-                            }
-                            if i % 2 == 1 {
-                                state.graphicsSequencerShiftRegister <<= 2
-                            }
-                        } else {
-                            if state.graphicsSequencerShiftRegister >> 7 != 0 {
-                                state.screenBuffer[state.bufferPosition] = colors[Int((state.graphicsSequencerVideoMatrix & 0xF0) >> 4)]
-                            } else {
-                                state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerVideoMatrix & 0x0F)]
-                            }
-                            state.graphicsSequencerShiftRegister <<= 1
-                        }
-                    } else if (!state.mcm && !state.bmm) || (state.mcm && state.graphicsSequencerColorLine & 0x08 == 0) {
-                        if state.graphicsSequencerShiftRegister >> 7 != 0 {
-                            state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine)]
-                        } else {
-                            if state.ecm {
-                                switch (state.graphicsSequencerVideoMatrix & 0xC0) >> 6 {
-                                case 0:
-                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
-                                case 1:
-                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
-                                case 2:
-                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
-                                case 3:
-                                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b3c)]
-                                default:
-                                    break
-                                }
-                            } else {
-                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
-                            }
-                        }
-                        state.graphicsSequencerShiftRegister <<= 1
-                    } else {
+                if state.bmm {
+                    if state.mcm {
                         switch (state.graphicsSequencerShiftRegister & 0xC0) >> 6 {
                         case 0:
                             state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
                         case 1:
-                            state.screenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
+                            state.screenBuffer[state.bufferPosition] = colors[Int((state.graphicsSequencerVideoMatrix & 0xF0) >> 4)]
                         case 2:
-                            state.screenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
+                            state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerVideoMatrix & 0x0F)]
                         case 3:
-                            state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine) & 0x07]
+                            state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine)]
                         default:
                             break
                         }
                         if i % 2 == 1 {
                             state.graphicsSequencerShiftRegister <<= 2
                         }
+                    } else {
+                        if state.graphicsSequencerShiftRegister >> 7 != 0 {
+                            state.screenBuffer[state.bufferPosition] = colors[Int((state.graphicsSequencerVideoMatrix & 0xF0) >> 4)]
+                        } else {
+                            state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerVideoMatrix & 0x0F)]
+                        }
+                        state.graphicsSequencerShiftRegister <<= 1
+                    }
+                } else if (!state.mcm && !state.bmm) || (state.mcm && state.graphicsSequencerColorLine & 0x08 == 0) {
+                    if state.graphicsSequencerShiftRegister >> 7 != 0 {
+                        state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine)]
+                    } else {
+                        if state.ecm {
+                            switch (state.graphicsSequencerVideoMatrix & 0xC0) >> 6 {
+                            case 0:
+                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
+                            case 1:
+                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
+                            case 2:
+                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
+                            case 3:
+                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b3c)]
+                            default:
+                                break
+                            }
+                        } else {
+                            state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
+                        }
+                    }
+                    state.graphicsSequencerShiftRegister <<= 1
+                } else {
+                    switch (state.graphicsSequencerShiftRegister & 0xC0) >> 6 {
+                    case 0:
+                        state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
+                    case 1:
+                        state.screenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
+                    case 2:
+                        state.screenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
+                    case 3:
+                        state.screenBuffer[state.bufferPosition] = colors[Int(state.graphicsSequencerColorLine) & 0x07]
+                    default:
+                        break
+                    }
+                    if i % 2 == 1 {
+                        state.graphicsSequencerShiftRegister <<= 2
                     }
                 }
                 if state.anySpriteDisplaying {
