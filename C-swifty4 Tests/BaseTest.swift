@@ -38,7 +38,7 @@ class BaseTest: XCTestCase {
             basicData: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
             characterData: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!))
         let config = C64Configuration(rom: romConfig,
-                                      vic: VICConfiguration.ntsc,
+                                      vic: VICConfiguration.pal,
                                       c1541: C1541Configuration(rom: C1541ROMConfiguration(c1541Data: try! Data(contentsOf: Bundle(for: self.classForCoder).url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))))
         c64 = C64(configuration: config)
         c64.delegate = self
