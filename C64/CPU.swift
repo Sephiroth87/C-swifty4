@@ -1579,9 +1579,9 @@ final internal class CPU: Component, LineComponent {
     
     private func absoluteFixPage() {
         if loadDataAbsolute() {
-        if state.pageBoundaryCrossed {
-            state.addressHigh = state.addressHigh &+ 1
-        }
+            if state.pageBoundaryCrossed {
+                state.addressHigh = state.addressHigh &+ 1
+            }
         }
     }
     

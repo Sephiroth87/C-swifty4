@@ -523,15 +523,19 @@ extension CPU {
     //MARK: DEX
     
     internal func dexImplied() {
-        loadX(state.x &- 1)
-        state.cycle = 0
+        if idleReadImplied() {
+            loadX(state.x &- 1)
+            state.cycle = 0
+        }
     }
     
     //MARK: DEY
     
     internal func deyImplied() {
-        loadY(state.y &- 1)
-        state.cycle = 0
+        if idleReadImplied() {
+            loadY(state.y &- 1)
+            state.cycle = 0
+        }
     }
     
     //MARK: EOR
