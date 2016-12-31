@@ -204,7 +204,7 @@ final public class C64 {
     }
     
     public func debugInfo() -> [String: String] {
-        return cpu.debugInfo()
+        return ["cpu": cpu.state.description + " " + cpu.debugInfo()["description"]!]
     }
     
     public func peek(_ address: UInt16) -> UInt8 {
