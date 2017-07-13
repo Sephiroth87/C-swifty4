@@ -27,6 +27,14 @@ public struct VICConfiguration {
                                              visibleX: (first: 480, last: 380),
                                              cyclesPerRaster: 63,
                                              lastDrawCycle: 63)
+    static public let palDebug = VICConfiguration(resolution: (width: 504, height: 312),
+                                             vblankLines: (first: 312, last: 0),
+                                             topLine: 0,
+                                             totalLines: 312,
+                                             xLimits: (first: 404, last: 504),
+                                             visibleX: (first: 404, last: 504),
+                                             cyclesPerRaster: 63,
+                                             lastDrawCycle: 63)
     static public let ntsc = VICConfiguration(resolution: (width: 418, height: 235),
                                               vblankLines: (first: 13, last: 40),
                                               topLine: 27,

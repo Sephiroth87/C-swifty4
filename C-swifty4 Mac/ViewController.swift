@@ -26,7 +26,7 @@ class ViewController: NSViewController {
             basicData: try! Data(contentsOf: Bundle.main.url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
             characterData: try! Data(contentsOf: Bundle.main.url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!))
         let config = C64Configuration(rom: romConfig,
-                                      vic: VICConfiguration.pal,
+                                      vic: .pal,
                                       c1541: C1541Configuration(rom: C1541ROMConfiguration(c1541Data: try! Data(contentsOf: Bundle.main.url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))))
         return C64(configuration: config)
     }()
@@ -239,8 +239,6 @@ extension ViewController: C64Delegate {
     
     func C64DidBreak(_ c64: C64) {
 //        print(c64.cpu)
-
-        c64.tracing = true
 
         stepButton.isEnabled = true
         stepButton.alphaValue = 1.0
