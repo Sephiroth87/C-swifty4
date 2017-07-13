@@ -56,3 +56,6 @@ All except tests for new CIA, trap17
 - [ ] stability-ntsc.prg
 - [ ] stability.prg
 - [x] write-stop.prg
+##VICII
+####gfxfetch
+-[x] gfxfetch.prg
