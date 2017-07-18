@@ -35,7 +35,9 @@ class ViewController: NSViewController {
         super.viewDidLoad()
 
         let resolution = c64.configuration.vic.resolution
-        graphicsView.size = NSSize(width: resolution.width, height: resolution.height)
+        let safeArea = c64.configuration.vic.safeArea
+        graphicsView.setTextureSize(CGSize(width: resolution.width, height: resolution.height),
+                                    safeArea: EdgeInsets(top: CGFloat(safeArea.top), left: CGFloat(safeArea.left), bottom: CGFloat(safeArea.bottom), right: CGFloat(safeArea.right)))
         
         c64.delegate = self
         c64.c1541.delegate = self
@@ -50,7 +52,9 @@ class ViewController: NSViewController {
     override func viewWillAppear() {
         super.viewWillAppear()
 
-        let size = NSSize(width: graphicsView.size.width, height: graphicsView.size.height + 22.0)
+        let resolution = c64.configuration.vic.resolution
+        let safeArea = c64.configuration.vic.safeArea
+        let size = NSSize(width: resolution.width - safeArea.left - safeArea.right, height: resolution.height - safeArea.top - safeArea.bottom + 22)
         view.window?.setContentSize(size)
         view.window?.contentMinSize = size
         view.window?.makeFirstResponder(self)
@@ -215,8 +219,9 @@ extension ViewController: NSWindowDelegate {
         var newSize = frameSize
         newSize.width = max(newSize.width, sender.contentMinSize.width)
         newSize.height = max(newSize.height, sender.contentMinSize.height)
-        let vicResolution = c64.configuration.vic.resolution
-        sender.contentAspectRatio = NSSize(width: newSize.width, height: (newSize.width / CGFloat(Float(vicResolution.width) / Float(vicResolution.height))) + 22.0)
+        let resolution = c64.configuration.vic.resolution
+        let safeArea = c64.configuration.vic.safeArea
+        sender.contentAspectRatio = NSSize(width: newSize.width, height: (newSize.width / CGFloat(Float(resolution.width - safeArea.left - safeArea.right) / Float(resolution.height - safeArea.top - safeArea.bottom))) + 22.0)
         return newSize
     }
 

@@ -10,16 +10,19 @@ import Cocoa
 
 private class ContextBackedLayer: CALayer {
 
-    private let size: NSSize
+    private let size: CGSize
+    private let safeArea: EdgeInsets
     private let context: CGContext
 
-    required init(size: NSSize) {
+    required init(size: CGSize, safeArea: EdgeInsets) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         self.size = size
+        self.safeArea = safeArea
         context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: Int(size.width) * 4, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         super.init()
-        self.actions = ["contents": NSNull()]
-        self.backgroundColor = NSColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0).cgColor
+        actions = ["contents": NSNull()]
+        backgroundColor = NSColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0).cgColor
+        updateContentsRect()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -27,41 +30,55 @@ private class ContextBackedLayer: CALayer {
     }
 
     override func display() {
-        let CGImage = context.makeImage()
-        self.contents = CGImage
+        let cgImage = context.makeImage()
+        contents = cgImage
     }
     
     fileprivate func setData(_ data: UnsafePointer<UInt32>) {
         let address = context.data
         memcpy(address, data, Int(size.width) * Int(size.height) * 4)
         let cgImage = context.makeImage()
-        self.contents = cgImage
+        contents = cgImage
     }
     
     override var bounds: CGRect {
         didSet {
-            var wScale = bounds.width / size.width
-            var hScale = bounds.height / size.height
-            if wScale > hScale {
-                wScale /= hScale
-                hScale = 1.0
-            } else {
-                hScale /= wScale
-                wScale = 1.0
+            if bounds.size != oldValue.size {
+                updateContentsRect()
             }
-            self.contentsRect = CGRect(x: (1.0 - wScale) / 2.0, y: (1.0 - hScale) / 2.0, width: wScale, height: hScale)
         }
+    }
+    
+    private func updateContentsRect() {
+        let safeW = size.width - safeArea.left - safeArea.right
+        let safeH = size.height - safeArea.top - safeArea.bottom
+        var wScale = bounds.width / safeW
+        var hScale = bounds.height / safeH
+        if wScale > hScale {
+            wScale /= hScale
+            hScale = safeH / size.height
+        } else {
+            hScale /= wScale
+            wScale = safeW / size.width
+        }
+        if wScale >= 1.0 {
+            wScale *= safeW / size.width
+        }
+        if hScale >= 1.0 {
+            hScale *= safeH / size.height
+        }
+        let x = -wScale * 0.5 + (0.5 + ((safeArea.left - safeArea.right) / size.width) / 2.0)
+        let y = -hScale * 0.5 + (0.5 + ((safeArea.bottom - safeArea.top) / size.height) / 2.0)
+        contentsRect = CGRect(x: x, y: y, width: wScale, height: hScale)
     }
     
 }
 
 class ContextBackedView: NSView {
-
-    var size: NSSize = .zero {
-        didSet {
-            self.wantsLayer = true
-            self.layer = ContextBackedLayer(size: size)
-        }
+    
+    func setTextureSize(_ size: CGSize, safeArea: EdgeInsets) {
+        self.wantsLayer = true
+        self.layer = ContextBackedLayer(size: size, safeArea: safeArea)
     }
 
     internal func setData(_ data: UnsafePointer<UInt32>) {

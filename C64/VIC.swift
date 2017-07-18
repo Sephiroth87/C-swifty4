@@ -11,6 +11,7 @@ import Foundation
 public struct VICConfiguration {
 
     public let resolution: (width: Int, height: Int)
+    public let safeArea: (top: Int, left: Int, bottom: Int, right: Int)
     fileprivate let vblankLines: (first: UInt16, last: UInt16)
     fileprivate let topLine: UInt16
     internal let totalLines: UInt16
@@ -18,8 +19,9 @@ public struct VICConfiguration {
     fileprivate let visibleX: (first: UInt16, last: UInt16)
     internal let cyclesPerRaster: UInt8
     fileprivate let lastDrawCycle: UInt8
-
+    
     static public let pal = VICConfiguration(resolution: (width: 403, height: 284),
+                                             safeArea: (top: 18, left: 29, bottom: 0, right: 0),
                                              vblankLines: (first: 300, last: 15),
                                              topLine: 0,
                                              totalLines: 312,
@@ -28,14 +30,16 @@ public struct VICConfiguration {
                                              cyclesPerRaster: 63,
                                              lastDrawCycle: 63)
     static public let palDebug = VICConfiguration(resolution: (width: 504, height: 312),
-                                             vblankLines: (first: 312, last: 0),
-                                             topLine: 0,
-                                             totalLines: 312,
-                                             xLimits: (first: 404, last: 504),
-                                             visibleX: (first: 404, last: 504),
-                                             cyclesPerRaster: 63,
-                                             lastDrawCycle: 63)
+                                                  safeArea: (top: 0, left: 0, bottom: 0, right: 0),
+                                                  vblankLines: (first: 312, last: 0),
+                                                  topLine: 0,
+                                                  totalLines: 312,
+                                                  xLimits: (first: 404, last: 504),
+                                                  visibleX: (first: 404, last: 504),
+                                                  cyclesPerRaster: 63,
+                                                  lastDrawCycle: 63)
     static public let ntsc = VICConfiguration(resolution: (width: 418, height: 235),
+                                              safeArea: (top: 0, left: 0, bottom: 0, right: 0),
                                               vblankLines: (first: 13, last: 40),
                                               topLine: 27,
                                               totalLines: 263,
