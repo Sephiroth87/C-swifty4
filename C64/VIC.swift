@@ -82,6 +82,7 @@ internal struct VICState: ComponentState {
     fileprivate var ier: UInt8 = 0 // Interrupt enable register
     fileprivate var ec: UInt8 = 0 // Border Color
     fileprivate var mmc: UInt8 = 0 // Sprite Multicolor
+    fileprivate var mxe: UInt8 = 0 // Sprite X expansion
     fileprivate var b0c: UInt8 = 0 // Background Color 0
     fileprivate var b1c: UInt8 = 0 // Background Color 1
     fileprivate var b2c: UInt8 = 0 // Background Color 2
@@ -141,7 +142,7 @@ internal struct VICState: ComponentState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
         let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
-        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_x: binaryDump.next(8), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mmc: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), graphicsSequencerData: binaryDump.next(), graphicsSequencerShiftRegister: binaryDump.next(), graphicsSequencerVideoMatrix: binaryDump.next(), graphicsSequencerColorLine: binaryDump.next(), spriteSequencerData: binaryDump.next(8), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteShiftRegisterCount: binaryDump.next(8), cyclePixelBuffer: binaryDump.next(8))
+        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_x: binaryDump.next(8), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mmc: binaryDump.next(), mxe: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), graphicsSequencerData: binaryDump.next(), graphicsSequencerShiftRegister: binaryDump.next(), graphicsSequencerVideoMatrix: binaryDump.next(), graphicsSequencerColorLine: binaryDump.next(), spriteSequencerData: binaryDump.next(8), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteShiftRegisterCount: binaryDump.next(8), cyclePixelBuffer: binaryDump.next(8))
     }
     
 }
@@ -236,6 +237,8 @@ final internal class VIC: Component, LineComponent {
             return state.ier | 0xF0
         case 0x1C:
             return state.mmc
+        case 0x1D:
+            return state.mxe
         case 0x20:
             return state.ec | 0xF0
         case 0x21:
@@ -314,6 +317,8 @@ final internal class VIC: Component, LineComponent {
             state.ier = byte & 0x0F
         case 0x1C:
             state.mmc = byte
+        case 0x1D:
+            state.mxe = byte
         case 0x20:
             state.ec = byte & 0x0F
         case 0x21:
@@ -676,6 +681,7 @@ final internal class VIC: Component, LineComponent {
                                 state.spriteShiftRegisterCount[spriteIndex] = 24
                             }
                             if state.spriteShiftRegisterCount[spriteIndex] > 0 {
+                                let xExpansion = state.mxe & UInt8(1 << spriteIndex) != 0
                                 if state.mmc & UInt8(1 << spriteIndex) != 0 {
                                     switch (state.spriteSequencerData[spriteIndex] >> 22) & 0x03 {
                                     case 1:
@@ -687,7 +693,7 @@ final internal class VIC: Component, LineComponent {
                                     default:
                                         break
                                     }
-                                    if i % 2 == 1 {
+                                    if (!xExpansion && i % 2 == 1) || (xExpansion && i % 4 == 3) {
                                         state.spriteSequencerData[spriteIndex] <<= 2
                                         state.spriteShiftRegisterCount[spriteIndex] -= 2
                                     }
@@ -695,8 +701,10 @@ final internal class VIC: Component, LineComponent {
                                     if state.spriteSequencerData[spriteIndex] & 0x800000 != 0 {
                                         state.cyclePixelBuffer[i] = colors[Int(state.m_c[spriteIndex])]
                                     }
-                                    state.spriteSequencerData[spriteIndex] <<= 1
-                                    state.spriteShiftRegisterCount[spriteIndex] -= 1
+                                    if !xExpansion || (xExpansion && i % 2 == 1) {
+                                        state.spriteSequencerData[spriteIndex] <<= 1
+                                        state.spriteShiftRegisterCount[spriteIndex] -= 1
+                                    }
                                 }
                             }
                         }

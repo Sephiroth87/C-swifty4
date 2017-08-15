@@ -57,5 +57,7 @@ All except tests for new CIA, trap17
 - [ ] stability.prg
 - [x] write-stop.prg
 ##VICII
+####colorram
+-[x] test.prg
 ####gfxfetch
 -[x] gfxfetch.prg

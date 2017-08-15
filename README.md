@@ -43,8 +43,6 @@ Then just open the project file, build and run.
 
 * Sound
 * Joystick 1
-* Timers
-* VIC interrupts
 * Loading tapes
 * Playing games probably
 * FPS limiting (runs as fast as it can right now)
