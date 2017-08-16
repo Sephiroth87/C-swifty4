@@ -61,5 +61,9 @@ All except tests for new CIA, trap17
 -[x] test.prg
 ####gfxfetch
 -[x] gfxfetch.prg
+####spritecollisions
+-[] sprite-gfx-collision-cycle
+-[] sprite-sprite-collision-cycle.prg
+-[x] sprite-sprite.prg
 ####spritepriorities
 -[x] test1.prg
