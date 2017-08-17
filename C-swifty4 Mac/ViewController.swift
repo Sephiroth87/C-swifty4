@@ -180,7 +180,7 @@ class ViewController: NSViewController {
         case 126:
             c64.setJoystick2YAxis(.up)
         default:
-            if let characters = theEvent.characters?.utf8 {
+            if let characters = theEvent.charactersIgnoringModifiers?.lowercased().utf8 {
                 c64.pressKey(characters[characters.startIndex])
             }
         }
@@ -197,7 +197,7 @@ class ViewController: NSViewController {
         case 125, 126:
             c64.setJoystick2YAxis(.none)
         default:
-            if let characters = theEvent.characters?.utf8 {
+            if let characters = theEvent.charactersIgnoringModifiers?.lowercased().utf8 {
                 c64.releaseKey(characters[characters.startIndex])
             }
         }
@@ -208,6 +208,11 @@ class ViewController: NSViewController {
             c64.pressJoystick2Button()
         } else {
             c64.releaseJoystick2Button()
+        }
+        if theEvent.modifierFlags.intersection(.shift) != [] {
+            c64.pressSpecialKey(.shift)
+        } else {
+            c64.releaseSpecialKey(.shift)
         }
     }
     
