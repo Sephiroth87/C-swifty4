@@ -61,6 +61,7 @@ final internal class Keyboard {
         UInt8(ascii: "+") : UInt16(0x0500),
         UInt8(ascii: "-") : UInt16(0x0503),
         UInt8(ascii: "*") : UInt16(0x0601),
+        UInt8(ascii: "/") : UInt16(0x0607),
         // Shifted chars
         UInt8(ascii: "\"") : UInt16(0x1703),
         UInt8(ascii: "(") : UInt16(0x1303),
