@@ -18,7 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-        if let vc = NSApplication.shared().mainWindow?.contentViewController as? ViewController {
+        if let vc = NSApplication.shared.mainWindow?.contentViewController as? ViewController {
             return vc.handleFile(url: URL(fileURLWithPath: filename))
         }
         return false

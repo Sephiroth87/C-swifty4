@@ -34,7 +34,7 @@ private func encodeGCR(_ bytes: [UInt8]) -> [UInt8] {
     encoded |= gcr[Int(bytes[2] & 0x0F)] << 10
     encoded |= gcr[Int(bytes[3] >> 4)] << 5
     encoded |= gcr[Int(bytes[3] & 0x0F)]
-    return [UInt8(truncatingBitPattern: encoded >> 32), UInt8(truncatingBitPattern: encoded >> 24), UInt8(truncatingBitPattern: encoded >> 16), UInt8(truncatingBitPattern: encoded >> 8), UInt8(truncatingBitPattern: encoded)]
+    return [UInt8(truncatingIfNeeded: encoded >> 32), UInt8(truncatingIfNeeded: encoded >> 24), UInt8(truncatingIfNeeded: encoded >> 16), UInt8(truncatingIfNeeded: encoded >> 8), UInt8(truncatingIfNeeded: encoded)]
 }
 
 internal final class Disk {

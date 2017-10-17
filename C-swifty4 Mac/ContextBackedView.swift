@@ -11,10 +11,10 @@ import Cocoa
 private class ContextBackedLayer: CALayer {
 
     private let size: CGSize
-    private let safeArea: EdgeInsets
+    private let safeArea: NSEdgeInsets
     private let context: CGContext
 
-    required init(size: CGSize, safeArea: EdgeInsets) {
+    required init(size: CGSize, safeArea: NSEdgeInsets) {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         self.size = size
         self.safeArea = safeArea
@@ -76,7 +76,7 @@ private class ContextBackedLayer: CALayer {
 
 class ContextBackedView: NSView {
     
-    func setTextureSize(_ size: CGSize, safeArea: EdgeInsets) {
+    func setTextureSize(_ size: CGSize, safeArea: NSEdgeInsets) {
         self.wantsLayer = true
         self.layer = ContextBackedLayer(size: size, safeArea: safeArea)
     }

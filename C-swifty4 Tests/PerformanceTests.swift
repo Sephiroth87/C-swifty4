@@ -38,19 +38,19 @@ class PerformanceTests: XCTestCase {
     }
     
     func test_cputiming_performance() {
-        measureMetrics(PerformanceTests.defaultPerformanceMetrics(), automaticallyStartMeasuring: true) {
+        measureMetrics(PerformanceTests.defaultPerformanceMetrics, automaticallyStartMeasuring: true) {
             self.setupTest("cputiming")
         }
     }
     
     func test_irq_performance() {
-        measureMetrics(PerformanceTests.defaultPerformanceMetrics(), automaticallyStartMeasuring: true) {
+        measureMetrics(PerformanceTests.defaultPerformanceMetrics, automaticallyStartMeasuring: true) {
             self.setupTest("irq")
         }
     }
     
     func test_nmi_performance() {
-        measureMetrics(PerformanceTests.defaultPerformanceMetrics(), automaticallyStartMeasuring: true) {
+        measureMetrics(PerformanceTests.defaultPerformanceMetrics, automaticallyStartMeasuring: true) {
             self.setupTest("nmi")
         }
     }

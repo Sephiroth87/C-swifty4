@@ -17,10 +17,16 @@ final class iOSViewController: UIViewController {
     fileprivate var startTime: CFTimeInterval = 0
     fileprivate var frames = 0
 
-    fileprivate let c64: C64 = C64(kernalData: try! Data(contentsOf: Bundle.main.url(forResource: "kernal", withExtension: nil, subdirectory:"ROM")!),
-                                   basicData: try! Data(contentsOf: Bundle.main.url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
-                                   characterData: try! Data(contentsOf: Bundle.main.url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!),
-                                   c1541Data: try! Data(contentsOf: Bundle.main.url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))
+    fileprivate let c64: C64 = {
+        let romConfig = C64ROMConfiguration(
+            kernalData: try! Data(contentsOf: Bundle.main.url(forResource: "kernal", withExtension: nil, subdirectory:"ROM")!),
+            basicData: try! Data(contentsOf: Bundle.main.url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
+            characterData: try! Data(contentsOf: Bundle.main.url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!))
+        let config = C64Configuration(rom: romConfig,
+                                      vic: VICConfiguration.pal,
+                                      c1541: C1541Configuration(rom: C1541ROMConfiguration(c1541Data: try! Data(contentsOf: Bundle.main.url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))))
+        return C64(configuration: config)
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()

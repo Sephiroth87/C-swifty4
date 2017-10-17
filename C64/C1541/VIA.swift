@@ -158,9 +158,9 @@ internal class VIA: LineComponent {
         case 0x04:
             ifr &= ~0x40
             updateInterruptPin()
-            return UInt8(truncatingBitPattern: t1c)
+            return UInt8(truncatingIfNeeded: t1c)
         case 0x05:
-            return UInt8(truncatingBitPattern: t1c >> 8)
+            return UInt8(truncatingIfNeeded: t1c >> 8)
         case 0x06:
             return t1ll
         case 0x07:
@@ -168,9 +168,9 @@ internal class VIA: LineComponent {
         case 0x08:
             ifr &= ~0x20
             updateInterruptPin()
-            return UInt8(truncatingBitPattern: t2c)
+            return UInt8(truncatingIfNeeded: t2c)
         case 0x09:
-            return UInt8(truncatingBitPattern: t2c >> 8)
+            return UInt8(truncatingIfNeeded: t2c >> 8)
         case 0x0B:
             return acr
         case 0x0C:

@@ -10,7 +10,7 @@ import Cocoa
 import XCTest
 @testable import C64
 
-class BaseTest: XCTestCase {
+class BaseTest: XCTestCase, C64Delegate {
     
     internal var c64: C64!
     internal var expectation: XCTestExpectation!
@@ -23,10 +23,9 @@ class BaseTest: XCTestCase {
         return 100
     }
     
-    
     func setupTest(_ filename: String) {
         self.fileName = filename
-        expectation = self.expectation(description: name!)
+        self.expectation = self.expectation(description: name)
         c64.run()
         waitForExpectations(timeout: timeout, handler: nil)
     }
@@ -50,10 +49,6 @@ class BaseTest: XCTestCase {
         }
     }
 
-}
-
-extension BaseTest: C64Delegate {
-    
     func C64DidBreak(_ c64: C64) {}
     
     func C64DidCrash(_ c64: C64) {

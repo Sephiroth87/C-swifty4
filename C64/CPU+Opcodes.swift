@@ -33,7 +33,7 @@ extension CPU {
             let sum = (tempA + UInt16(value) + (state.c ? 1 : 0))
             state.c = (sum > 0xFF)
             state.v = (((tempA ^ UInt16(value)) & 0x80) == 0 && ((tempA ^ sum) & 0x80) != 0)
-            loadA(UInt8(truncatingBitPattern: sum))
+            loadA(UInt8(truncatingIfNeeded: sum))
         }
     }
     
@@ -1150,7 +1150,7 @@ extension CPU {
             }
             state.c = (sum < 0x100)
             state.v = (((tempA ^ sum) & 0x80) != 0 && ((tempA ^ UInt16(value)) & 0x80) != 0)
-            state.z = (UInt8(truncatingBitPattern: sum) == 0)
+            state.z = (UInt8(truncatingIfNeeded: sum) == 0)
             state.n = (sum & 0x80 != 0)
             state.a = (highNybble << 4) | (lowNybble & 0x0F)
         } else {
@@ -1158,7 +1158,7 @@ extension CPU {
             let sum = (tempA &- UInt16(value) &- (state.c ? 0 : 1))
             state.c = (sum <= 0xFF)
             state.v = (((UInt16(state.a) ^ sum) & 0x80) != 0 && ((UInt16(state.a) ^ UInt16(value)) & 0x80) != 0)
-            loadA(UInt8(truncatingBitPattern: sum))
+            loadA(UInt8(truncatingIfNeeded: sum))
         }
     }
     

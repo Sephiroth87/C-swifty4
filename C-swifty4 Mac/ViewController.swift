@@ -37,7 +37,7 @@ class ViewController: NSViewController {
         let resolution = c64.configuration.vic.resolution
         let safeArea = c64.configuration.vic.safeArea
         graphicsView.setTextureSize(CGSize(width: resolution.width, height: resolution.height),
-                                    safeArea: EdgeInsets(top: CGFloat(safeArea.top), left: CGFloat(safeArea.left), bottom: CGFloat(safeArea.bottom), right: CGFloat(safeArea.right)))
+                                    safeArea: NSEdgeInsets(top: CGFloat(safeArea.top), left: CGFloat(safeArea.left), bottom: CGFloat(safeArea.bottom), right: CGFloat(safeArea.right)))
         
         c64.delegate = self
         c64.c1541.delegate = self
@@ -113,7 +113,7 @@ class ViewController: NSViewController {
         let panel = NSOpenPanel()
         panel.allowedFileTypes = ["prg", "txt", "d64", "p00", "rw"]
         panel.beginSheetModal(for: self.view.window!) { result in
-            if let url = panel.urls.first , result == NSFileHandlingPanelOKButton {
+            if let url = panel.urls.first , result.rawValue == NSFileHandlingPanelOKButton {
                 self.handleFile(url: url)
             } else {
                 self.c64.run()
@@ -134,7 +134,7 @@ class ViewController: NSViewController {
             panel.directoryURL = iCloudFolder.appendingPathComponent("Documents")
         }
         panel.beginSheetModal(for: view.window!) { result in
-            if let url = panel.url , result == NSFileHandlingPanelOKButton {
+            if let url = panel.url , result.rawValue == NSFileHandlingPanelOKButton {
                 self.c64.saveState { save in
                     let data = Data(save.data)
                     _ = try? data.write(to: url)
@@ -152,7 +152,7 @@ class ViewController: NSViewController {
         let panel = NSOpenPanel()
         panel.allowedFileTypes = ["cs4"]
         panel.beginSheetModal(for: view.window!) { result in
-            if let url = panel.urls.first , result == NSFileHandlingPanelOKButton {
+            if let url = panel.urls.first , result.rawValue == NSFileHandlingPanelOKButton {
                 let data = try! Data(contentsOf: url)
                 let bytes = Array(UnsafeBufferPointer(start: (data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count), count: data.count))
                 let save = SaveState(data: bytes)
@@ -204,12 +204,12 @@ class ViewController: NSViewController {
     }
     
     override func flagsChanged(with theEvent: NSEvent) {
-        if theEvent.modifierFlags.intersection(.control) != [] {
+        if theEvent.modifierFlags.intersection(NSEvent.ModifierFlags.control) != [] {
             c64.pressJoystick2Button()
         } else {
             c64.releaseJoystick2Button()
         }
-        if theEvent.modifierFlags.intersection(.shift) != [] {
+        if theEvent.modifierFlags.intersection(NSEvent.ModifierFlags.shift) != [] {
             c64.pressSpecialKey(.shift)
         } else {
             c64.releaseSpecialKey(.shift)

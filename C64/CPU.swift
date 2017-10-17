@@ -77,7 +77,7 @@ final internal class CPU: Component, LineComponent {
             state.pc = (state.pc & 0xFF00) | UInt16(newValue)
         }
         get {
-            return UInt8(truncatingBitPattern: state.pc)
+            return UInt8(truncatingIfNeeded: state.pc)
         }
     }
     internal var pch: UInt8 {
@@ -85,7 +85,7 @@ final internal class CPU: Component, LineComponent {
             state.pc = (state.pc & 0x00FF) | UInt16(newValue) << 8
         }
         get {
-            return UInt8(truncatingBitPattern: state.pc >> 8)
+            return UInt8(truncatingIfNeeded: state.pc >> 8)
         }
     }
 

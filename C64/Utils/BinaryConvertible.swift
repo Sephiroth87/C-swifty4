@@ -66,7 +66,7 @@ extension BinaryConvertible {
             if let value = value as? BinaryDumpable {
                 out.append(contentsOf: value.dump())
             } else {
-                print("Skipping \(label)")
+                print("Skipping \(String(describing: label))")
             }
         }
         return out
@@ -114,7 +114,7 @@ extension UInt8: BinaryConvertible {
 extension UInt16: BinaryConvertible {
     
     func dump() -> [UInt8] {
-        return [UInt8(truncatingBitPattern: self >> 8), UInt8(truncatingBitPattern: self)]
+        return [UInt8(truncatingIfNeeded: self >> 8), UInt8(truncatingIfNeeded: self)]
     }
     
     var binarySize: UInt {
@@ -131,7 +131,7 @@ extension UInt32: BinaryConvertible {
     
     func dump() -> [UInt8] {
         return (0...3).map {
-            UInt8(truncatingBitPattern: self >> ($0 * 8))
+            UInt8(truncatingIfNeeded: self >> ($0 * 8))
             }.reversed()
     }
     
@@ -167,7 +167,7 @@ extension Int: BinaryConvertible {
     
     func dump() -> [UInt8] {
         return (0...7).map {
-            UInt8(truncatingBitPattern: self >> ($0 * 8))
+            UInt8(truncatingIfNeeded: self >> ($0 * 8))
         }.reversed()
     }
     

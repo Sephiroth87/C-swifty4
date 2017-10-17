@@ -27,9 +27,9 @@ final internal class C1541Memory: Memory {
         if position < 0x1000 {
             return memory[Int(position & 0x07FF)]
         } else if position & 0xFC00 == 0x1800 { // Can't find any reference for this repeating, but everyone else is doing it...
-            return via1.readByte(UInt8(truncatingBitPattern: position & 0x000F))
+            return via1.readByte(UInt8(truncatingIfNeeded: position & 0x000F))
         } else if position & 0xFC00 == 0x1C00 {
-            return via2.readByte(UInt8(truncatingBitPattern: position & 0x000F))
+            return via2.readByte(UInt8(truncatingIfNeeded: position & 0x000F))
         }
         return memory[Int(position)]
     }
@@ -44,9 +44,9 @@ final internal class C1541Memory: Memory {
         if position < 0x1000 {
             memory[Int(position & 0x07FF)] = byte
         } else if position & 0xFC00 == 0x1800 { // Same as above...
-            via1.writeByte(UInt8(truncatingBitPattern: position & 0x000F), byte: byte)
+            via1.writeByte(UInt8(truncatingIfNeeded: position & 0x000F), byte: byte)
         } else if position & 0xFC00 == 0x1C00 {
-            via2.writeByte(UInt8(truncatingBitPattern: position & 0x000F), byte: byte)
+            via2.writeByte(UInt8(truncatingIfNeeded: position & 0x000F), byte: byte)
         }
     }
     

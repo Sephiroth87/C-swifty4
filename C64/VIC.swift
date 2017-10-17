@@ -170,22 +170,22 @@ final internal class VIC: Component, LineComponent {
     private var borderComparison = (top: UInt16(51), left: UInt16(24), bottom: UInt16(251), right: UInt16(344)) // Default value (RSEL = 1, CSEL = 1)
 
     private let colors: [UInt32] = [
-        UInt32(truncatingBitPattern: (0xFF101010 as UInt64)),
-        UInt32(truncatingBitPattern: (0xFFFFFFFF as UInt64)),
-        UInt32(truncatingBitPattern: (0xFF4040E0 as UInt64)),
-        UInt32(truncatingBitPattern: (0xFFFFFF60 as UInt64)),
-        UInt32(truncatingBitPattern: (0xFFE060E0 as UInt64)),
-        UInt32(truncatingBitPattern: (0xFF40E040 as UInt64)),
-        UInt32(truncatingBitPattern: (0xFFE04040 as UInt64)),
-        UInt32(truncatingBitPattern: (0xFF40FFFF as UInt64)),
-        UInt32(truncatingBitPattern: (0xFF40A0E0 as UInt64)),
-        UInt32(truncatingBitPattern: (0xFF48749C as UInt64)),
-        UInt32(truncatingBitPattern: (0xFFA0A0FF as UInt64)),
-        UInt32(truncatingBitPattern: (0xFF545454 as UInt64)),
-        UInt32(truncatingBitPattern: (0xFF888888 as UInt64)),
-        UInt32(truncatingBitPattern: (0xFFA0FFA0 as UInt64)),
-        UInt32(truncatingBitPattern: (0xFFFFA0A0 as UInt64)),
-        UInt32(truncatingBitPattern: (0xFFC0C0C0 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFF101010 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFFFFFFFF as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFF4040E0 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFFFFFF60 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFFE060E0 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFF40E040 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFFE04040 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFF40FFFF as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFF40A0E0 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFF48749C as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFFA0A0FF as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFF545454 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFF888888 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFFA0FFA0 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFFFFA0A0 as UInt64)),
+        UInt32(truncatingIfNeeded: (0xFFC0C0C0 as UInt64)),
     ]
     
     //MARK: LineComponent
@@ -209,7 +209,7 @@ final internal class VIC: Component, LineComponent {
     internal func readByte(_ position: UInt8) -> UInt8 {
         switch position {
         case 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E:
-            return UInt8(truncatingBitPattern: state.m_x[Int(position >> 1)])
+            return UInt8(truncatingIfNeeded: state.m_x[Int(position >> 1)])
         case 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F:
             return state.m_y[Int((position - 1) >> 1)]
         case 0x10:
@@ -221,11 +221,11 @@ final internal class VIC: Component, LineComponent {
             value |= (state.m_x[5] & 0xFF00) >> 3
             value |= (state.m_x[6] & 0xFF00) >> 2
             value |= (state.m_x[7] & 0xFF00) >> 1
-            return UInt8(truncatingBitPattern: value)
+            return UInt8(truncatingIfNeeded: value)
         case 0x11:
             return (state.yScroll & 0x07) | (state.rsel ? 0x08 : 0) | (state.den ? 0x10 : 0) | (state.bmm ? 0x20 : 0) | (state.ecm ? 0x40 : 0) | UInt8((state.raster & 0x100) >> 1)
         case 0x12:
-            return UInt8(truncatingBitPattern: state.raster)
+            return UInt8(truncatingIfNeeded: state.raster)
         case 0x15:
             return state.me
         case 0x16:
@@ -487,7 +487,7 @@ final internal class VIC: Component, LineComponent {
             fallthrough
         case 56:
             for i in 0...7 {
-                if state.me & UInt8(1 << i) != 0 && state.m_y[i] == UInt8(truncatingBitPattern: state.raster) {
+                if state.me & UInt8(1 << i) != 0 && state.m_y[i] == UInt8(truncatingIfNeeded: state.raster) {
                     state.spriteDma[i] = true
                     state.mcbase[i] = 0
                     if state.mye & UInt8(1 << i) != 0 {
@@ -500,7 +500,7 @@ final internal class VIC: Component, LineComponent {
             for i in 0...7 {
                 state.mc[i] = state.mcbase[i]
                 if state.spriteDma[i] {
-                    if state.m_y[i] == UInt8(truncatingBitPattern: state.raster) {
+                    if state.m_y[i] == UInt8(truncatingIfNeeded: state.raster) {
                         state.spriteDisplay[i] = true
                         state.anySpriteDisplaying = true
                     }

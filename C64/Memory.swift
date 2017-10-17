@@ -86,7 +86,7 @@ final internal class C64Memory: Memory, Component {
     @discardableResult internal func readByte(_ position: UInt16) -> UInt8 {
         switch position {
         case 0x0000, 0x0001:
-            return cpu.readByte(UInt8(truncatingBitPattern: position))
+            return cpu.readByte(UInt8(truncatingIfNeeded: position))
         case 0xA000...0xBFFF:
             if state.basicRomVisible {
                 return rom[Int(position)]
@@ -95,15 +95,15 @@ final internal class C64Memory: Memory, Component {
         case 0xD000...0xDFFF:
             if state.ioVisible {
                 if position >= 0xD000 && position <= 0xD3FF {
-                    return vic.readByte(UInt8(truncatingBitPattern: position & 0x003F))
+                    return vic.readByte(UInt8(truncatingIfNeeded: position & 0x003F))
                 } else if position >= 0xD400 && position <= 0xD7FF {
-                    return sid.readByte(UInt8(truncatingBitPattern: position & 0x1F))
+                    return sid.readByte(UInt8(truncatingIfNeeded: position & 0x1F))
                 } else if position >= 0xD800 && position <= 0xDBFF {
-                    return state.colorRam[Int(position - 0xD800)] & 0x0F | (UInt8(truncatingBitPattern: arc4random()) << 4)
+                    return state.colorRam[Int(position - 0xD800)] & 0x0F | (UInt8(truncatingIfNeeded: arc4random()) << 4)
                 } else if position >= 0xDC00 && position <= 0xDCFF {
-                    return cia1.readByte(UInt8(truncatingBitPattern: position & 0xF))
+                    return cia1.readByte(UInt8(truncatingIfNeeded: position & 0xF))
                 } else if position >= 0xDD00 && position <= 0xDDFF {
-                    return cia2.readByte(UInt8(truncatingBitPattern: position & 0xF))
+                    return cia2.readByte(UInt8(truncatingIfNeeded: position & 0xF))
                 } else {
                     //TODO: http://www.zimmers.net/anonftp/pub/cbm/documents/chipdata/pal.timing
                     return 0
@@ -132,7 +132,7 @@ final internal class C64Memory: Memory, Component {
     }
     
     internal func readColorRAMByte(_ position: UInt16) -> UInt8 {
-        return state.colorRam[Int(position)] & 0x0F | (UInt8(truncatingBitPattern: arc4random()) << 4)
+        return state.colorRam[Int(position)] & 0x0F | (UInt8(truncatingIfNeeded: arc4random()) << 4)
     }
     
     @discardableResult internal func readWord(_ position: UInt16) -> UInt16 {
@@ -144,7 +144,7 @@ final internal class C64Memory: Memory, Component {
     internal func writeByte(_ position: UInt16, byte: UInt8) {
         switch position {
         case 0x0000, 0x0001:
-            cpu.writeByte(UInt8(truncatingBitPattern: position), byte: byte)
+            cpu.writeByte(UInt8(truncatingIfNeeded: position), byte: byte)
             let port = cpu.readByte(0x01)
             state.kernalRomVisible = ((port & 2) == 2)
             state.basicRomVisible = ((port & 3) == 3)
@@ -153,15 +153,15 @@ final internal class C64Memory: Memory, Component {
         case 0xD000...0xDFFF:
             if state.ioVisible {
                 if position >= 0xD000 && position <= 0xD3FF {
-                    vic.writeByte(UInt8(truncatingBitPattern: position & 0x003F), byte: byte)
+                    vic.writeByte(UInt8(truncatingIfNeeded: position & 0x003F), byte: byte)
                 } else if position >= 0xD400 && position <= 0xD7FF {
-                    sid.writeByte(UInt8(truncatingBitPattern: position & 0x1F), byte: byte)
+                    sid.writeByte(UInt8(truncatingIfNeeded: position & 0x1F), byte: byte)
                 } else if position >= 0xD800 && position <= 0xDBFF {
                     state.colorRam[Int(position - 0xD800)] = byte
                 } else if position >= 0xDC00 && position <= 0xDCFF {
-                    cia1.writeByte(UInt8(truncatingBitPattern: position & 0xF), byte: byte)
+                    cia1.writeByte(UInt8(truncatingIfNeeded: position & 0xF), byte: byte)
                 } else if position >= 0xDD00 && position <= 0xDDFF {
-                    cia2.writeByte(UInt8(truncatingBitPattern: position & 0xF), byte: byte)
+                    cia2.writeByte(UInt8(truncatingIfNeeded: position & 0xF), byte: byte)
                 } else {
                     //TODO: map real addresses
                     state.ram[Int(position)] = byte

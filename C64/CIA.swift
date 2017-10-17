@@ -437,13 +437,13 @@ internal class CIA: Component, LineComponent {
         case 0x03:
             return state.ddrb
         case 0x04:
-            return UInt8(truncatingBitPattern: state.counterA)
+            return UInt8(truncatingIfNeeded: state.counterA)
         case 0x05:
-            return UInt8(truncatingBitPattern: state.counterA >> 8)
+            return UInt8(truncatingIfNeeded: state.counterA >> 8)
         case 0x06:
-            return UInt8(truncatingBitPattern: state.counterB)
+            return UInt8(truncatingIfNeeded: state.counterB)
         case 0x07:
-            return UInt8(truncatingBitPattern: state.counterB >> 8)
+            return UInt8(truncatingIfNeeded: state.counterB >> 8)
         case 0x08:
             let value = state.todLatched ? state.latch10ths : state.tod10ths
             state.todLatched = false

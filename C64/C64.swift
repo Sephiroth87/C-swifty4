@@ -44,7 +44,7 @@ public struct C64Configuration {
 
 }
 
-internal typealias C64BreakpointHandler = (Void) -> Void
+internal typealias C64BreakpointHandler = () -> Void
 internal typealias C64CrashHandler = (String) -> Void
 
 final public class C64 {
@@ -199,7 +199,7 @@ final public class C64 {
         }
     }
     
-    public func setBreakpoint(at address: UInt16, handler: ((Void)->Void)?) {
+    public func setBreakpoint(at address: UInt16, handler: (()->Void)?) {
         breakpoints[address] = handler
     }
     
@@ -267,7 +267,7 @@ final public class C64 {
         }
     }
     
-    public func loadState(_ saveState: SaveState, completion: @escaping (Void) -> Void) {
+    public func loadState(_ saveState: SaveState, completion: @escaping () -> Void) {
         let running = self.running
         executeToNextFetch {
             self.cpu.state = saveState.cpuState
@@ -301,7 +301,7 @@ final public class C64 {
     public func loadString(_ string: String) {
         let string = String(string)
         DispatchQueue.global(qos: .default).async {
-            for char in (string?.lowercased().characters)! {
+            for char in (string.lowercased().characters) {
                 let key = String(char).utf8[String(char).utf8.startIndex]
                 DispatchQueue.main.sync(execute: { () -> Void in
                     if key == 10 {
