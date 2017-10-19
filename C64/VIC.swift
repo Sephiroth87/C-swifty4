@@ -303,6 +303,9 @@ final internal class VIC: Component, LineComponent {
                     updateIRQLine()
                 }
             }
+            if state.raster == 0x30 && state.den {
+                state.badLinesEnabled = true
+            }
         case 0x12:
             if case let newRasterInterruptLine = (state.rasterInterruptLine & 0xFF00) | UInt16(byte), newRasterInterruptLine != state.rasterInterruptLine {
                 state.rasterInterruptLine = newRasterInterruptLine
@@ -400,6 +403,9 @@ final internal class VIC: Component, LineComponent {
                 state.raster = 0
             } else {
                 state.raster += 1
+            }
+            if state.raster == 0x30 {
+                state.badLinesEnabled = state.den
             }
         }
         // Initial cycle operations

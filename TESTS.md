@@ -59,6 +59,28 @@ All except tests for new CIA, trap17
 ##VICII
 ####colorram
 -[x] test.prg
+####dentest
+-[x] den01-48-0.prg
+-[x] den01-48-1.prg
+-[x] den01-48-2.prg
+-[x] den01-49-0.prg
+-[x] den01-49-1.prg
+-[x] den01-49-2.prg
+-[x] den10-48-0.prg
+-[x] den10-48-1.prg
+-[x] den10-48-2.prg
+-[x] den10-51-0.prg
+-[] den10-51-1.prg
+-[x] den10-51-2.prg
+-[x] den10-51-3.prg
+-[x] denrsel-0.prg
+-[] denrsel-1.prg
+-[] denrsel-2.prg
+-[x] denrsel-63.prg
+-[x] denrsel-s0.prg
+-[] denrsel-s1.prg
+-[] denrsel-s2.prg
+-[x] denrsel55.prg
 ####gfxfetch
 -[x] gfxfetch.prg
 ####spritecollisions
