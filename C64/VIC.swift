@@ -133,7 +133,7 @@ internal struct VICState: ComponentState {
     fileprivate var badLinesEnabled = false
     fileprivate var isBadLine = false
     fileprivate var baPin = true
-    fileprivate var currentSprite: UInt8 = 2
+    fileprivate var currentSprite: UInt8 = 3
     fileprivate var spriteDma: [Bool] = [Bool](repeating: false, count: 8)
     fileprivate var spriteDisplay: [Bool] = [Bool](repeating: false, count: 8)
     fileprivate var anySpriteDisplaying = false
@@ -421,12 +421,6 @@ final internal class VIC: Component, LineComponent {
                 state.displayState = true
             }
         }
-        if state.currentCycle >= 12 && state.currentCycle <= 54 {
-            if state.isBadLine {
-                state.baPin = false
-                rdyLine.update(self)
-            }
-        }
         switch state.currentCycle {
         case 1:
             if state.raster == 0 {
@@ -466,10 +460,17 @@ final internal class VIC: Component, LineComponent {
         switch state.currentCycle {
         case 1, 3, 5, 7, 9:
             pAccess()
+            if state.spriteDma[Int(state.currentSprite)] {
+                sAccess(0)
+            }
         case 2, 4, 6, 8, 10:
             if state.spriteDma[Int(state.currentSprite)] {
                 sAccess(1)
+                sAccess(2)
             }
+            state.currentSprite = (state.currentSprite + 1) & 7
+        case 15:
+            cAccess()
         case 16:
             gAccess()
             for i in 0...7 {
@@ -481,14 +482,20 @@ final internal class VIC: Component, LineComponent {
                     state.spriteDma[i] = false
                 }
             }
+            cAccess()
         case 17...54:
             gAccess()
+            cAccess()
         case 55:
             gAccess()
             for i in 0...7 {
                 if state.mye & UInt8(1 << i) != 0 {
                     state.yExpansion[i] = !state.yExpansion[i]
                 }
+            }
+            if state.isBadLine {
+                state.baPin = true
+                rdyLine.update(self)
             }
             fallthrough
         case 56:
@@ -501,8 +508,22 @@ final internal class VIC: Component, LineComponent {
                     }
                 }
             }
-        case cyclesPerRaster - 5:
+        case cyclesPerRaster - 5, cyclesPerRaster - 3, cyclesPerRaster - 1:
             pAccess()
+            if state.spriteDma[Int(state.currentSprite)] {
+                sAccess(0)
+            }
+        case cyclesPerRaster - 4, cyclesPerRaster - 2, cyclesPerRaster:
+            if state.spriteDma[Int(state.currentSprite)] {
+                sAccess(1)
+                sAccess(2)
+            }
+            state.currentSprite = (state.currentSprite + 1) & 7
+        default:
+            break
+        }
+        
+        if state.currentCycle == cyclesPerRaster - 8 {
             for i in 0...7 {
                 state.mc[i] = state.mcbase[i]
                 if state.spriteDma[i] {
@@ -517,50 +538,26 @@ final internal class VIC: Component, LineComponent {
             if state.anySpriteDisplaying && state.spriteDisplay.index(of: true) == nil {
                 state.anySpriteDisplaying = false
             }
-        case cyclesPerRaster - 3, cyclesPerRaster - 1:
-            pAccess()
-        case cyclesPerRaster - 4, cyclesPerRaster - 2, cyclesPerRaster:
-            if state.spriteDma[Int(state.currentSprite)] {
-                sAccess(1)
-            }
-        default:
-            break
         }
-        
+        if state.currentCycle >= 12 && state.currentCycle <= 54 {
+            if state.isBadLine {
+                state.baPin = false
+                rdyLine.update(self)
+            }
+        } else if state.anySpriteDisplaying && (state.currentCycle <= 10 || state.currentCycle >= cyclesPerRaster - 8) {
+            let shiftedCycle = (state.currentCycle - 1 + 9) % configuration.cyclesPerRaster
+            let firstSprite = max(0, (Int(shiftedCycle) - 3) / 2)
+            let lastSprite = min(7, Int(shiftedCycle) / 2)
+            let range = Range<Int>(uncheckedBounds: (lower: firstSprite, upper: lastSprite))
+            state.baPin = !(state.spriteDma[range].reduce(false, or))
+            rdyLine.update(self)
+        }
         if state.rasterInterruptLine == state.raster {
             if (state.raster == 0 && state.currentCycle == 2) || state.currentCycle == 1 {
                 state.ir |= 0x01
                 updateIRQLine()
             }
         }
-        switch state.currentCycle {
-        case 1, 3, 5, 7, 9:
-            if state.spriteDma[Int(state.currentSprite)] {
-                sAccess(0)
-            }
-        case 2, 4, 6, 8, 10:
-            if state.spriteDma[Int(state.currentSprite)] {
-                sAccess(2)
-            }
-        case 15...54:
-            cAccess()
-        case 55:
-            if state.isBadLine {
-                state.baPin = true
-                rdyLine.update(self)
-            }
-        case cyclesPerRaster - 5, cyclesPerRaster - 3, cyclesPerRaster - 1:
-            if state.spriteDma[Int(state.currentSprite)] {
-                sAccess(0)
-            }
-        case cyclesPerRaster - 4, cyclesPerRaster - 2, cyclesPerRaster:
-            if state.spriteDma[Int(state.currentSprite)] {
-                sAccess(2)
-            }
-        default:
-            break
-        }
-
         if state.currentCycle == cyclesPerRaster {
             endOfRasterline()
             state.currentCycle = 0
@@ -599,7 +596,6 @@ final internal class VIC: Component, LineComponent {
     
     // Sprite data pointers access
     private func pAccess() {
-        state.currentSprite = (state.currentSprite + 1) & 7
         state.mp = memoryAccess(UInt16(state.vm) << 10 | 0x03F8 | UInt16(state.currentSprite))
     }
     
@@ -607,7 +603,7 @@ final internal class VIC: Component, LineComponent {
     private func sAccess(_ accessNumber: Int) {
         let data = memoryAccess(UInt16(state.mp) << 6 | UInt16(state.mc[Int(state.currentSprite)]))
         state.spriteSequencerData[Int(state.currentSprite)] |= UInt32(data) << UInt32(8 * (2 - accessNumber))
-        state.mc[Int(state.currentSprite)] += 1
+        state.mc[Int(state.currentSprite)] = (state.mc[Int(state.currentSprite)] + 1) & 0x3F
     }
     
     // DRAM refresh

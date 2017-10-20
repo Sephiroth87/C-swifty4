@@ -13,3 +13,7 @@ func &+(left: UInt16, right: Int8) -> UInt16 {
 func &+(left: UInt16, right: UInt8) -> UInt16 {
     return left + UInt16(right)
 }
+
+func or(left: Bool, right: Bool) -> Bool {
+    return left || right
+}
