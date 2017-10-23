@@ -70,16 +70,16 @@ All except tests for new CIA, trap17
 -[x] den10-48-1.prg
 -[x] den10-48-2.prg
 -[x] den10-51-0.prg
--[] den10-51-1.prg
+-[x] den10-51-1.prg
 -[x] den10-51-2.prg
 -[x] den10-51-3.prg
 -[x] denrsel-0.prg
--[] denrsel-1.prg
--[] denrsel-2.prg
+-[x] denrsel-1.prg
+-[x] denrsel-2.prg
 -[x] denrsel-63.prg
 -[x] denrsel-s0.prg
--[] denrsel-s1.prg
--[] denrsel-s2.prg
+-[x] denrsel-s1.prg
+-[x] denrsel-s2.prg
 -[x] denrsel55.prg
 ####gfxfetch
 -[x] gfxfetch.prg

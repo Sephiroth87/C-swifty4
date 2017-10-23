@@ -444,12 +444,6 @@ final internal class VIC: Component, LineComponent {
             if state.displayState {
                 state.rc = (state.rc + 1) & 7
             }
-        case 63:
-            if state.raster == borderComparison.bottom {
-                state.verticalBorder = true
-            } else if state.raster == borderComparison.top && state.den {
-                state.verticalBorder = false
-            }
         default:
             break
         }
@@ -614,17 +608,18 @@ final internal class VIC: Component, LineComponent {
 
     // Draw 8 pixels
     private func draw() {
+        // vic-ii.txt says Y coord is only checked two times per raster [3.9], but in practice it looks it's checked every cycle. this fixes all dentest tests
+        if state.raster == borderComparison.bottom {
+            state.verticalBorder = true
+        } else if state.raster == borderComparison.top && state.den {
+            state.verticalBorder = false
+        }
         for i in 0...7 {
             if (state.rasterX >= configuration.visibleX.first || state.rasterX < configuration.visibleX.last - 1) &&
                 (state.raster > configuration.vblankLines.last || state.raster < configuration.vblankLines.first) {
                 if state.rasterX == borderComparison.right {
                     state.mainBorder = true
                 } else if state.rasterX == borderComparison.left {
-                    if state.raster == borderComparison.bottom {
-                        state.verticalBorder = true
-                    } else if state.raster == borderComparison.top && state.den {
-                        state.verticalBorder = false
-                    }
                     if !state.verticalBorder {
                         state.mainBorder = false
                     }
