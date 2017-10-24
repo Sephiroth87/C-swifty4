@@ -48,6 +48,8 @@ internal typealias C64BreakpointHandler = () -> Void
 internal typealias C64CrashHandler = (String) -> Void
 
 final public class C64 {
+    
+    public static let supportedFileTypes = ["prg", "txt", "d64", "p00", "rw"]
 
     public let configuration: C64Configuration
     public var running: Bool = false

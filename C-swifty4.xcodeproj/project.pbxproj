@@ -26,6 +26,7 @@
 		E567E4B41A8D0EC000CF079D /* ROM in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B11A8D0EC000CF079D /* ROM */; };
 		E567E4B81A8D17C200CF079D /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
 		E567E4B91A8D17C200CF079D /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
+		E59588D61F9E41CC0020A941 /* DropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59588D51F9E41CC0020A941 /* DropView.swift */; };
 		E5C552751D9C6542004DE54C /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E5C552761D9C6589004DE54C /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E5DEFB9A1A9CE60E00A76AE3 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = E5DEFB991A9CE60E00A76AE3 /* Resources */; };
@@ -130,6 +131,7 @@
 		E55B345C1DDDF47A0001DBDA /* PerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerformanceTests.swift; sourceTree = "<group>"; };
 		E567E4B11A8D0EC000CF079D /* ROM */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ROM; sourceTree = "<group>"; };
 		E567E4B71A8D17C200CF079D /* Programs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Programs; sourceTree = "<group>"; };
+		E59588D51F9E41CC0020A941 /* DropView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropView.swift; sourceTree = "<group>"; };
 		E5DEFB991A9CE60E00A76AE3 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
 		E5DEFB9B1A9CE63500A76AE3 /* LorenzTestSuite.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LorenzTestSuite.swift; sourceTree = "<group>"; };
 		E5E3B4EE1DAEB69A0093B01C /* iOSViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iOSViewController.swift; sourceTree = "<group>"; };
@@ -210,6 +212,7 @@
 				E5065E531A63028F00CECED1 /* AppDelegate.swift */,
 				E5065E551A63028F00CECED1 /* ViewController.swift */,
 				E525EF2C1A64163D0000B7D3 /* ContextBackedView.swift */,
+				E59588D51F9E41CC0020A941 /* DropView.swift */,
 				E5065E571A63028F00CECED1 /* Images.xcassets */,
 				E5065E591A63028F00CECED1 /* Main.storyboard */,
 				E5065E511A63028F00CECED1 /* Supporting Files */,
@@ -496,6 +499,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E5065E561A63028F00CECED1 /* ViewController.swift in Sources */,
+				E59588D61F9E41CC0020A941 /* DropView.swift in Sources */,
 				E525EF2D1A64163D0000B7D3 /* ContextBackedView.swift in Sources */,
 				E5065E541A63028F00CECED1 /* AppDelegate.swift in Sources */,
 			);

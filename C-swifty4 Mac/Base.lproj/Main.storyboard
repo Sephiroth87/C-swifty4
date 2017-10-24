@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13196"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -129,6 +130,9 @@
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <rect key="contentRect" x="196" y="240" width="418" height="257"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+                        <connections>
+                            <outlet property="delegate" destination="B8D-0N-5wS" id="hPG-q5-ny3"/>
+                        </connections>
                     </window>
                     <connections>
                         <segue destination="XfG-lQ-9wD" kind="relationship" relationship="window.shadowedContentViewController" id="cq2-FE-JQM"/>
@@ -225,19 +229,27 @@
                                     <constraint firstAttribute="bottom" secondItem="t7m-E7-aHh" secondAttribute="bottom" id="vRo-3E-orm"/>
                                 </constraints>
                             </customView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="xeI-WV-BKl" customClass="DropView" customModule="C_swifty4" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="418" height="257"/>
+                            </customView>
                         </subviews>
                         <constraints>
+                            <constraint firstItem="xeI-WV-BKl" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" id="4YG-mH-Ghf"/>
                             <constraint firstItem="viV-Kk-Ag9" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" id="5A6-aA-RA4"/>
                             <constraint firstItem="cQO-qd-B8E" firstAttribute="top" secondItem="viV-Kk-Ag9" secondAttribute="bottom" id="6mc-lU-WuC"/>
                             <constraint firstAttribute="trailing" secondItem="cQO-qd-B8E" secondAttribute="trailing" id="7Hb-Yd-JJ4"/>
                             <constraint firstAttribute="trailing" secondItem="viV-Kk-Ag9" secondAttribute="trailing" id="G1T-xx-tkK"/>
+                            <constraint firstAttribute="bottom" secondItem="xeI-WV-BKl" secondAttribute="bottom" id="Io1-Hv-Ige"/>
                             <constraint firstAttribute="bottom" secondItem="cQO-qd-B8E" secondAttribute="bottom" id="MrG-FF-cWZ"/>
                             <constraint firstItem="viV-Kk-Ag9" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" id="WNi-0k-OHR"/>
+                            <constraint firstAttribute="trailing" secondItem="xeI-WV-BKl" secondAttribute="trailing" id="eDv-zK-whM"/>
+                            <constraint firstItem="xeI-WV-BKl" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" id="fdl-6u-W13"/>
                             <constraint firstItem="cQO-qd-B8E" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" id="hKm-by-UgH"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="driveLedLabel" destination="Gj5-7O-QKZ" id="bPn-6X-ZNt"/>
+                        <outlet property="dropView" destination="xeI-WV-BKl" id="wGY-n7-gqz"/>
                         <outlet property="fpsLabel" destination="kDC-Ob-JhV" id="8es-nz-MO7"/>
                         <outlet property="graphicsView" destination="viV-Kk-Ag9" id="omN-6k-dSG"/>
                         <outlet property="playButton" destination="t7m-E7-aHh" id="bCb-Rz-YaX"/>

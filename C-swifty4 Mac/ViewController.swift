@@ -12,6 +12,7 @@ import C64
 class ViewController: NSViewController {
     
     @IBOutlet fileprivate var graphicsView: ContextBackedView!
+    @IBOutlet private var dropView: DropView!
     @IBOutlet fileprivate var playButton: NSButton!
     @IBOutlet fileprivate var stepButton: NSButton!
     @IBOutlet fileprivate var fpsLabel: NSTextField!
@@ -39,10 +40,14 @@ class ViewController: NSViewController {
         graphicsView.setTextureSize(CGSize(width: resolution.width, height: resolution.height),
                                     safeArea: NSEdgeInsets(top: CGFloat(safeArea.top), left: CGFloat(safeArea.left), bottom: CGFloat(safeArea.bottom), right: CGFloat(safeArea.right)))
         
+        dropView.handleFile = handleFile
+        
         c64.delegate = self
         c64.c1541.delegate = self
-        c64.c1541.turnOn()
+//        c64.c1541.turnOn()
         onPlayButton(self)
+        
+        
 
 //        c64.setBreakpoint(at: 0x08E7) {
 //            print("")
@@ -79,6 +84,7 @@ class ViewController: NSViewController {
             }
         case "prg", "rw":
             c64.loadPRGFile(try! Data(contentsOf: url))
+            c64.loadString("RUN\n")
         case "d64":
             c64.loadD64File(try! Data(contentsOf: url))
         case "p00":
@@ -111,7 +117,7 @@ class ViewController: NSViewController {
     @IBAction func onDiskButton(_ sender: AnyObject) {
         c64.pause()
         let panel = NSOpenPanel()
-        panel.allowedFileTypes = ["prg", "txt", "d64", "p00", "rw"]
+        panel.allowedFileTypes = C64.supportedFileTypes
         panel.beginSheetModal(for: self.view.window!) { result in
             if let url = panel.urls.first , result.rawValue == NSFileHandlingPanelOKButton {
                 self.handleFile(url: url)
