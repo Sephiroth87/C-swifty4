@@ -502,7 +502,23 @@ final internal class VIC: Component, LineComponent {
                     }
                 }
             }
-        case cyclesPerRaster - 5, cyclesPerRaster - 3, cyclesPerRaster - 1:
+        case cyclesPerRaster - 5:
+            for i in 0...7 {
+                state.mc[i] = state.mcbase[i]
+                if state.spriteDma[i] {
+                    if state.me & UInt8(1 << i) != 0 && state.m_y[i] == UInt8(truncatingIfNeeded: state.raster) {
+                        state.spriteDisplay[i] = true
+                        state.anySpriteDisplaying = true
+                    }
+                } else {
+                    state.spriteDisplay[i] = false
+                }
+            }
+            if state.anySpriteDisplaying && state.spriteDisplay.index(of: true) == nil {
+                state.anySpriteDisplaying = false
+            }
+            fallthrough
+        case cyclesPerRaster - 3, cyclesPerRaster - 1:
             pAccess()
             if state.spriteDma[Int(state.currentSprite)] {
                 sAccess(0)
@@ -515,23 +531,6 @@ final internal class VIC: Component, LineComponent {
             state.currentSprite = (state.currentSprite + 1) & 7
         default:
             break
-        }
-        
-        if state.currentCycle == cyclesPerRaster - 8 {
-            for i in 0...7 {
-                state.mc[i] = state.mcbase[i]
-                if state.spriteDma[i] {
-                    if state.m_y[i] == UInt8(truncatingIfNeeded: state.raster) {
-                        state.spriteDisplay[i] = true
-                        state.anySpriteDisplaying = true
-                    }
-                } else {
-                    state.spriteDisplay[i] = false
-                }
-            }
-            if state.anySpriteDisplaying && state.spriteDisplay.index(of: true) == nil {
-                state.anySpriteDisplaying = false
-            }
         }
         if state.currentCycle >= 12 && state.currentCycle <= 54 {
             if state.isBadLine {
