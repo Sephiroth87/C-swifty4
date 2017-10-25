@@ -514,8 +514,10 @@ final internal class VIC: Component, LineComponent {
                     state.spriteDisplay[i] = false
                 }
             }
-            if state.anySpriteDisplaying && state.spriteDisplay.index(of: true) == nil {
+            if state.spriteDisplay.index(of: true) == nil && state.spriteDma.index(of: true) == nil {
                 state.anySpriteDisplaying = false
+            } else {
+                state.anySpriteDisplaying = true
             }
             fallthrough
         case cyclesPerRaster - 3, cyclesPerRaster - 1:
@@ -541,7 +543,7 @@ final internal class VIC: Component, LineComponent {
             let shiftedCycle = (state.currentCycle - 1 + 9) % configuration.cyclesPerRaster
             let firstSprite = max(0, (Int(shiftedCycle) - 3) / 2)
             let lastSprite = min(7, Int(shiftedCycle) / 2)
-            let range = Range<Int>(uncheckedBounds: (lower: firstSprite, upper: lastSprite))
+            let range = firstSprite...lastSprite
             state.baPin = !(state.spriteDma[range].reduce(false, or))
             rdyLine.update(self)
         }
