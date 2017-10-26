@@ -202,7 +202,7 @@ final internal class VIC: Component, LineComponent {
     init(configuration: VICConfiguration) {
         self.configuration = configuration
         state.screenBuffer = screenBuffer1
-        state.raster = configuration.totalLines
+        state.raster = configuration.totalLines - 1
         state.rasterX = configuration.xLimits.first - 4
     }
     
@@ -391,7 +391,7 @@ final internal class VIC: Component, LineComponent {
     }
 
     private func endOfRasterline() {
-        if state.raster == configuration.totalLines {
+        if state.raster == configuration.totalLines - 1 {
             state.bufferPosition = 0
             state.screenBuffer = state.screenBuffer.baseAddress == screenBuffer1.baseAddress ? screenBuffer2 : screenBuffer1
         }
@@ -399,10 +399,9 @@ final internal class VIC: Component, LineComponent {
 
     internal func cycle() {
         if state.currentCycle == 1 {
+            state.raster += 1
             if state.raster == configuration.totalLines {
                 state.raster = 0
-            } else {
-                state.raster += 1
             }
             if state.raster == 0x30 {
                 state.badLinesEnabled = state.den
