@@ -433,7 +433,11 @@ final internal class VIC: Component, LineComponent {
                 state.rc = 0
             }
             rAccess()
-        case 11...15:
+        case 11:
+            state.baPin = true
+            rdyLine.update(self)
+            fallthrough
+        case 12...15:
             rAccess()
         case 58:
             if state.rc == 7 {
@@ -485,10 +489,6 @@ final internal class VIC: Component, LineComponent {
                 if state.mye & UInt8(1 << i) != 0 {
                     state.yExpansion[i] = !state.yExpansion[i]
                 }
-            }
-            if state.isBadLine {
-                state.baPin = true
-                rdyLine.update(self)
             }
             fallthrough
         case 56:
