@@ -396,6 +396,14 @@ final internal class VIC: Component, LineComponent {
             state.screenBuffer = state.screenBuffer.baseAddress == screenBuffer1.baseAddress ? screenBuffer2 : screenBuffer1
         }
     }
+    
+    private func updateAnySpriteDisplaying() {
+        if state.spriteDisplay.index(of: true) == nil && state.spriteDma.index(of: true) == nil {
+            state.anySpriteDisplaying = false
+        } else {
+            state.anySpriteDisplaying = true
+        }
+    }
 
     internal func cycle() {
         if state.currentCycle == 1 {
@@ -485,13 +493,18 @@ final internal class VIC: Component, LineComponent {
             cAccess()
         case 55:
             gAccess()
+        default:
+            break
+        }
+        switch state.currentCycle {
+        case cyclesPerRaster - 8:
             for i in 0...7 {
                 if state.mye & UInt8(1 << i) != 0 {
                     state.yExpansion[i] = !state.yExpansion[i]
                 }
             }
             fallthrough
-        case 56:
+        case cyclesPerRaster - 7:
             for i in 0...7 {
                 if state.me & UInt8(1 << i) != 0 && state.m_y[i] == UInt8(truncatingIfNeeded: state.raster) {
                     state.spriteDma[i] = true
@@ -501,23 +514,19 @@ final internal class VIC: Component, LineComponent {
                     }
                 }
             }
+            updateAnySpriteDisplaying()
         case cyclesPerRaster - 5:
             for i in 0...7 {
                 state.mc[i] = state.mcbase[i]
                 if state.spriteDma[i] {
                     if state.me & UInt8(1 << i) != 0 && state.m_y[i] == UInt8(truncatingIfNeeded: state.raster) {
                         state.spriteDisplay[i] = true
-                        state.anySpriteDisplaying = true
                     }
                 } else {
                     state.spriteDisplay[i] = false
                 }
             }
-            if state.spriteDisplay.index(of: true) == nil && state.spriteDma.index(of: true) == nil {
-                state.anySpriteDisplaying = false
-            } else {
-                state.anySpriteDisplaying = true
-            }
+            updateAnySpriteDisplaying()
             fallthrough
         case cyclesPerRaster - 3, cyclesPerRaster - 1:
             pAccess()
