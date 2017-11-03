@@ -389,6 +389,13 @@ final internal class VIC: Component, LineComponent {
             irqLine.update(self)
         }
     }
+    
+    private func setBAPin(_ value: Bool) {
+        if value != state.baPin {
+            state.baPin = value
+            rdyLine.update(self)
+        }
+    }
 
     private func endOfRasterline() {
         if state.raster == configuration.totalLines - 1 {
@@ -442,8 +449,7 @@ final internal class VIC: Component, LineComponent {
             }
             rAccess()
         case 11:
-            state.baPin = true
-            rdyLine.update(self)
+            setBAPin(true)
             fallthrough
         case 12...15:
             rAccess()
@@ -544,16 +550,16 @@ final internal class VIC: Component, LineComponent {
         }
         if state.currentCycle >= 12 && state.currentCycle <= 54 {
             if state.isBadLine {
-                state.baPin = false
-                rdyLine.update(self)
+                setBAPin(false)
             }
         } else if state.anySpriteDisplaying && (state.currentCycle <= 10 || state.currentCycle >= cyclesPerRaster - 8) {
             let shiftedCycle = (state.currentCycle - 1 + 9) % configuration.cyclesPerRaster
             let firstSprite = max(0, (Int(shiftedCycle) - 3) / 2)
             let lastSprite = min(7, Int(shiftedCycle) / 2)
             let range = firstSprite...lastSprite
-            state.baPin = !(state.spriteDma[range].reduce(false, or))
-            rdyLine.update(self)
+            setBAPin(!(state.spriteDma[range].reduce(false, or)))
+        } else {
+            setBAPin(true)
         }
         if state.rasterInterruptLine == state.raster {
             if (state.raster == 0 && state.currentCycle == 2) || state.currentCycle == 1 {
