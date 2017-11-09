@@ -59,6 +59,8 @@ All except tests for new CIA, trap17
 ##VICII
 ####colorram
 -[x] test.prg
+####D011Test
+-[x] disable-bad.prg
 ####dentest
 -[x] den01-48-0.prg
 -[x] den01-48-1.prg
@@ -87,5 +89,13 @@ All except tests for new CIA, trap17
 -[] sprite-gfx-collision-cycle
 -[] sprite-sprite-collision-cycle.prg
 -[x] sprite-sprite.prg
+####spriteenable
+-[x] spriteenable1.prg
+-[] spriteenable2.prg
+-[x] spriteenable3.prg
+-[x] spriteenable4.prg
+-[] spriteenable5.prg
 ####spritepriorities
 -[x] test1.prg
+####spritesteal
+-[x] spritesteal.prg
