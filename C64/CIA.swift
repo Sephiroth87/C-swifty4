@@ -179,7 +179,7 @@ internal class CIA: Component, LineComponent {
     
     internal var state = CIAState()
 
-    internal weak var interruptLine: Line!
+    internal var interruptLine: Line!
     internal var crashHandler: C64CrashHandler?
     
     //MARK: LineComponent
@@ -507,8 +507,8 @@ internal class CIA: Component, LineComponent {
 
 final internal class CIA1: CIA {
     
-    internal weak var keyboard: Keyboard!
-    internal weak var joystick2: Joystick!
+    internal var keyboard: Keyboard!
+    internal var joystick2: Joystick!
     
     override init() {
         super.init()
@@ -576,8 +576,8 @@ final internal class CIA1: CIA {
 
 final internal class CIA2: CIA, IECDevice {
     
-    internal weak var vic: VIC!
-    internal weak var iec: IEC!
+    internal var vic: VIC!
+    internal var iec: IEC!
     
     //MARK: IECDevice
     internal var atnPin: Bool? {

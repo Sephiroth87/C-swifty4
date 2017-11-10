@@ -40,11 +40,11 @@ final internal class C64Memory: Memory, Component {
     
     private var rom: [UInt8] = [UInt8](repeating: 0, count: 0x10000)
     
-    internal weak var cpu: CPU!
-    internal weak var cia1: CIA1!
-    internal weak var cia2: CIA2!
-    internal weak var sid: SID!
-    internal weak var vic: VIC!
+    internal var cpu: CPU!
+    internal var cia1: CIA1!
+    internal var cia2: CIA2!
+    internal var sid: SID!
+    internal var vic: VIC!
     internal var crashHandler: C64CrashHandler?
     
     init() {

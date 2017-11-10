@@ -163,9 +163,9 @@ final internal class VIC: Component, LineComponent {
     internal let configuration: VICConfiguration
     internal var state = VICState()
     
-    internal weak var memory: C64Memory!
-    internal weak var irqLine: Line!
-    internal weak var rdyLine: Line!
+    internal var memory: C64Memory!
+    internal var irqLine: Line!
+    internal var rdyLine: Line!
  
     private let screenBuffer1 = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
     private let screenBuffer2 = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)

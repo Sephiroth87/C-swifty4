@@ -10,8 +10,8 @@ import Foundation
 
 final internal class C1541Memory: Memory {
     
-    internal weak var via1: VIA1!
-    internal weak var via2: VIA2!
+    internal var via1: VIA1!
+    internal var via2: VIA2!
     
     private var memory: [UInt8] = [UInt8](repeating: 0, count: 0x10000)
     

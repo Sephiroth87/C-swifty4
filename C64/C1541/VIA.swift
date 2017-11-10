@@ -8,8 +8,8 @@
 
 internal class VIA: LineComponent {
     
-    internal weak var c1541: C1541!
-    internal weak var interruptLine: Line!
+    internal var c1541: C1541!
+    internal var interruptLine: Line!
     
     //MARK: Registers
     fileprivate var orb: UInt8 = 0 // Output Register B
@@ -196,7 +196,7 @@ internal class VIA: LineComponent {
 
 final internal class VIA1: VIA, IECDevice {
     
-    internal weak var iec: IEC!
+    internal var iec: IEC!
     
     //MARK: IECDevice
     internal var atnPin: Bool? {

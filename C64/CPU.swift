@@ -66,10 +66,10 @@ final internal class CPU: Component, LineComponent {
     
     var state = CPUState()
 
-    internal weak var irqLine: Line!
-    internal weak var nmiLine: Line!
-    internal weak var rdyLine: Line!
-    internal weak var memory: Memory!
+    internal var irqLine: Line!
+    internal var nmiLine: Line!
+    internal var rdyLine: Line!
+    internal var memory: Memory!
     internal var crashHandler: C64CrashHandler?
 
     internal var pcl: UInt8 {

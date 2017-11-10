@@ -50,7 +50,7 @@ final public class C1541 {
     private let irqLine = Line()
     private let rdyLine = Line()
     
-    internal weak var iec: IEC! {
+    internal var iec: IEC! {
         didSet {
             self.via1.iec = iec
             self.iec.connectDevice(self.via1)
