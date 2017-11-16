@@ -11,7 +11,8 @@ import C64
 
 class ViewController: NSViewController {
     
-    @IBOutlet fileprivate var graphicsView: ContextBackedView!
+//    @IBOutlet fileprivate var graphicsView: ContextBackedView!
+    @IBOutlet fileprivate var graphicsView: MetalView!
     @IBOutlet private var dropView: DropView!
     @IBOutlet fileprivate var playButton: NSButton!
     @IBOutlet fileprivate var stepButton: NSButton!
@@ -254,7 +255,7 @@ extension ViewController: C64Delegate {
     }
     
     func C64DidBreak(_ c64: C64) {
-//        print(c64.cpu)
+        print(c64.debugInfo()["cpu"]!)
 
         stepButton.isEnabled = true
         stepButton.alphaValue = 1.0

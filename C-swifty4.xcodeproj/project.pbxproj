@@ -19,6 +19,7 @@
 		E525EF2D1A64163D0000B7D3 /* ContextBackedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E525EF2C1A64163D0000B7D3 /* ContextBackedView.swift */; };
 		E52FEA921A9B9C4200851C83 /* ROM in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B11A8D0EC000CF079D /* ROM */; };
 		E52FEA931A9BA0F700851C83 /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
+		E53378B41FB5D74000694679 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = E53378B31FB5D74000694679 /* Shaders.metal */; };
 		E53411BA1DD49E3000CC04A0 /* BaseTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53411B91DD49E3000CC04A0 /* BaseTest.swift */; };
 		E53411BC1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53411BB1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift */; };
 		E55B345D1DDDF47A0001DBDA /* PerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55B345C1DDDF47A0001DBDA /* PerformanceTests.swift */; };
@@ -27,6 +28,7 @@
 		E567E4B81A8D17C200CF079D /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
 		E567E4B91A8D17C200CF079D /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
 		E59588D61F9E41CC0020A941 /* DropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59588D51F9E41CC0020A941 /* DropView.swift */; };
+		E5B5F7851FB5CE1C00083C24 /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5B5F7841FB5CE1C00083C24 /* MetalView.swift */; };
 		E5C552751D9C6542004DE54C /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E5C552761D9C6589004DE54C /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E5DEFB9A1A9CE60E00A76AE3 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = E5DEFB991A9CE60E00A76AE3 /* Resources */; };
@@ -43,6 +45,7 @@
 		E5EE30DD1BF918DC00404BE0 /* C64.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; };
 		E5EE30DE1BF918EC00404BE0 /* ROM in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B11A8D0EC000CF079D /* ROM */; };
 		E5EE30DF1BF918F300404BE0 /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
+		E5F209A81FBDBF8D001DD664 /* ScaleFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F209A71FBDBF8D001DD664 /* ScaleFilter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -125,6 +128,7 @@
 		E525EF2C1A64163D0000B7D3 /* ContextBackedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextBackedView.swift; sourceTree = "<group>"; };
 		E52FEA861A9B996700851C83 /* C-swifty4 Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "C-swifty4 Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E52FEA891A9B996700851C83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E53378B31FB5D74000694679 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		E53411B91DD49E3000CC04A0 /* BaseTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseTest.swift; sourceTree = "<group>"; };
 		E53411BB1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestprogsCIACiavarious.swift; sourceTree = "<group>"; };
 		E55AC12E1C17311B000017F1 /* C-swifty4.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "C-swifty4.entitlements"; sourceTree = "<group>"; };
@@ -132,6 +136,7 @@
 		E567E4B11A8D0EC000CF079D /* ROM */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ROM; sourceTree = "<group>"; };
 		E567E4B71A8D17C200CF079D /* Programs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Programs; sourceTree = "<group>"; };
 		E59588D51F9E41CC0020A941 /* DropView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropView.swift; sourceTree = "<group>"; };
+		E5B5F7841FB5CE1C00083C24 /* MetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
 		E5DEFB991A9CE60E00A76AE3 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
 		E5DEFB9B1A9CE63500A76AE3 /* LorenzTestSuite.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LorenzTestSuite.swift; sourceTree = "<group>"; };
 		E5E3B4EE1DAEB69A0093B01C /* iOSViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iOSViewController.swift; sourceTree = "<group>"; };
@@ -143,6 +148,7 @@
 		E5EE30D11BF917A300404BE0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E5EE30D31BF917A300404BE0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E5EE30D91BF9186D00404BE0 /* ContextBackedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextBackedView.swift; sourceTree = "<group>"; };
+		E5F209A71FBDBF8D001DD664 /* ScaleFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleFilter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -212,6 +218,9 @@
 				E5065E531A63028F00CECED1 /* AppDelegate.swift */,
 				E5065E551A63028F00CECED1 /* ViewController.swift */,
 				E525EF2C1A64163D0000B7D3 /* ContextBackedView.swift */,
+				E5B5F7841FB5CE1C00083C24 /* MetalView.swift */,
+				E5F209A71FBDBF8D001DD664 /* ScaleFilter.swift */,
+				E53378B31FB5D74000694679 /* Shaders.metal */,
 				E59588D51F9E41CC0020A941 /* DropView.swift */,
 				E5065E571A63028F00CECED1 /* Images.xcassets */,
 				E5065E591A63028F00CECED1 /* Main.storyboard */,
@@ -498,10 +507,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E53378B41FB5D74000694679 /* Shaders.metal in Sources */,
 				E5065E561A63028F00CECED1 /* ViewController.swift in Sources */,
 				E59588D61F9E41CC0020A941 /* DropView.swift in Sources */,
 				E525EF2D1A64163D0000B7D3 /* ContextBackedView.swift in Sources */,
 				E5065E541A63028F00CECED1 /* AppDelegate.swift in Sources */,
+				E5F209A81FBDBF8D001DD664 /* ScaleFilter.swift in Sources */,
+				E5B5F7851FB5CE1C00083C24 /* MetalView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -697,7 +709,7 @@
 				INFOPLIST_FILE = "C-swifty4 Mac/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.orangeinaday.C-swifty4.mac";
@@ -744,7 +756,7 @@
 				INFOPLIST_FILE = "C-swifty4 Mac/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.orangeinaday.C-swifty4.mac";
 				PRODUCT_NAME = "C-swifty4";
@@ -1075,7 +1087,7 @@
 				INFOPLIST_FILE = "C-swifty4 Mac/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.orangeinaday.C-swifty4.mac";
