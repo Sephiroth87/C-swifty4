@@ -22,7 +22,7 @@ class MetalView: MTKView {
     
     required init(coder: NSCoder) {
         super.init(coder: coder)
-        
+
         device = MTLCreateSystemDefaultDevice()
         delegate = self
         
@@ -40,12 +40,12 @@ class MetalView: MTKView {
         scaleFilter = ScaleFilter(device: device!, library: library)
     }
     
-    func setTextureSize(_ size: CGSize, safeArea: NSEdgeInsets) {
+    func setTextureSize(_ size: CGSize, safeArea: (top: Int, left: Int, bottom: Int, right: Int)) {
         textureSize = size
-        vertexData = [Float(safeArea.left / 512.0), 1.0 - Float((512.0 - size.height + safeArea.bottom) / 512.0),
-                      1.0 - Float((512.0 - size.width + safeArea.right) / 512.0), 1.0 - Float((512.0 - size.height + safeArea.bottom) / 512.0),
-                      Float(safeArea.left / 512.0), Float(safeArea.top / 512.0),
-                      1.0 - Float((512.0 - size.width + safeArea.right) / 512.0), Float(safeArea.top / 512.0)]
+        vertexData = [Float(safeArea.left) / 512.0, 1.0 - (512.0 - Float(size.height) + Float(safeArea.bottom)) / 512.0,
+                      1.0 - (512.0 - Float(size.width) + Float(safeArea.right)) / 512.0, 1.0 - (512.0 - Float(size.height) + Float(safeArea.bottom)) / 512.0,
+                      Float(safeArea.left) / 512.0, Float(safeArea.top) / 512.0,
+                      1.0 - (512.0 - Float(size.width) + Float(safeArea.right)) / 512.0, Float(safeArea.top) / 512.0]
     }
     
     internal func setData(_ data: UnsafePointer<UInt32>) {

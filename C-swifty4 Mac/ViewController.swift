@@ -37,9 +37,8 @@ class ViewController: NSViewController {
         super.viewDidLoad()
 
         let resolution = c64.configuration.vic.resolution
-        let safeArea = c64.configuration.vic.safeArea
         graphicsView.setTextureSize(CGSize(width: resolution.width, height: resolution.height),
-                                    safeArea: NSEdgeInsets(top: CGFloat(safeArea.top), left: CGFloat(safeArea.left), bottom: CGFloat(safeArea.bottom), right: CGFloat(safeArea.right)))
+                                    safeArea: c64.configuration.vic.safeArea)
         
         dropView.handleFile = handleFile
         

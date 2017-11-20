@@ -1,7 +1,12 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder.AppleTV.Storyboard" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" initialViewController="BYZ-38-t0r">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder.AppleTV.Storyboard" version="3.0" toolsVersion="13529" targetRuntime="AppleTV" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="appleTV" orientation="landscape">
+        <adaptation id="light"/>
+    </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9051"/>
+        <deployment identifier="tvOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -16,22 +21,29 @@
                         <rect key="frame" x="0.0" y="0.0" width="1920" height="1080"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dhX-ig-fGS" customClass="ContextBackedView" customModule="C_swifty4_tvOS" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dhX-ig-fGS" customClass="MetalView" customModule="C_swifty4_tvOS" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="0.0" width="1920" height="1080"/>
-                                <animations/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sPP-b4-VGr">
+                                <rect key="frame" x="1912" y="1012" width="0.0" height="0.0"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
-                        <animations/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="dhX-ig-fGS" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="7fU-Q1-dXY"/>
-                            <constraint firstItem="dhX-ig-fGS" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="7oU-vg-wbs"/>
                             <constraint firstAttribute="trailing" secondItem="dhX-ig-fGS" secondAttribute="trailing" id="Acg-gi-3co"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="dhX-ig-fGS" secondAttribute="bottom" id="dbv-3D-4sG"/>
+                            <constraint firstItem="dhX-ig-fGS" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="V90-Pw-O9e"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="sPP-b4-VGr" secondAttribute="bottom" constant="8" id="Vyb-nt-L4Y"/>
+                            <constraint firstAttribute="trailing" secondItem="sPP-b4-VGr" secondAttribute="trailing" constant="8" id="bpx-NN-DWD"/>
+                            <constraint firstAttribute="bottom" secondItem="dhX-ig-fGS" secondAttribute="bottom" id="xv4-fk-up2"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="fpsLabel" destination="sPP-b4-VGr" id="5eE-gY-adz"/>
                         <outlet property="graphicsView" destination="dhX-ig-fGS" id="qwU-xw-R8S"/>
                     </connections>
                 </viewController>

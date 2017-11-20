@@ -303,7 +303,7 @@ final public class C64 {
     public func loadString(_ string: String) {
         let string = String(string)
         DispatchQueue.global(qos: .default).async {
-            for char in (string.lowercased().characters) {
+            for char in string.lowercased() {
                 let key = String(char).utf8[String(char).utf8.startIndex]
                 DispatchQueue.main.sync(execute: { () -> Void in
                     if key == 10 {

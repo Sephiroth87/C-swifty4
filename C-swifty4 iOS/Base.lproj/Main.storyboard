@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11535.1" systemVersion="16A320" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="frt-XV-CKA">
-    <device id="retina4_7" orientation="portrait">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="frt-XV-CKA">
+    <device id="retina4_7" orientation="landscape">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11523"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="Menlo.ttc">
+            <string>Menlo-Regular</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--iOS View Controller-->
         <scene sceneID="OuB-23-50v">
@@ -19,28 +23,15 @@
                         <viewControllerLayoutGuide type="bottom" id="Bx3-Pp-Fq0"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="QXJ-nV-Ghd">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="667" height="375"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wdP-eu-NcM" customClass="ContextBackedView" customModule="C_swifty4" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="211"/>
+                                <rect key="frame" x="0.0" y="0.0" width="667" height="375"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="wdP-eu-NcM" secondAttribute="height" multiplier="418:235" id="xWj-8i-2ed"/>
-                                </constraints>
-                                <variation key="default">
-                                    <mask key="constraints">
-                                        <exclude reference="xWj-8i-2ed"/>
-                                    </mask>
-                                </variation>
-                                <variation key="heightClass=regular-widthClass=compact">
-                                    <mask key="constraints">
-                                        <include reference="xWj-8i-2ed"/>
-                                    </mask>
-                                </variation>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nli-nS-vFP">
-                                <rect key="frame" x="367" y="659" width="0.0" height="0.0"/>
+                                <rect key="frame" x="659" y="367" width="0.0" height="0.0"/>
                                 <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -49,6 +40,7 @@
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="wdP-eu-NcM" secondAttribute="bottom" id="3Dd-vB-TXc"/>
+                            <constraint firstItem="Bx3-Pp-Fq0" firstAttribute="top" secondItem="wdP-eu-NcM" secondAttribute="bottom" id="5nw-hu-vZr"/>
                             <constraint firstItem="wdP-eu-NcM" firstAttribute="top" secondItem="QXJ-nV-Ghd" secondAttribute="top" id="KAW-jD-M50"/>
                             <constraint firstAttribute="trailing" secondItem="Nli-nS-vFP" secondAttribute="trailing" constant="8" id="dde-j9-9jC"/>
                             <constraint firstItem="wdP-eu-NcM" firstAttribute="leading" secondItem="QXJ-nV-Ghd" secondAttribute="leading" id="hj8-44-wXg"/>
