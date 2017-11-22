@@ -35,7 +35,6 @@ class MetalPipeline {
     
         if usesMtlBuffer && processedTexture.buffer == nil {
             fatalError("Processed texture needs to have a backing buffer")
-            
         }
     }
     

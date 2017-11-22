@@ -53,7 +53,7 @@ extension MetalView: MTKViewDelegate {
             let encoder = $0.makeRenderCommandEncoder(descriptor: currentRenderPassDescriptor)!
             encoder.setRenderPipelineState(self.metalPipeline.pipelineState)
             encoder.setVertexBytes(self.vertexData, length: self.vertexData.count * MemoryLayout<Float>.stride, index: 0)
-            encoder.setFragmentBytes([Float(currentDrawable.texture.width), Float(currentDrawable.texture.height)], length: 2 * MemoryLayout<Float>.stride, index: 0)
+            encoder.setFragmentBytes([Float(view.drawableSize.width), Float(view.drawableSize.height)], length: 2 * MemoryLayout<Float>.stride, index: 0)
             encoder.setFragmentTexture(self.metalPipeline.processedTexture, index: 0)
             encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: 1)
             encoder.endEncoding()
