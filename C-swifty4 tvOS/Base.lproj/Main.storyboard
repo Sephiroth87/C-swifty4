@@ -21,12 +21,12 @@
                         <rect key="frame" x="0.0" y="0.0" width="1920" height="1080"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dhX-ig-fGS" customClass="MetalView" customModule="C_swifty4_tvOS" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dhX-ig-fGS" customClass="GraphicsView" customModule="C_swifty4_tvOS" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="0.0" width="1920" height="1080"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sPP-b4-VGr">
-                                <rect key="frame" x="1912" y="1012" width="0.0" height="0.0"/>
+                                <rect key="frame" x="1912" y="1072" width="0.0" height="0.0"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -37,7 +37,7 @@
                             <constraint firstItem="dhX-ig-fGS" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="7fU-Q1-dXY"/>
                             <constraint firstAttribute="trailing" secondItem="dhX-ig-fGS" secondAttribute="trailing" id="Acg-gi-3co"/>
                             <constraint firstItem="dhX-ig-fGS" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="V90-Pw-O9e"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="sPP-b4-VGr" secondAttribute="bottom" constant="8" id="Vyb-nt-L4Y"/>
+                            <constraint firstAttribute="bottom" secondItem="sPP-b4-VGr" secondAttribute="bottom" constant="8" id="bIr-Tu-22J"/>
                             <constraint firstAttribute="trailing" secondItem="sPP-b4-VGr" secondAttribute="trailing" constant="8" id="bpx-NN-DWD"/>
                             <constraint firstAttribute="bottom" secondItem="dhX-ig-fGS" secondAttribute="bottom" id="xv4-fk-up2"/>
                         </constraints>

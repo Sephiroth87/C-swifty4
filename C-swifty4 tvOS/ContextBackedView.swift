@@ -10,47 +10,72 @@ import UIKit
 
 private class ContextBackedLayer: CALayer {
     
-    fileprivate var context: CGContext
-    
-    required init?(coder aDecoder: NSCoder) {
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 1680, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        super.init(coder: aDecoder)
-        self.actions = ["contents": NSNull()]
-    }
+    private var size: CGSize = .zero
+    private var safeArea: UIEdgeInsets = .zero
+    private var context: CGContext?
     
     override init() {
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        context = CGContext(data: nil, width: 418, height: 235, bitsPerComponent: 8, bytesPerRow: 1680, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         super.init()
-        self.actions = ["contents": NSNull()]
+        actions = ["contents": NSNull()]
+        backgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0).cgColor
+        updateContentsRect()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError()
+    }
+    
+    func setTextureSize(_ size: CGSize, safeArea: UIEdgeInsets) {
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        self.size = size
+        self.safeArea = safeArea
+        context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: Int(size.width) * 4, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        updateContentsRect()
     }
     
     override func display() {
-        let CGImage = context.makeImage()
-        self.contents = CGImage
+        guard let context = context else { return }
+        let cgImage = context.makeImage()
+        contents = cgImage
     }
     
     fileprivate func setData(_ data: UnsafePointer<UInt32>) {
+        guard let context = context else { return }
         let address = context.data
-        memcpy(address, data, 418 * 235 * 4)
+        memcpy(address, data, Int(size.width) * Int(size.height) * 4)
         let cgImage = context.makeImage()
-        self.contents = cgImage
+        contents = cgImage
     }
     
     override var bounds: CGRect {
         didSet {
-            var wScale = bounds.width / 418.0
-            var hScale = bounds.height / 235.0
-            if wScale > hScale {
-                wScale /= hScale
-                hScale = 1.0
-            } else {
-                hScale /= wScale
-                wScale = 1.0
+            if bounds.size != oldValue.size {
+                updateContentsRect()
             }
-            self.contentsRect = CGRect(x: (1.0 - wScale) / 2.0, y: (1.0 - hScale) / 2.0, width: wScale, height: hScale)
         }
+    }
+    
+    private func updateContentsRect() {
+        let safeW = size.width - safeArea.left - safeArea.right
+        let safeH = size.height - safeArea.top - safeArea.bottom
+        var wScale = bounds.width / safeW
+        var hScale = bounds.height / safeH
+        if wScale > hScale {
+            wScale /= hScale
+            hScale = safeH / size.height
+        } else {
+            hScale /= wScale
+            wScale = safeW / size.width
+        }
+        if wScale >= 1.0 {
+            wScale *= safeW / size.width
+        }
+        if hScale >= 1.0 {
+            hScale *= safeH / size.height
+        }
+        let x = -wScale * 0.5 + (0.5 + ((safeArea.left + safeArea.right) / size.width) / 2.0)
+        let y = -hScale * 0.5 + (0.5 + ((safeArea.bottom + safeArea.top) / size.height) / 2.0)
+        contentsRect = CGRect(x: x, y: y, width: wScale, height: hScale)
     }
     
 }
@@ -59,6 +84,11 @@ class ContextBackedView: UIView {
     
     override class var layerClass : AnyClass {
         return ContextBackedLayer.self
+    }
+    
+    func setTextureSize(_ size: CGSize, safeArea: (top: Int, left: Int, bottom: Int, right: Int)) {
+        let layer = self.layer as! ContextBackedLayer
+        layer.setTextureSize(size, safeArea: UIEdgeInsets(top: CGFloat(safeArea.top), left: CGFloat(safeArea.left), bottom: CGFloat(safeArea.bottom), right: CGFloat(safeArea.right)))
     }
 
     override func draw(_ rect: CGRect) {

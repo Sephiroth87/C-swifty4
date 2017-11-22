@@ -8,10 +8,11 @@
 
 import UIKit
 import C64
+import MultipeerConnectivity
 
 class ViewController: UIViewController {
     
-    @IBOutlet fileprivate var graphicsView: MetalView!
+    @IBOutlet fileprivate var graphicsView: GraphicsView!
     @IBOutlet fileprivate var fpsLabel: UILabel!
     
     fileprivate var startTime: CFTimeInterval = 0
@@ -23,9 +24,17 @@ class ViewController: UIViewController {
             basicData: try! Data(contentsOf: Bundle.main.url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
             characterData: try! Data(contentsOf: Bundle.main.url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!))
         let config = C64Configuration(rom: romConfig,
-                                      vic: VICConfiguration.pal,
+                                      vic: .pal,
                                       c1541: C1541Configuration(rom: C1541ROMConfiguration(c1541Data: try! Data(contentsOf: Bundle.main.url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))))
         return C64(configuration: config)
+    }()
+    
+    let peerId = MCPeerID(displayName: UIDevice.current.name)
+    lazy var session: MCSession = {
+        return MCSession(peer: peerId, securityIdentity: nil, encryptionPreference: .none)
+    }()
+    lazy var advertiser: MCNearbyServiceAdvertiser = {
+        return MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: nil, serviceType: "c-swifty4")
     }()
     
     override func viewDidLoad() {
@@ -37,6 +46,34 @@ class ViewController: UIViewController {
 
         c64.delegate = self
         c64.run()
+    
+        session.delegate = self
+        advertiser.delegate = self
+        advertiser.startAdvertisingPeer()
+    }
+    
+    @discardableResult
+    func handleFile(url: URL) -> Bool {
+        var result = true
+        switch String(url.pathExtension).lowercased() {
+        case "txt":
+            if let string = try? String(contentsOf: url, encoding: String.Encoding.utf8) {
+                c64.loadString(string)
+            } else {
+                result = false
+            }
+        case "prg", "rw":
+            c64.loadPRGFile(try! Data(contentsOf: url))
+            c64.loadString("RUN\n")
+        case "d64":
+            c64.loadD64File(try! Data(contentsOf: url))
+        case "p00":
+            c64.loadP00File(try! Data(contentsOf: url))
+        default:
+            result = false
+        }
+        c64.run()
+        return result
     }
 
 }
@@ -58,5 +95,42 @@ extension ViewController: C64Delegate {
     func C64DidBreak(_ c64: C64) {}
     
     func C64DidCrash(_ c64: C64) {}
+    
+}
+
+extension ViewController: MCNearbyServiceAdvertiserDelegate {
+    
+    func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
+        invitationHandler(true, session)
+    }
+    
+}
+
+extension ViewController: MCSessionDelegate {
+    
+    func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+        if data.count == 2 {
+            let key = UInt16(data[0]) << 8 | UInt16(data[1])
+            c64.pressSpecialKey(SpecialKey(rawValue: key)!)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.07) {
+                self.c64.releaseSpecialKey(SpecialKey(rawValue: key)!)
+            }
+        } else if let key = data.first {
+            c64.pressKey(key)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+                self.c64.releaseKey(key)
+            }
+        }
+    }
+    
+    func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {}
+    
+    func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
+    
+    func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {}
+    
+    func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {
+        handleFile(url: localURL!)
+    }
     
 }

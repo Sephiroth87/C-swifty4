@@ -36,6 +36,12 @@
 		E567E4B91A8D17C200CF079D /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
 		E59588D61F9E41CC0020A941 /* DropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59588D51F9E41CC0020A941 /* DropView.swift */; };
 		E5B5F7851FB5CE1C00083C24 /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5B5F7841FB5CE1C00083C24 /* MetalView.swift */; };
+		E5BAEFD81FC595E900915C7A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BAEFD71FC595E900915C7A /* AppDelegate.swift */; };
+		E5BAEFDA1FC595E900915C7A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BAEFD91FC595E900915C7A /* ViewController.swift */; };
+		E5BAEFDD1FC595E900915C7A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E5BAEFDB1FC595E900915C7A /* Main.storyboard */; };
+		E5BAEFDF1FC595E900915C7A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E5BAEFDE1FC595E900915C7A /* Assets.xcassets */; };
+		E5BAEFE21FC595E900915C7A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E5BAEFE01FC595E900915C7A /* LaunchScreen.storyboard */; };
+		E5BAEFEA1FC59E0800915C7A /* GraphicsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BAEFE91FC59E0800915C7A /* GraphicsView.swift */; };
 		E5BAF50A1FC31C6700B9186C /* FakeMetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BAF5091FC31C6700B9186C /* FakeMetalView.swift */; };
 		E5BAF50E1FC3278E00B9186C /* MetalPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BAF50D1FC3278E00B9186C /* MetalPipeline.swift */; };
 		E5BAF50F1FC3278E00B9186C /* MetalPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BAF50D1FC3278E00B9186C /* MetalPipeline.swift */; };
@@ -159,6 +165,14 @@
 		E567E4B71A8D17C200CF079D /* Programs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Programs; sourceTree = "<group>"; };
 		E59588D51F9E41CC0020A941 /* DropView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropView.swift; sourceTree = "<group>"; };
 		E5B5F7841FB5CE1C00083C24 /* MetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
+		E5BAEFD51FC595E900915C7A /* C-swifty4 Remote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "C-swifty4 Remote.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E5BAEFD71FC595E900915C7A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		E5BAEFD91FC595E900915C7A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		E5BAEFDC1FC595E900915C7A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		E5BAEFDE1FC595E900915C7A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E5BAEFE11FC595E900915C7A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		E5BAEFE31FC595E900915C7A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E5BAEFE91FC59E0800915C7A /* GraphicsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphicsView.swift; sourceTree = "<group>"; };
 		E5BAF5091FC31C6700B9186C /* FakeMetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeMetalView.swift; sourceTree = "<group>"; };
 		E5BAF50D1FC3278E00B9186C /* MetalPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalPipeline.swift; sourceTree = "<group>"; };
 		E5DEFB991A9CE60E00A76AE3 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
@@ -200,6 +214,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E5BAEFD21FC595E900915C7A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E5EE30C51BF917A300404BE0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -219,6 +240,7 @@
 				E5EE30C91BF917A300404BE0 /* C-swifty4 tvOS */,
 				E53254361FBF1CA200D23856 /* Common */,
 				E52FEA871A9B996700851C83 /* C-swifty4 Tests */,
+				E5BAEFD61FC595E900915C7A /* C-swifty4 Remote */,
 				E5EE304F1BF8E63900404BE0 /* C64.xcodeproj */,
 				E567E4B11A8D0EC000CF079D /* ROM */,
 				E567E4B71A8D17C200CF079D /* Programs */,
@@ -233,6 +255,7 @@
 				E5065F1A1A6311AC00CECED1 /* C-swifty4.app */,
 				E52FEA861A9B996700851C83 /* C-swifty4 Tests.xctest */,
 				E5EE30C81BF917A300404BE0 /* C-swifty4 tvOS.app */,
+				E5BAEFD51FC595E900915C7A /* C-swifty4 Remote.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -315,6 +338,19 @@
 			path = Common;
 			sourceTree = "<group>";
 		};
+		E5BAEFD61FC595E900915C7A /* C-swifty4 Remote */ = {
+			isa = PBXGroup;
+			children = (
+				E5BAEFD71FC595E900915C7A /* AppDelegate.swift */,
+				E5BAEFD91FC595E900915C7A /* ViewController.swift */,
+				E5BAEFDB1FC595E900915C7A /* Main.storyboard */,
+				E5BAEFDE1FC595E900915C7A /* Assets.xcassets */,
+				E5BAEFE01FC595E900915C7A /* LaunchScreen.storyboard */,
+				E5BAEFE31FC595E900915C7A /* Info.plist */,
+			);
+			path = "C-swifty4 Remote";
+			sourceTree = "<group>";
+		};
 		E5EE30501BF8E63900404BE0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -328,6 +364,7 @@
 			children = (
 				E5EE30CA1BF917A300404BE0 /* AppDelegate.swift */,
 				E5EE30CC1BF917A300404BE0 /* ViewController.swift */,
+				E5BAEFE91FC59E0800915C7A /* GraphicsView.swift */,
 				E5EE30D91BF9186D00404BE0 /* ContextBackedView.swift */,
 				E5EE30CE1BF917A300404BE0 /* Main.storyboard */,
 				E5EE30D11BF917A300404BE0 /* Assets.xcassets */,
@@ -395,6 +432,23 @@
 			productReference = E52FEA861A9B996700851C83 /* C-swifty4 Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		E5BAEFD41FC595E900915C7A /* C-swifty4 Remote */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E5BAEFE41FC595E900915C7A /* Build configuration list for PBXNativeTarget "C-swifty4 Remote" */;
+			buildPhases = (
+				E5BAEFD11FC595E900915C7A /* Sources */,
+				E5BAEFD21FC595E900915C7A /* Frameworks */,
+				E5BAEFD31FC595E900915C7A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "C-swifty4 Remote";
+			productName = "C-swifty4 Remote";
+			productReference = E5BAEFD51FC595E900915C7A /* C-swifty4 Remote.app */;
+			productType = "com.apple.product-type.application";
+		};
 		E5EE30C71BF917A300404BE0 /* C-swifty4 tvOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E5EE30D61BF917A300404BE0 /* Build configuration list for PBXNativeTarget "C-swifty4 tvOS" */;
@@ -421,13 +475,12 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftMigration = 0700;
-				LastSwiftUpdateCheck = 0710;
+				LastSwiftUpdateCheck = 0910;
 				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "orange in a day";
 				TargetAttributes = {
 					E5065E4E1A63028F00CECED1 = {
 						CreatedOnToolsVersion = 6.1.1;
-						DevelopmentTeam = 4P257ZBPT9;
 						LastSwiftMigration = 0900;
 						SystemCapabilities = {
 							com.apple.iCloud = {
@@ -444,6 +497,11 @@
 					E52FEA851A9B996700851C83 = {
 						CreatedOnToolsVersion = 6.3;
 						LastSwiftMigration = 0800;
+					};
+					E5BAEFD41FC595E900915C7A = {
+						CreatedOnToolsVersion = 9.1;
+						DevelopmentTeam = 4P257ZBPT9;
+						ProvisioningStyle = Automatic;
 					};
 					E5EE30C71BF917A300404BE0 = {
 						CreatedOnToolsVersion = 7.1.1;
@@ -476,6 +534,7 @@
 				E5065E4E1A63028F00CECED1 /* C-swifty4 Mac */,
 				E5EE30C71BF917A300404BE0 /* C-swifty4 tvOS */,
 				E52FEA851A9B996700851C83 /* C-swifty4 Tests */,
+				E5BAEFD41FC595E900915C7A /* C-swifty4 Remote */,
 			);
 		};
 /* End PBXProject section */
@@ -521,6 +580,16 @@
 				E52FEA921A9B9C4200851C83 /* ROM in Resources */,
 				E52FEA931A9BA0F700851C83 /* Programs in Resources */,
 				E5DEFB9A1A9CE60E00A76AE3 /* Resources in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E5BAEFD31FC595E900915C7A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E5BAEFE21FC595E900915C7A /* LaunchScreen.storyboard in Resources */,
+				E5BAEFDF1FC595E900915C7A /* Assets.xcassets in Resources */,
+				E5BAEFDD1FC595E900915C7A /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -579,11 +648,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E5BAEFD11FC595E900915C7A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E5BAEFDA1FC595E900915C7A /* ViewController.swift in Sources */,
+				E5BAEFD81FC595E900915C7A /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E5EE30C41BF917A300404BE0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				E53254391FBF1CC600D23856 /* Shaders.metal in Sources */,
+				E5BAEFEA1FC59E0800915C7A /* GraphicsView.swift in Sources */,
 				E53254371FBF1CC600D23856 /* MetalView.swift in Sources */,
 				E5EE30CD1BF917A300404BE0 /* ViewController.swift in Sources */,
 				E53254381FBF1CC600D23856 /* ScaleFilter.swift in Sources */,
@@ -641,6 +720,22 @@
 				E5065F281A6311AC00CECED1 /* Base */,
 			);
 			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+		E5BAEFDB1FC595E900915C7A /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E5BAEFDC1FC595E900915C7A /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		E5BAEFE01FC595E900915C7A /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E5BAEFE11FC595E900915C7A /* Base */,
+			);
+			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 		E5EE30CE1BF917A300404BE0 /* Main.storyboard */ = {
@@ -736,6 +831,7 @@
 				CODE_SIGN_ENTITLEMENTS = "C-swifty4 Mac/C-swifty4.entitlements";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = 4P257ZBPT9;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1251,6 +1347,123 @@
 			};
 			name = Test;
 		};
+		E5BAEFE51FC595E900915C7A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4P257ZBPT9;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = "C-swifty4 Remote/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.orangeinaday.C-swifty4-Remote";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E5BAEFE61FC595E900915C7A /* Test */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4P257ZBPT9;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = "C-swifty4 Remote/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.orangeinaday.C-swifty4-Remote";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Test;
+		};
+		E5BAEFE71FC595E900915C7A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4P257ZBPT9;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = "C-swifty4 Remote/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.orangeinaday.C-swifty4-Remote";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		E5EE30D41BF917A300404BE0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1389,6 +1602,16 @@
 				E52FEA8F1A9B996700851C83 /* Debug */,
 				E53411C31DD4A74800CC04A0 /* Test */,
 				E52FEA901A9B996700851C83 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E5BAEFE41FC595E900915C7A /* Build configuration list for PBXNativeTarget "C-swifty4 Remote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E5BAEFE51FC595E900915C7A /* Debug */,
+				E5BAEFE61FC595E900915C7A /* Test */,
+				E5BAEFE71FC595E900915C7A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
