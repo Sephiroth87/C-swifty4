@@ -31,6 +31,12 @@ class ViewController: UIViewController {
     override var canBecomeFirstResponder: Bool {
         return true
     }
+    
+    @IBAction func onBrowserButton() {
+        let picker = UIDocumentPickerViewController(documentTypes: ["public.item"], in: .open)
+        picker.delegate = self
+        present(picker, animated: true, completion: nil)
+    }
 
 }
 
@@ -61,6 +67,22 @@ extension ViewController: UIKeyInput {
     
     func deleteBackward() {
         try? session.send(Data([0x00, 0x00]), toPeers: session.connectedPeers, with: .reliable)
+    }
+    
+}
+
+extension ViewController: UIDocumentPickerDelegate {
+    
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
+        guard let peer = session.connectedPeers.first else { return }
+        _ = url.startAccessingSecurityScopedResource()
+        let coordinator = NSFileCoordinator()
+        coordinator.coordinate(readingItemAt: url, options: .forUploading, error: nil) { newUrl in
+            session.sendResource(at: newUrl, withName: url.lastPathComponent, toPeer: peer) { error in
+                error.map { print($0) }
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
     }
     
 }
