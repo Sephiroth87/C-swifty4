@@ -9,6 +9,7 @@
 import UIKit
 import C64
 import MultipeerConnectivity
+import GameController
 
 class ViewController: UIViewController {
     
@@ -50,6 +51,27 @@ class ViewController: UIViewController {
         session.delegate = self
         advertiser.delegate = self
         advertiser.startAdvertisingPeer()
+        
+        NotificationCenter.default.addObserver(forName: NSNotification.Name.GCControllerDidConnect, object: nil, queue: nil) { _ in
+            GCController.controllers().first?.microGamepad?.dpad.valueChangedHandler = { _, x, y in
+                switch x {
+                case _ where x > 0.5:
+                    self.c64.setJoystick2XAxis(.right)
+                case _ where x < 0.5:
+                    self.c64.setJoystick2XAxis(.left)
+                default:
+                    self.c64.setJoystick2XAxis(.none)
+                }
+                switch y {
+                case _ where y > 0.5:
+                    self.c64.setJoystick2YAxis(.up)
+                case _ where y < 0.5:
+                    self.c64.setJoystick2YAxis(.down)
+                default:
+                    self.c64.setJoystick2YAxis(.none)
+                }
+            }
+        }
     }
     
     @discardableResult
