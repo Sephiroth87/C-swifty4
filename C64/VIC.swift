@@ -778,8 +778,7 @@ final internal class VIC: Component, LineComponent {
                 } else if let foregroundPixel = foregroundPixel {
                     state.screenBuffer[state.bufferPosition] = colors[foregroundPixel]
                 }
-                
-                if state.pipe.mainBorder || state.pipe.verticalBorder {
+                if state.pipe.mainBorder {
                     state.screenBuffer[state.bufferPosition] = colors[Int(state.ec)]
                 }
                 state.bufferPosition += 1

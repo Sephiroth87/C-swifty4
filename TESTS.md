@@ -57,6 +57,16 @@ All except tests for new CIA, trap17
 - [ ] stability.prg
 - [x] write-stop.prg
 ##VICII
+####border
+-[x] border-250.prg
+-[] border-251.prg
+-[x] border-252.prg
+-[] border-bm-idle.prg
+-[] border-bm-ysh.prg
+-[] border-bm-ysh2.prg
+-[] border-mcbm.prg
+-[x] vborder.prg (border opening pass, but yellow line is slightly different)
+-[x] vborder2.prg (same as above)
 ####colorram
 -[x] test.prg
 ####D011Test
