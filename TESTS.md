@@ -95,6 +95,8 @@ All except tests for new CIA, trap17
 -[x] denrsel55.prg
 ####gfxfetch
 -[x] gfxfetch.prg
+####phi1timing
+-[x] phi1timing.prg
 ####spritecollisions
 -[] sprite-gfx-collision-cycle
 -[] sprite-sprite-collision-cycle.prg

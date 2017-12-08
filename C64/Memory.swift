@@ -105,8 +105,8 @@ final internal class C64Memory: Memory, Component {
                 } else if position >= 0xDD00 && position <= 0xDDFF {
                     return cia2.readByte(UInt8(truncatingIfNeeded: position & 0xF))
                 } else {
-                    //TODO: http://www.zimmers.net/anonftp/pub/cbm/documents/chipdata/pal.timing
-                    return 0
+                    // http://www.zimmers.net/anonftp/pub/cbm/documents/chipdata/pal.timing
+                    return vic.dataBus
                 }
             } else if state.characterRomVisible {
                 return rom[Int(position)]

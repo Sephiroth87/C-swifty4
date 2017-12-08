@@ -196,6 +196,10 @@ final internal class VIC: Component, LineComponent {
         UInt32(truncatingIfNeeded: (0xFFC0C0C0 as UInt64)),
     ]
     
+    internal var dataBus: UInt8 {
+        return state.dataBus
+    }
+    
     //MARK: LineComponent
     func pin(_ line: Line) -> Bool {
         if line === irqLine {
@@ -490,6 +494,8 @@ final internal class VIC: Component, LineComponent {
             if state.spriteDma[Int(state.currentSprite)] {
                 sAccess(1)
                 sAccess(2)
+            } else {
+                iAccess()
             }
             state.currentSprite = (state.currentSprite + 1) & 7
         case 15:
@@ -521,7 +527,16 @@ final internal class VIC: Component, LineComponent {
                     state.yExpansion[i] = !state.yExpansion[i]
                 }
             }
-            fallthrough
+            for i in 0...7 {
+                if state.me & UInt8(1 << i) != 0 && state.m_y[i] == UInt8(truncatingIfNeeded: state.raster) {
+                    state.spriteDma[i] = true
+                    state.mcbase[i] = 0
+                    if state.mye & UInt8(1 << i) != 0 {
+                        state.yExpansion[i] = false
+                    }
+                }
+            }
+            updateAnySpriteDisplaying()
         case cyclesPerRaster - 7:
             for i in 0...7 {
                 if state.me & UInt8(1 << i) != 0 && state.m_y[i] == UInt8(truncatingIfNeeded: state.raster) {
@@ -533,6 +548,9 @@ final internal class VIC: Component, LineComponent {
                 }
             }
             updateAnySpriteDisplaying()
+            iAccess()
+        case cyclesPerRaster - 6:
+            iAccess()
         case cyclesPerRaster - 5:
             for i in 0...7 {
                 state.mc[i] = state.mcbase[i]
@@ -555,6 +573,8 @@ final internal class VIC: Component, LineComponent {
             if state.spriteDma[Int(state.currentSprite)] {
                 sAccess(1)
                 sAccess(2)
+            } else {
+                iAccess()
             }
             state.currentSprite = (state.currentSprite + 1) & 7
         default:
@@ -629,6 +649,12 @@ final internal class VIC: Component, LineComponent {
     private func rAccess() {
         _ = memoryAccess(0x3F00 | UInt16(state.ref))
         state.ref = state.ref &- 1
+    }
+    
+    // Idle access
+    
+    private func iAccess() {
+        memoryAccess(0x3FFF)
     }
 
     // Draw 8 pixels
