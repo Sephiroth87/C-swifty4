@@ -46,6 +46,7 @@ class ViewController: UIViewController {
                                     safeArea: c64.configuration.vic.safeArea)
 
         c64.delegate = self
+        c64.c1541.turnOn()
         c64.run()
     
         session.delegate = self

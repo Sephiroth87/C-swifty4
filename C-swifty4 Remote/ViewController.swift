@@ -78,8 +78,11 @@ extension ViewController: UIDocumentPickerDelegate {
         _ = url.startAccessingSecurityScopedResource()
         let coordinator = NSFileCoordinator()
         coordinator.coordinate(readingItemAt: url, options: .forUploading, error: nil) { newUrl in
-            session.sendResource(at: newUrl, withName: url.lastPathComponent, toPeer: peer) { error in
+            let tmp = URL(fileURLWithPath: NSTemporaryDirectory() + newUrl.lastPathComponent)
+            try? FileManager.default.copyItem(at: newUrl, to: tmp)
+            session.sendResource(at: tmp, withName: tmp.lastPathComponent, toPeer: peer) { error in
                 error.map { print($0) }
+                try? FileManager.default.removeItem(at: tmp)
                 url.stopAccessingSecurityScopedResource()
             }
         }
