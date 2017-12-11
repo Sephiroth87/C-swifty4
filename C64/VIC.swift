@@ -654,7 +654,7 @@ final internal class VIC: Component, LineComponent {
     // Idle access
     
     private func iAccess() {
-        memoryAccess(0x3FFF)
+        _ = memoryAccess(0x3FFF)
     }
 
     // Draw 8 pixels
