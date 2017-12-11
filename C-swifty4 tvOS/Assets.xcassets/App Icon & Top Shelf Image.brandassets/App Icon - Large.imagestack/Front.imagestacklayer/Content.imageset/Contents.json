@@ -3,6 +3,11 @@
     {
       "idiom" : "tv",
       "scale" : "1x"
+    },
+    {
+      "idiom" : "tv",
+      "filename" : "front@2x.png",
+      "scale" : "2x"
     }
   ],
   "info" : {
