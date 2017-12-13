@@ -239,8 +239,22 @@
                                             <binding destination="4M3-t0-eEi" name="hidden" keyPath="emulator.running" id="mta-yd-5O5"/>
                                         </connections>
                                     </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vjr-vn-bdF">
+                                        <rect key="frame" x="48" y="0.0" width="22" height="22"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="vjr-vn-bdF" secondAttribute="height" multiplier="1:1" id="uQs-ev-EWH"/>
+                                        </constraints>
+                                        <buttonCell key="cell" type="inline" title="▶︎I" bezelStyle="inline" imagePosition="overlaps" alignment="center" state="on" imageScaling="proportionallyDown" inset="2" id="ljc-fb-2Oe">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="smallSystemBold"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="onStepFrameButton:" target="4M3-t0-eEi" id="1qj-I8-tJG"/>
+                                            <binding destination="4M3-t0-eEi" name="hidden" keyPath="emulator.running" id="MNE-fs-Fe6"/>
+                                        </connections>
+                                    </button>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Gj5-7O-QKZ">
-                                        <rect key="frame" x="46" y="2" width="23" height="17"/>
+                                        <rect key="frame" x="66" y="2" width="23" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="⚪️" id="kAu-6r-IPZ">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -251,7 +265,7 @@
                                         </connections>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ddz-9a-6b8">
-                                        <rect key="frame" x="46" y="3" width="23" height="17"/>
+                                        <rect key="frame" x="66" y="3" width="23" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="🔴" id="jS1-yF-bO3">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -266,7 +280,7 @@
                                         </connections>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jyj-nf-Djz">
-                                        <rect key="frame" x="69" y="5" width="4" height="13"/>
+                                        <rect key="frame" x="89" y="5" width="4" height="13"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="ba6-TQ-LxF">
                                             <font key="font" metaFont="system" size="10"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -295,18 +309,21 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="22" id="46u-Tq-ITS"/>
                                     <constraint firstAttribute="centerY" secondItem="kDC-Ob-JhV" secondAttribute="centerY" id="67O-SZ-sXg"/>
+                                    <constraint firstItem="vjr-vn-bdF" firstAttribute="leading" secondItem="M7R-G1-j56" secondAttribute="trailing" constant="2" id="7G7-kM-y5o"/>
                                     <constraint firstItem="M7R-G1-j56" firstAttribute="top" secondItem="cQO-qd-B8E" secondAttribute="top" id="FJj-kv-59k"/>
                                     <constraint firstAttribute="trailing" secondItem="kDC-Ob-JhV" secondAttribute="trailing" constant="10" id="FYf-yJ-En0"/>
                                     <constraint firstItem="Jyj-nf-Djz" firstAttribute="centerY" secondItem="cQO-qd-B8E" secondAttribute="centerY" id="Mjy-Nq-Mgg"/>
                                     <constraint firstAttribute="centerY" secondItem="Gj5-7O-QKZ" secondAttribute="centerY" id="O8E-B3-jla"/>
                                     <constraint firstItem="Jyj-nf-Djz" firstAttribute="leading" secondItem="Gj5-7O-QKZ" secondAttribute="trailing" constant="4" id="OGv-Pa-KmO"/>
                                     <constraint firstItem="t7m-E7-aHh" firstAttribute="top" secondItem="cQO-qd-B8E" secondAttribute="top" id="Vac-hV-ziB"/>
-                                    <constraint firstItem="Gj5-7O-QKZ" firstAttribute="leading" secondItem="M7R-G1-j56" secondAttribute="trailing" constant="2" id="bZr-ZQ-eI4"/>
+                                    <constraint firstItem="vjr-vn-bdF" firstAttribute="trailing" secondItem="Gj5-7O-QKZ" secondAttribute="leading" constant="2" id="X9g-Ws-gT6"/>
                                     <constraint firstAttribute="bottom" secondItem="Kfq-oF-qsJ" secondAttribute="bottom" id="bd2-Hx-xT0"/>
-                                    <constraint firstItem="Ddz-9a-6b8" firstAttribute="leading" secondItem="M7R-G1-j56" secondAttribute="trailing" constant="2" id="hbO-DX-Kol"/>
+                                    <constraint firstAttribute="bottom" secondItem="vjr-vn-bdF" secondAttribute="bottom" id="dh0-Sn-2MQ"/>
+                                    <constraint firstItem="Ddz-9a-6b8" firstAttribute="centerX" secondItem="Gj5-7O-QKZ" secondAttribute="centerX" id="hcz-7L-14b"/>
                                     <constraint firstItem="t7m-E7-aHh" firstAttribute="leading" secondItem="cQO-qd-B8E" secondAttribute="leading" id="hyH-An-n75"/>
                                     <constraint firstAttribute="bottom" secondItem="M7R-G1-j56" secondAttribute="bottom" id="kEo-V8-yn9"/>
                                     <constraint firstItem="M7R-G1-j56" firstAttribute="leading" secondItem="t7m-E7-aHh" secondAttribute="trailing" constant="2" id="l6k-9P-btx"/>
+                                    <constraint firstItem="vjr-vn-bdF" firstAttribute="top" secondItem="cQO-qd-B8E" secondAttribute="top" id="lem-yJ-lyF"/>
                                     <constraint firstItem="Ddz-9a-6b8" firstAttribute="centerY" secondItem="cQO-qd-B8E" secondAttribute="centerY" id="pYj-zK-QOU"/>
                                     <constraint firstAttribute="bottom" secondItem="t7m-E7-aHh" secondAttribute="bottom" id="vRo-3E-orm"/>
                                     <constraint firstItem="Kfq-oF-qsJ" firstAttribute="leading" secondItem="cQO-qd-B8E" secondAttribute="leading" id="vy7-2e-tKY"/>

@@ -98,8 +98,8 @@ All except tests for new CIA, trap17
 ####phi1timing
 -[x] phi1timing.prg
 ####spritecollisions
--[] sprite-gfx-collision-cycle
--[] sprite-sprite-collision-cycle.prg
+-[x] sprite-gfx-collision-cycle
+-[x] sprite-sprite-collision-cycle.prg
 -[x] sprite-sprite.prg
 ####spriteenable
 -[x] spriteenable1.prg

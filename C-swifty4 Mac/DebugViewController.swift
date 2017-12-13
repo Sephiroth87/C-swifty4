@@ -38,4 +38,8 @@ class DebugViewController: NSViewController {
         emulator.c64.step()
     }
     
+    @IBAction func onStepFrameButton(_ sender: AnyObject) {
+        emulator.c64.stepFrame()
+    }
+    
 }

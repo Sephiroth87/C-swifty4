@@ -205,6 +205,19 @@ final public class C64 {
         }
     }
     
+    public func stepFrame() {
+        running = false
+        dispatchQueue.async {
+            self.executeOneCycle()
+            while !(self.cycles == 0 && self.lines == 0) {
+                self.executeOneCycle()
+            }
+            DispatchQueue.main.async {
+                self.delegate?.C64DidBreak(self)
+            }
+        }
+    }
+    
     public func setBreakpoint(at address: UInt16, handler: (()->Void)?) {
         breakpoints[address] = handler
     }

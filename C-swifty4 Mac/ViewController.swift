@@ -29,8 +29,6 @@ class ViewController: NSViewController {
         c64.run()
     }
     
-
-    
     override func viewWillAppear() {
         super.viewWillAppear()
         let resolution = Emulator.shared.c64.configuration.vic.resolution
