@@ -46,6 +46,8 @@
 		E5BAF50E1FC3278E00B9186C /* MetalPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BAF50D1FC3278E00B9186C /* MetalPipeline.swift */; };
 		E5BAF50F1FC3278E00B9186C /* MetalPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BAF50D1FC3278E00B9186C /* MetalPipeline.swift */; };
 		E5BAF5101FC3278E00B9186C /* MetalPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BAF50D1FC3278E00B9186C /* MetalPipeline.swift */; };
+		E5C186AF1FE0396500B7899A /* DebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C186AE1FE0396500B7899A /* DebugViewController.swift */; };
+		E5C186B11FE03AE400B7899A /* Emulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C186B01FE03AE400B7899A /* Emulator.swift */; };
 		E5C552751D9C6542004DE54C /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E5C552761D9C6589004DE54C /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E5DEFB9A1A9CE60E00A76AE3 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = E5DEFB991A9CE60E00A76AE3 /* Resources */; };
@@ -175,6 +177,8 @@
 		E5BAEFE91FC59E0800915C7A /* GraphicsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphicsView.swift; sourceTree = "<group>"; };
 		E5BAF5091FC31C6700B9186C /* FakeMetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeMetalView.swift; sourceTree = "<group>"; };
 		E5BAF50D1FC3278E00B9186C /* MetalPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalPipeline.swift; sourceTree = "<group>"; };
+		E5C186AE1FE0396500B7899A /* DebugViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugViewController.swift; sourceTree = "<group>"; };
+		E5C186B01FE03AE400B7899A /* Emulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emulator.swift; sourceTree = "<group>"; };
 		E5DEFB991A9CE60E00A76AE3 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
 		E5DEFB9B1A9CE63500A76AE3 /* LorenzTestSuite.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LorenzTestSuite.swift; sourceTree = "<group>"; };
 		E5E3B4EE1DAEB69A0093B01C /* iOSViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iOSViewController.swift; sourceTree = "<group>"; };
@@ -264,7 +268,9 @@
 			isa = PBXGroup;
 			children = (
 				E5065E531A63028F00CECED1 /* AppDelegate.swift */,
+				E5C186B01FE03AE400B7899A /* Emulator.swift */,
 				E5065E551A63028F00CECED1 /* ViewController.swift */,
+				E5C186AE1FE0396500B7899A /* DebugViewController.swift */,
 				E525EF2C1A64163D0000B7D3 /* ContextBackedView.swift */,
 				E59588D51F9E41CC0020A941 /* DropView.swift */,
 				E5065E571A63028F00CECED1 /* Images.xcassets */,
@@ -611,7 +617,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5C186AF1FE0396500B7899A /* DebugViewController.swift in Sources */,
 				E5BAF50F1FC3278E00B9186C /* MetalPipeline.swift in Sources */,
+				E5C186B11FE03AE400B7899A /* Emulator.swift in Sources */,
 				E53378B41FB5D74000694679 /* Shaders.metal in Sources */,
 				E5065E561A63028F00CECED1 /* ViewController.swift in Sources */,
 				E59588D61F9E41CC0020A941 /* DropView.swift in Sources */,

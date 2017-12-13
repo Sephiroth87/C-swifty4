@@ -10,6 +10,7 @@ import Foundation
 
 public protocol C64Delegate: class {
     func C64VideoFrameReady(_ c64: C64)
+    func C64DidRun(_ c64: C64)
     func C64DidBreak(_ c64: C64)
     // This is temporary, the emulator itself should not crash, but it's useful for missing features ATM
     // (and abort/assert/exceptions don't work well with testing...)
@@ -186,12 +187,15 @@ final public class C64 {
         if !running {
             running = true
             dispatchQueue.async(execute: mainLoop)
+            self.delegate?.C64DidRun(self)
         }
     }
     
     public func pause() {
         if running {
-            executeToNextFetch {}
+            executeToNextFetch {
+                self.delegate?.C64DidBreak(self)
+            }
         }
     }
     

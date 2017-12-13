@@ -11,27 +11,10 @@ import C64
 
 class ViewController: NSViewController {
     
-//    @IBOutlet fileprivate var graphicsView: ContextBackedView!
     @IBOutlet fileprivate var graphicsView: MetalView!
     @IBOutlet private var dropView: DropView!
-    @IBOutlet fileprivate var playButton: NSButton!
-    @IBOutlet fileprivate var stepButton: NSButton!
-    @IBOutlet fileprivate var fpsLabel: NSTextField!
-    @IBOutlet fileprivate var driveLedLabel: NSTextField!
-    
-    fileprivate var startTime: CFTimeInterval = 0
-    fileprivate var frames = 0
 
-    fileprivate let c64: C64 = {
-        let romConfig = C64ROMConfiguration(
-            kernalData: try! Data(contentsOf: Bundle.main.url(forResource: "kernal", withExtension: nil, subdirectory:"ROM")!),
-            basicData: try! Data(contentsOf: Bundle.main.url(forResource: "basic", withExtension: nil, subdirectory:"ROM")!),
-            characterData: try! Data(contentsOf: Bundle.main.url(forResource: "chargen", withExtension: nil, subdirectory:"ROM")!))
-        let config = C64Configuration(rom: romConfig,
-                                      vic: .pal,
-                                      c1541: C1541Configuration(rom: C1541ROMConfiguration(c1541Data: try! Data(contentsOf: Bundle.main.url(forResource: "1541", withExtension: nil, subdirectory:"ROM")!))))
-        return C64(configuration: config)
-    }()
+    private var c64 = Emulator.shared.c64
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,28 +25,23 @@ class ViewController: NSViewController {
         
         dropView.handleFile = handleFile
         
-        c64.delegate = self
-        c64.c1541.delegate = self
-//        c64.c1541.turnOn()
-        onPlayButton(self)
-        
-        
-
-//        c64.setBreakpoint(at: 0x08E7) {
-//            print("")
-//        }
+        Emulator.shared.frameDataHandler = graphicsView.setData
+        c64.run()
     }
+    
+
     
     override func viewWillAppear() {
         super.viewWillAppear()
-
-        let resolution = c64.configuration.vic.resolution
-        let safeArea = c64.configuration.vic.safeArea
-        let size = NSSize(width: resolution.width - safeArea.left - safeArea.right, height: resolution.height - safeArea.top - safeArea.bottom + 22)
+        let resolution = Emulator.shared.c64.configuration.vic.resolution
+        let safeArea = Emulator.shared.c64.configuration.vic.safeArea
+        let size = NSSize(width: resolution.width - safeArea.left - safeArea.right, height: resolution.height - safeArea.top - safeArea.bottom)
         view.window?.setContentSize(size)
         view.window?.contentMinSize = size
+        view.window?.contentAspectRatio = size
         view.window?.makeFirstResponder(self)
-        view.window?.delegate = self
+        view.window?.layoutIfNeeded()
+        view.window?.center()
     }
     
     override var acceptsFirstResponder: Bool {
@@ -97,24 +75,8 @@ class ViewController: NSViewController {
     }
 
     //MARK: Actions
-
-    @IBAction func onPlayButton(_ sender: AnyObject) {
-        if c64.running {
-            c64.step()
-            playButton.title = "▶︎"
-        } else {
-            stepButton.isEnabled = false
-            stepButton.alphaValue = 0.5
-            playButton.title = "II"
-            c64.run()
-        }
-    }
     
-    @IBAction func onStepButton(_ sender: AnyObject) {
-        c64.step()
-    }
-    
-    @IBAction func onDiskButton(_ sender: AnyObject) {
+    @IBAction func loadFile(_ sender: AnyObject) {
         c64.pause()
         let panel = NSOpenPanel()
         panel.allowedFileTypes = C64.supportedFileTypes
@@ -220,55 +182,6 @@ class ViewController: NSViewController {
         } else {
             c64.releaseSpecialKey(.shift)
         }
-    }
-    
-}
-
-extension ViewController: NSWindowDelegate {
-    
-    func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
-        var newSize = frameSize
-        newSize.width = max(newSize.width, sender.contentMinSize.width)
-        newSize.height = max(newSize.height, sender.contentMinSize.height)
-        let resolution = c64.configuration.vic.resolution
-        let safeArea = c64.configuration.vic.safeArea
-        sender.contentAspectRatio = NSSize(width: newSize.width, height: (newSize.width / CGFloat(Float(resolution.width - safeArea.left - safeArea.right) / Float(resolution.height - safeArea.top - safeArea.bottom))) + 22.0)
-        return newSize
-    }
-
-}
-
-extension ViewController: C64Delegate {
-    
-    func C64VideoFrameReady(_ c64: C64) {
-        graphicsView.setData(c64.screenBuffer())
-        
-        frames += 1
-        if frames == 60 {
-            let newTime = CACurrentMediaTime()
-            let time = newTime - startTime
-            fpsLabel.stringValue = "\(Int(60 / time)) FPS"
-            startTime = newTime
-            frames = 0
-        }
-    }
-    
-    func C64DidBreak(_ c64: C64) {
-        print(c64.debugInfo()["cpu"]!)
-
-        stepButton.isEnabled = true
-        stepButton.alphaValue = 1.0
-        playButton.title = "▶︎"
-    }
-    
-    func C64DidCrash(_ c64: C64) {}
-    
-}
-
-extension ViewController: C1541Delegate {
-    
-    func C1541UpdateLedStatus(_ c1541: C1541, ledOn: Bool) {
-        driveLedLabel.stringValue = ledOn ? "🔴" : "⚪️"
     }
     
 }
