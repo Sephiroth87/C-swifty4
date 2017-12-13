@@ -35,7 +35,7 @@ class ViewController: NSViewController {
         super.viewWillAppear()
         let resolution = Emulator.shared.c64.configuration.vic.resolution
         let safeArea = Emulator.shared.c64.configuration.vic.safeArea
-        let size = NSSize(width: resolution.width - safeArea.left - safeArea.right, height: resolution.height - safeArea.top - safeArea.bottom)
+        let size = NSSize(width: (resolution.width - safeArea.left - safeArea.right) * 2, height: (resolution.height - safeArea.top - safeArea.bottom) * 2)
         view.window?.setContentSize(size)
         view.window?.contentMinSize = size
         view.window?.contentAspectRatio = size

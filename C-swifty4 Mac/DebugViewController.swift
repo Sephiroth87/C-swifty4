@@ -17,7 +17,7 @@ class DebugViewController: NSViewController {
         
         guard let emulatorWindow = NSApplication.shared.mainWindow else { return }
         
-        emulatorWindow.addChildWindow(view.window!, ordered: .below)
+        emulatorWindow.addChildWindow(view.window!, ordered: .above)
         var frame = view.window!.frame
         frame.origin.x = emulatorWindow.frame.midX - frame.size.width / 2.0
         frame.origin.y = emulatorWindow.frame.origin.y - frame.size.height - 20.0
