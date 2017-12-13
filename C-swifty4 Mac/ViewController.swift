@@ -42,12 +42,33 @@ class ViewController: NSViewController {
         view.window?.makeFirstResponder(self)
         view.window?.layoutIfNeeded()
         view.window?.center()
+        
+        view.window?.standardWindowButton(.closeButton)?.alphaValue = 0.0
+        view.window?.standardWindowButton(.miniaturizeButton)?.alphaValue = 0.0
+        view.window?.standardWindowButton(.zoomButton)?.alphaValue = 0.0
+        view.addTrackingArea(NSTrackingArea(rect: view.bounds, options: [.activeAlways, .mouseEnteredAndExited, .inVisibleRect], owner: view, userInfo: nil))
     }
-    
+
     override var acceptsFirstResponder: Bool {
         get {
             return true
         }
+    }
+    
+    override func mouseEntered(with event: NSEvent) {
+        NSAnimationContext.runAnimationGroup({ _ in
+            view.window?.standardWindowButton(.closeButton)?.animator().alphaValue = 1.0
+            view.window?.standardWindowButton(.miniaturizeButton)?.animator().alphaValue = 1.0
+            view.window?.standardWindowButton(.zoomButton)?.animator().alphaValue = 1.0
+        }, completionHandler: nil)
+    }
+    
+    override func mouseExited(with event: NSEvent) {
+        NSAnimationContext.runAnimationGroup({ _ in
+            view.window?.standardWindowButton(.closeButton)?.animator().alphaValue = 0.0
+            view.window?.standardWindowButton(.miniaturizeButton)?.animator().alphaValue = 0.0
+            view.window?.standardWindowButton(.zoomButton)?.animator().alphaValue = 0.0
+        }, completionHandler: nil)
     }
 
     @discardableResult
