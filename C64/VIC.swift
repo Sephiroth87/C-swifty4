@@ -140,6 +140,7 @@ internal struct VICState: ComponentState {
     fileprivate var badLinesEnabled = false
     fileprivate var isBadLine = false
     fileprivate var baPin = true
+    fileprivate var baLowCount = 0
     fileprivate var currentSprite: UInt8 = 3
     fileprivate var spriteDma: [Bool] = [Bool](repeating: false, count: 8)
     fileprivate var spriteDisplay: [Bool] = [Bool](repeating: false, count: 8)
@@ -153,7 +154,7 @@ internal struct VICState: ComponentState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
         let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
-        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_x: binaryDump.next(8), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mxe: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), graphicsShiftRegister: binaryDump.next())
+        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_x: binaryDump.next(8), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mxe: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), graphicsShiftRegister: binaryDump.next())
     }
     
 }
@@ -318,6 +319,7 @@ final internal class VIC: Component, LineComponent {
             if state.raster == 0x30 && state.den {
                 state.badLinesEnabled = true
             }
+            state.isBadLine = state.badLinesEnabled && state.raster >= 0x30 && state.raster <= 0xF7 && UInt8(state.raster) & 7 == state.yScroll
         case 0x12:
             if case let newRasterInterruptLine = (state.rasterInterruptLine & 0xFF00) | UInt16(byte), newRasterInterruptLine != state.rasterInterruptLine {
                 state.rasterInterruptLine = newRasterInterruptLine
@@ -407,6 +409,9 @@ final internal class VIC: Component, LineComponent {
             state.baPin = value
             rdyLine.update(self)
         }
+        if value {
+            state.baLowCount = 0
+        }
     }
 
     private func endOfRasterline() {
@@ -433,19 +438,10 @@ final internal class VIC: Component, LineComponent {
             if state.raster == 0x30 {
                 state.badLinesEnabled = state.den
             }
+            state.isBadLine = state.badLinesEnabled && state.raster >= 0x30 && state.raster <= 0xF7 && UInt8(state.raster) & 7 == state.yScroll
         }
-        // Initial cycle operations
-        if state.raster >= 0x30 && state.raster <= 0xF7 {
-            if state.currentCycle == 1 {
-                state.isBadLine = false
-            }
-            if state.raster == 0x30 && state.den {
-                state.badLinesEnabled = true
-            }
-            if UInt8(state.raster) & 7 == state.yScroll && state.badLinesEnabled {
-                state.isBadLine = true
-                state.displayState = true
-            }
+        if !state.baPin {
+            state.baLowCount += 1
         }
         switch state.currentCycle {
         case 1:
@@ -467,8 +463,10 @@ final internal class VIC: Component, LineComponent {
             rAccess()
         case 58:
             if state.rc == 7 {
-                state.displayState = false
                 state.vcbase = state.vc
+                if !state.isBadLine {
+                    state.displayState = false
+                }
             }
             if state.displayState {
                 state.rc = (state.rc + 1) & 7
@@ -599,6 +597,9 @@ final internal class VIC: Component, LineComponent {
                 updateIRQLine()
             }
         }
+        if state.isBadLine {
+            state.displayState = true
+        }
         if state.currentCycle == cyclesPerRaster {
             endOfRasterline()
             state.currentCycle = 0
@@ -609,8 +610,15 @@ final internal class VIC: Component, LineComponent {
     // Video matrix access
     private func cAccess() {
         if state.isBadLine {
-            state.videoMatrix[Int(state.vmli)] = memoryAccess(UInt16(state.vm) << 10 &+ state.vc)
-            state.colorLine[Int(state.vmli)] = memory.readColorRAMByte(state.vc) & 0x0F
+            if state.baLowCount > 2 {
+                state.videoMatrix[Int(state.vmli)] = memoryAccess(UInt16(state.vm) << 10 &+ state.vc)
+                state.colorLine[Int(state.vmli)] = memory.readColorRAMByte(state.vc) & 0x0F
+            } else {
+                state.videoMatrix[Int(state.vmli)] = 0xFF
+                // This is my interpretation of vic-ii.txt, using low 4 bits of PC, other emulators read ram at PC instead
+                // Couldn't find a test to actually check which one is right
+                state.colorLine[Int(state.vmli)] = UInt8(truncatingIfNeeded: memory.cpu.state.pc) & 0x0F
+            }
         }
     }
     

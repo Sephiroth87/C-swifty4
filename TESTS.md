@@ -93,10 +93,17 @@ All except tests for new CIA, trap17
 -[x] denrsel-s1.prg
 -[x] denrsel-s2.prg
 -[x] denrsel55.prg
+####dmadelay
+-[x]test1.prg
+-[x]test2.prg
+-[x]test3.prg
+-[]test4.prg
 ####gfxfetch
 -[x] gfxfetch.prg
 ####phi1timing
 -[x] phi1timing.prg
+####screenpos
+-[x] screenpos.prg
 ####spritecollisions
 -[x] sprite-gfx-collision-cycle
 -[x] sprite-sprite-collision-cycle.prg
