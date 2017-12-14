@@ -9,20 +9,18 @@ C-swifty4
 	<a href="https://gitter.im/Sephiroth87/C-swifty4?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/Sephiroth87/C-swifty4" /></a>
 </p>
 
-C-swifty4 is a cycle accurate Commodore 64 emulator for OS X, iOS and tvOS, written entirely in Swift.
+C-swifty4 is a cycle accurate Commodore 64 emulator for macOS, iOS and tvOS, written entirely in Swift.
 
 This is a side project I started for a bunch of reasons, mostly because I was interested in building an emulator from scratch (and the C64 being my first computer I always wanted to take a deeper look on how it actually worked), and to learn some Swift along the way... This means that this project is not meant to be a “professional” emulator, it might not even be finished ever, but some people might find it interesting (and I needed some place to host my repo anyway).
 Also, code structure, commenting and stuff is going to change a lot...
-
-On a side note, unfortunately I ended up not using many of Swift’s unique features because they are kinda slow for the kind of performance needed for accurate emulation :(
 
 FAQ
 ============================
 
 #### How do I build it?
 
-C-swifty4 requires Swift 3, so you’ll need to use Xcode 8 or higher to build it.
-Works on OS X 10.10 and iOS8 mostly because it’s the only place I tested, so it might work with older versions...
+C-swifty4 requires Swift 4, so you’ll need to use Xcode 9 or higher to build it.
+Works on OS X 10.12 and iOS9 mostly because it’s the only place I tested, so it might work with older versions...
 
 You’ll need to provide your own C64 ROM dumps to make it work, so replace the files in the `ROM` folder with the appropriate ones (kernal and basic need to be 8192 bytes, chargen is 4096, 1541 is 16384).
 
@@ -36,7 +34,7 @@ Then just open the project file, build and run.
 * Video (all video modes, some sprites functionalities)
 * Keyboard (not all keys)
 * Joystick 2
-* Loading files (Supported *.prg and *.p00 files will be dumped in memory directly atm, so you’ll just need to type `RUN` to start them, *.txt files will be typed in as text)
+* Loading files (Supported *.prg and *.p00 files will be dumped in memory directly atm, *.txt files will be typed in as text)
 * Standard .d64 disk files
 
 #### What doesn’t work
