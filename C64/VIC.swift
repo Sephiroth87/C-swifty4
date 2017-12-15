@@ -88,6 +88,7 @@ internal struct VICState: ComponentState {
     fileprivate var ecm = false // Extended Color Mode
     fileprivate var raster: UInt16 = 0 // Raster Counter
     fileprivate var me: UInt8 = 0 // Sprite Enabled
+    fileprivate var xScroll: UInt8 = 0 // X Scroll
     fileprivate var csel = true // (Columns selection)?
     fileprivate var mcm = false // Multi Color Mode
     fileprivate var mye: UInt8 = 0 // Sprite Y Expansion
@@ -154,7 +155,11 @@ internal struct VICState: ComponentState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
         let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
-        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_x: binaryDump.next(8), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mxe: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), graphicsShiftRegister: binaryDump.next())
+        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_x: binaryDump.next(8), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), xScroll: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mxe: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), graphicsShiftRegister: binaryDump.next())
+    }
+    
+    var description: String {
+        return "🎨 (\(rasterX), \(raster)) - \(currentCycle)"
     }
     
 }
@@ -242,7 +247,7 @@ final internal class VIC: Component, LineComponent {
         case 0x15:
             return state.me
         case 0x16:
-            return (state.csel ? 0x08 : 0) | (state.mcm ? 0x10 : 0) | 0xC0 //TODO: missing bit registers
+            return state.xScroll | (state.csel ? 0x08 : 0) | (state.mcm ? 0x10 : 0) | 0xC0
         case 0x17:
             return state.mye
         case 0x18:
@@ -331,6 +336,7 @@ final internal class VIC: Component, LineComponent {
         case 0x15:
             state.me = byte
         case 0x16:
+            state.xScroll = byte & 0x07
             state.csel = byte & 0x08 != 0
             borderComparison.left = state.csel ? 24 : 31
             borderComparison.right = state.csel ? 344 : 335
@@ -476,9 +482,6 @@ final internal class VIC: Component, LineComponent {
         }
         let cyclesPerRaster = configuration.cyclesPerRaster
         if state.currentCycle <= configuration.lastDrawCycle {
-            if state.currentCycle >= 18 && state.currentCycle <= 57 {
-                state.graphicsShiftRegister = state.pipe.graphicsData
-            }
             draw()
             state.pipe = state.nextPipe
         }
@@ -683,6 +686,9 @@ final internal class VIC: Component, LineComponent {
                     if !state.nextPipe.verticalBorder {
                         state.nextPipe.mainBorder = false
                     }
+                }
+                if state.currentCycle >= 18 && state.currentCycle <= 57 && i == state.xScroll {
+                    state.graphicsShiftRegister = state.pipe.graphicsData
                 }
                 var foregroundPixel: Int? = nil
                 if state.bmm {
