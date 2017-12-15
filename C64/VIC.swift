@@ -58,9 +58,10 @@ private struct VICPipeline: BinaryConvertible {
     fileprivate var mainBorder = false
     fileprivate var verticalBorder = false
     fileprivate var initialRasterX: UInt16 = 0
+    fileprivate var xScroll: UInt8 = 0
 
     static func extract(_ binaryDump: BinaryDump) -> VICPipeline {
-        return VICPipeline(graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next())
+        return VICPipeline(graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next(), xScroll: binaryDump.next())
     }
     
 }
@@ -337,6 +338,7 @@ final internal class VIC: Component, LineComponent {
             state.me = byte
         case 0x16:
             state.xScroll = byte & 0x07
+            state.nextPipe.xScroll = state.xScroll
             state.csel = byte & 0x08 != 0
             borderComparison.left = state.csel ? 24 : 31
             borderComparison.right = state.csel ? 344 : 335
@@ -687,7 +689,7 @@ final internal class VIC: Component, LineComponent {
                         state.nextPipe.mainBorder = false
                     }
                 }
-                if state.currentCycle >= 18 && state.currentCycle <= 57 && i == state.xScroll {
+                if state.currentCycle >= 18 && state.currentCycle <= 57 && i == state.pipe.xScroll {
                     state.graphicsShiftRegister = state.pipe.graphicsData
                 }
                 var foregroundPixel: Int? = nil
