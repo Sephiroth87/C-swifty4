@@ -52,6 +52,10 @@ public struct VICConfiguration {
 
 private struct VICPipeline: BinaryConvertible {
     
+    //MARK: Registers
+    fileprivate var m_x: [UInt16] = [UInt16](repeating: 0, count: 8) // X Coordinate Sprite
+    //MARK: -
+    
     fileprivate var graphicsData: UInt8 = 0
     fileprivate var graphicsVideoMatrix: UInt8 = 0
     fileprivate var graphicsColorLine: UInt8 = 0
@@ -61,7 +65,7 @@ private struct VICPipeline: BinaryConvertible {
     fileprivate var xScroll: UInt8 = 0
 
     static func extract(_ binaryDump: BinaryDump) -> VICPipeline {
-        return VICPipeline(graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next(), xScroll: binaryDump.next())
+        return VICPipeline(m_x: binaryDump.next(8), graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next(), xScroll: binaryDump.next())
     }
     
 }
@@ -80,7 +84,6 @@ internal struct VICState: ComponentState {
     fileprivate var currentLine: UInt16 = 0
     
     //MARK: Registers
-    fileprivate var m_x: [UInt16] = [UInt16](repeating: 0, count: 8) // X Coordinate Sprite
     fileprivate var m_y: [UInt8] = [UInt8](repeating: 0, count: 8) // Y Coordinate Sprite
     fileprivate var yScroll: UInt8 = 0 // Y Scroll
     fileprivate var rsel = true // (Rows selection)?
@@ -156,7 +159,7 @@ internal struct VICState: ComponentState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
         let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
-        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_x: binaryDump.next(8), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), xScroll: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mxe: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), graphicsShiftRegister: binaryDump.next())
+        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), xScroll: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mxe: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), graphicsShiftRegister: binaryDump.next())
     }
     
     var description: String {
@@ -228,18 +231,18 @@ final internal class VIC: Component, LineComponent {
     internal func readByte(_ position: UInt8) -> UInt8 {
         switch position {
         case 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E:
-            return UInt8(truncatingIfNeeded: state.m_x[Int(position >> 1)])
+            return UInt8(truncatingIfNeeded: state.nextPipe.m_x[Int(position >> 1)])
         case 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F:
             return state.m_y[Int((position - 1) >> 1)]
         case 0x10:
-            var value = (state.m_x[0] & 0xFF00) >> 8
-            value |= (state.m_x[1] & 0xFF00) >> 7
-            value |= (state.m_x[2] & 0xFF00) >> 6
-            value |= (state.m_x[3] & 0xFF00) >> 5
-            value |= (state.m_x[4] & 0xFF00) >> 4
-            value |= (state.m_x[5] & 0xFF00) >> 3
-            value |= (state.m_x[6] & 0xFF00) >> 2
-            value |= (state.m_x[7] & 0xFF00) >> 1
+            var value = (state.nextPipe.m_x[0] & 0xFF00) >> 8
+            value |= (state.nextPipe.m_x[1] & 0xFF00) >> 7
+            value |= (state.nextPipe.m_x[2] & 0xFF00) >> 6
+            value |= (state.nextPipe.m_x[3] & 0xFF00) >> 5
+            value |= (state.nextPipe.m_x[4] & 0xFF00) >> 4
+            value |= (state.nextPipe.m_x[5] & 0xFF00) >> 3
+            value |= (state.nextPipe.m_x[6] & 0xFF00) >> 2
+            value |= (state.nextPipe.m_x[7] & 0xFF00) >> 1
             return UInt8(truncatingIfNeeded: value)
         case 0x11:
             return (state.yScroll & 0x07) | (state.rsel ? 0x08 : 0) | (state.den ? 0x10 : 0) | (state.bmm ? 0x20 : 0) | (state.ecm ? 0x40 : 0) | UInt8((state.raster & 0x100) >> 1)
@@ -295,18 +298,18 @@ final internal class VIC: Component, LineComponent {
     internal func writeByte(_ position:UInt8, byte: UInt8) {
         switch position {
         case 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E:
-            state.m_x[Int(position >> 1)] = (state.m_x[Int(position >> 1)] & 0xFF00) | UInt16(byte)
+            state.nextPipe.m_x[Int(position >> 1)] = (state.nextPipe.m_x[Int(position >> 1)] & 0xFF00) | UInt16(byte)
         case 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F:
             state.m_y[Int((position - 1) >> 1)] = byte
         case 0x10:
-            state.m_x[0] = UInt16(byte & 0x01) << 8 | (state.m_x[0] & 0x00FF)
-            state.m_x[1] = UInt16(byte & 0x02) << 7 | (state.m_x[1] & 0x00FF)
-            state.m_x[2] = UInt16(byte & 0x04) << 6 | (state.m_x[2] & 0x00FF)
-            state.m_x[3] = UInt16(byte & 0x08) << 5 | (state.m_x[3] & 0x00FF)
-            state.m_x[4] = UInt16(byte & 0x10) << 4 | (state.m_x[4] & 0x00FF)
-            state.m_x[5] = UInt16(byte & 0x20) << 3 | (state.m_x[5] & 0x00FF)
-            state.m_x[6] = UInt16(byte & 0x40) << 2 | (state.m_x[6] & 0x00FF)
-            state.m_x[7] = UInt16(byte & 0x80) << 1 | (state.m_x[7] & 0x00FF)
+            state.nextPipe.m_x[0] = UInt16(byte & 0x01) << 8 | (state.nextPipe.m_x[0] & 0x00FF)
+            state.nextPipe.m_x[1] = UInt16(byte & 0x02) << 7 | (state.nextPipe.m_x[1] & 0x00FF)
+            state.nextPipe.m_x[2] = UInt16(byte & 0x04) << 6 | (state.nextPipe.m_x[2] & 0x00FF)
+            state.nextPipe.m_x[3] = UInt16(byte & 0x08) << 5 | (state.nextPipe.m_x[3] & 0x00FF)
+            state.nextPipe.m_x[4] = UInt16(byte & 0x10) << 4 | (state.nextPipe.m_x[4] & 0x00FF)
+            state.nextPipe.m_x[5] = UInt16(byte & 0x20) << 3 | (state.nextPipe.m_x[5] & 0x00FF)
+            state.nextPipe.m_x[6] = UInt16(byte & 0x40) << 2 | (state.nextPipe.m_x[6] & 0x00FF)
+            state.nextPipe.m_x[7] = UInt16(byte & 0x80) << 1 | (state.nextPipe.m_x[7] & 0x00FF)
         case 0x11:
             state.yScroll = byte & 0x07
             state.rsel = byte & 0x08 != 0
@@ -764,7 +767,7 @@ final internal class VIC: Component, LineComponent {
                     for spriteIndex in (0...7).reversed() {
                         if state.spriteDisplay[spriteIndex] {
                             let previousCycleRasterX = state.rasterX >= 8 ? state.rasterX - 8 : configuration.xLimits.last + state.rasterX - 8
-                            if state.m_x[spriteIndex] == previousCycleRasterX {
+                            if state.pipe.m_x[spriteIndex] == previousCycleRasterX {
                                 state.spriteShiftRegisterCount[spriteIndex] = 24
                             }
                             if state.spriteShiftRegisterCount[spriteIndex] > 0 {
