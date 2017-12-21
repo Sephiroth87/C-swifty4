@@ -58,7 +58,7 @@ extension Emulator: C64Delegate {
     }
     
     func C64DidBreak(_ c64: C64) {
-        debugString = c64.debugInfo()["cpu"]!
+        debugString = c64.debugInfo()["cpu"]! + c64.debugInfo()["vic"]!
         running = false
     }
     
