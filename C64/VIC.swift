@@ -489,7 +489,6 @@ final internal class VIC: Component, LineComponent {
         let cyclesPerRaster = configuration.cyclesPerRaster
         if state.currentCycle <= configuration.lastDrawCycle {
             draw()
-            state.pipe = state.nextPipe
         }
         switch state.currentCycle {
         case 1, 3, 5, 7, 9:
@@ -684,6 +683,11 @@ final internal class VIC: Component, LineComponent {
         }
         state.nextPipe.initialRasterX = state.rasterX
         for i in 0...7 {
+            // MXE has a shorter delay (6 px), so handle it separately here...
+            // I don't like this solution, maybe find a better way at some point
+            if i == 6 {
+                state.pipe.mxe = state.nextPipe.mxe
+            }
             if (state.rasterX >= configuration.visibleX.first || state.rasterX < configuration.visibleX.last - 1) &&
                 (state.raster > configuration.vblankLines.last || state.raster < configuration.vblankLines.first) {
                 if state.rasterX == borderComparison.right {
@@ -840,6 +844,7 @@ final internal class VIC: Component, LineComponent {
                 state.rasterX = 0
             }
         }
+        state.pipe = state.nextPipe
     }
     
 }
