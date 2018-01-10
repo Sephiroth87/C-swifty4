@@ -58,4 +58,6 @@ class BaseTest: XCTestCase, C64Delegate {
     
     func C64VideoFrameReady(_ c64: C64) {}
     
+    func C64DidRun(_ c64: C64) {}
+    
 }
