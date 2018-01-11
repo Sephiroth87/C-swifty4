@@ -349,6 +349,11 @@ final internal class VIC: Component, LineComponent {
             state.mcm = byte & 0x10 != 0
         case 0x17:
             state.mye = byte
+            for i in 0...7 {
+                if state.mye & UInt8(1 << i) == 0 {
+                    state.yExpansion[i] = true
+                }
+            }
         case 0x18:
             state.cb = (byte & 0x0E) >> 1
             state.vm = (byte & 0xF0) >> 4
