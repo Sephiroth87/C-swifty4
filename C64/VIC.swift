@@ -152,7 +152,7 @@ internal struct VICState: ComponentState {
     fileprivate var anySpriteDisplaying = false
     fileprivate var spriteSequencerData: [UInt32] = [UInt32](repeating: 0, count: 8)
     fileprivate var spriteShiftRegisterCount: [Int] = [Int](repeating: 0, count: 8)
-    fileprivate var spriteShiftRegisterShouldShift: [Bool] = [Bool](repeating: true, count: 8)
+    fileprivate var spriteShiftRegisterPixelsPerShift: [Int] = [Int](repeating: 0, count: 8)
     fileprivate var graphicsShiftRegister: UInt8 = 0
     //MARK: -
     
@@ -160,7 +160,7 @@ internal struct VICState: ComponentState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
         let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
-        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), xScroll: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), spriteShiftRegisterShouldShift: binaryDump.next(8), graphicsShiftRegister: binaryDump.next())
+        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), xScroll: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), ec: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), spriteShiftRegisterPixelsPerShift: binaryDump.next(8), graphicsShiftRegister: binaryDump.next())
     }
     
     var description: String {
@@ -668,7 +668,6 @@ final internal class VIC: Component, LineComponent {
     }
     
     // Idle access
-    
     private func iAccess() {
         _ = memoryAccess(0x3FFF)
     }
@@ -682,169 +681,185 @@ final internal class VIC: Component, LineComponent {
             state.nextPipe.verticalBorder = false
         }
         state.nextPipe.initialRasterX = state.rasterX
-        for i in 0...7 {
-            // MXE has a shorter delay (6 px), so handle it separately here...
-            // I don't like this solution, maybe find a better way at some point
-            if i == 6 {
-                state.pipe.mxe = state.nextPipe.mxe
+        drawPixel(0)
+        drawPixel(1)
+        drawPixel(2)
+        drawPixel(3)
+        drawPixel(4)
+        drawPixel(5)
+        // MXE has a shorter delay (6 px), so handle it separately here...
+        state.pipe.mxe = state.nextPipe.mxe
+        drawPixel(6)
+        drawPixel(7)
+        state.pipe = state.nextPipe
+    }
+    
+    // Handling everything in a single function was causing the compiler to generate some weird and much slower code, so split up everything
+    // Subfunction are always inlined for performance
+    private func drawPixel(_ i: Int) {
+        if (state.rasterX >= configuration.visibleX.first || state.rasterX < configuration.visibleX.last - 1) &&
+            (state.raster > configuration.vblankLines.last || state.raster < configuration.vblankLines.first) {
+            if state.rasterX == borderComparison.right {
+                state.nextPipe.mainBorder = true
+            } else if state.rasterX == borderComparison.left {
+                if !state.nextPipe.verticalBorder {
+                    state.nextPipe.mainBorder = false
+                }
             }
-            if (state.rasterX >= configuration.visibleX.first || state.rasterX < configuration.visibleX.last - 1) &&
-                (state.raster > configuration.vblankLines.last || state.raster < configuration.vblankLines.first) {
-                if state.rasterX == borderComparison.right {
-                    state.nextPipe.mainBorder = true
-                } else if state.rasterX == borderComparison.left {
-                    if !state.nextPipe.verticalBorder {
-                        state.nextPipe.mainBorder = false
-                    }
+            if state.currentCycle >= 18 && state.currentCycle <= 57 && i == state.pipe.xScroll {
+                state.graphicsShiftRegister = state.pipe.graphicsData
+            }
+            let graphicsPixel = drawGraphicsPixel(i)
+            let (spritePixel, topSprite, spriteCollisions) = drawSpritePixel(i)
+            if spriteCollisions > 0 && graphicsPixel != nil {
+                state.md |= spriteCollisions
+                state.ir |= 0x02
+                updateIRQLine()
+            }
+            if let spritePixel = spritePixel, let topSprite = topSprite, (state.mdp & UInt8(1 << topSprite) == 0 || graphicsPixel == nil) {
+                state.screenBuffer[state.bufferPosition] = colors[spritePixel]
+            } else if let graphicsPixel = graphicsPixel {
+                state.screenBuffer[state.bufferPosition] = colors[graphicsPixel]
+            }
+            if state.pipe.mainBorder {
+                state.screenBuffer[state.bufferPosition] = colors[Int(state.ec)]
+            }
+            state.bufferPosition += 1
+        }
+        state.rasterX += 1
+        if state.rasterX == configuration.xLimits.last {
+            state.rasterX = 0
+        }
+    }
+    
+    @inline(__always) private func drawGraphicsPixel(_ i: Int) -> Int? {
+        var graphicsPixel: Int? = nil
+        if state.bmm {
+            if state.mcm {
+                switch (state.graphicsShiftRegister & 0xC0) >> 6 {
+                case 0:
+                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
+                case 1:
+                    state.screenBuffer[state.bufferPosition] = colors[Int((state.pipe.graphicsVideoMatrix & 0xF0) >> 4)]
+                case 2:
+                    graphicsPixel = Int(state.pipe.graphicsVideoMatrix & 0x0F)
+                case 3:
+                    graphicsPixel = Int(state.pipe.graphicsColorLine)
+                default:
+                    break
                 }
-                if state.currentCycle >= 18 && state.currentCycle <= 57 && i == state.pipe.xScroll {
-                    state.graphicsShiftRegister = state.pipe.graphicsData
+                if i % 2 == 1 {
+                    state.graphicsShiftRegister <<= 2
                 }
-                var foregroundPixel: Int? = nil
-                if state.bmm {
-                    if state.mcm {
-                        switch (state.graphicsShiftRegister & 0xC0) >> 6 {
-                        case 0:
-                            state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
-                        case 1:
-                            state.screenBuffer[state.bufferPosition] = colors[Int((state.pipe.graphicsVideoMatrix & 0xF0) >> 4)]
-                        case 2:
-                            foregroundPixel = Int(state.pipe.graphicsVideoMatrix & 0x0F)
-                        case 3:
-                            foregroundPixel = Int(state.pipe.graphicsColorLine)
-                        default:
-                            break
-                        }
-                        if i % 2 == 1 {
-                            state.graphicsShiftRegister <<= 2
-                        }
-                    } else {
-                        if state.graphicsShiftRegister >> 7 == 0 {
-                            state.screenBuffer[state.bufferPosition] = colors[Int(state.pipe.graphicsVideoMatrix & 0x0F)]
-                        } else {
-                            foregroundPixel = Int((state.pipe.graphicsVideoMatrix & 0xF0) >> 4)
-                        }
-                        state.graphicsShiftRegister <<= 1
-                    }
-                } else if (!state.mcm && !state.bmm) || (state.mcm && state.pipe.graphicsColorLine & 0x08 == 0) {
-                    if state.graphicsShiftRegister >> 7 != 0 {
-                        foregroundPixel = Int(state.pipe.graphicsColorLine)
-                    } else {
-                        if state.ecm {
-                            switch (state.pipe.graphicsVideoMatrix & 0xC0) >> 6 {
-                            case 0:
-                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
-                            case 1:
-                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
-                            case 2:
-                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
-                            case 3:
-                                state.screenBuffer[state.bufferPosition] = colors[Int(state.b3c)]
-                            default:
-                                break
-                            }
-                        } else {
-                            state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
-                        }
-                    }
-                    state.graphicsShiftRegister <<= 1
+            } else {
+                if state.graphicsShiftRegister >> 7 == 0 {
+                    state.screenBuffer[state.bufferPosition] = colors[Int(state.pipe.graphicsVideoMatrix & 0x0F)]
                 } else {
-                    switch (state.graphicsShiftRegister & 0xC0) >> 6 {
+                    graphicsPixel = Int((state.pipe.graphicsVideoMatrix & 0xF0) >> 4)
+                }
+                state.graphicsShiftRegister <<= 1
+            }
+        } else if (!state.mcm && !state.bmm) || (state.mcm && state.pipe.graphicsColorLine & 0x08 == 0) {
+            if state.graphicsShiftRegister >> 7 != 0 {
+                graphicsPixel = Int(state.pipe.graphicsColorLine)
+            } else {
+                if state.ecm {
+                    switch (state.pipe.graphicsVideoMatrix & 0xC0) >> 6 {
                     case 0:
                         state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
                     case 1:
                         state.screenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
                     case 2:
-                        foregroundPixel = Int(state.b2c)
+                        state.screenBuffer[state.bufferPosition] = colors[Int(state.b2c)]
                     case 3:
-                        foregroundPixel = Int(state.pipe.graphicsColorLine) & 0x07
+                        state.screenBuffer[state.bufferPosition] = colors[Int(state.b3c)]
                     default:
                         break
                     }
-                    if i % 2 == 1 {
-                        state.graphicsShiftRegister <<= 2
-                    }
+                } else {
+                    state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
                 }
-                if state.anySpriteDisplaying {
-                    var topSprite: Int? = nil
-                    var spritePixel: Int? = nil
-                    var spriteCollisions: UInt8 = 0
-                    for spriteIndex in (0...7).reversed() {
-                        if state.spriteDisplay[spriteIndex] {
-                            let previousCycleRasterX = state.rasterX >= 8 ? state.rasterX - 8 : configuration.xLimits.last + state.rasterX - 8
-                            if state.pipe.m_x[spriteIndex] == previousCycleRasterX {
-                                state.spriteShiftRegisterCount[spriteIndex] = 24
-                                state.spriteShiftRegisterShouldShift[spriteIndex] = true
-                            }
-                            if state.spriteShiftRegisterCount[spriteIndex] > 0 {
-                                let xExpansion = state.pipe.mxe & UInt8(1 << spriteIndex) != 0
-                                if xExpansion && state.spriteShiftRegisterShouldShift[spriteIndex] {
-                                    state.spriteShiftRegisterShouldShift[spriteIndex] = false
-                                } else {
-                                    state.spriteShiftRegisterShouldShift[spriteIndex] = true
-                                }
-                                var currentSpritePixel: Int? = nil
-                                if state.mmc & UInt8(1 << spriteIndex) != 0 {
-                                    switch (state.spriteSequencerData[spriteIndex] >> 22) & 0x03 {
-                                    case 1:
-                                        currentSpritePixel = Int(state.mm0)
-                                    case 2:
-                                        currentSpritePixel = Int(state.m_c[spriteIndex])
-                                    case 3:
-                                        currentSpritePixel = Int(state.mm1)
-                                    default:
-                                        break
-                                    }
-                                    if state.spriteShiftRegisterShouldShift[spriteIndex] {
-                                        state.spriteSequencerData[spriteIndex] <<= 2
-                                        state.spriteShiftRegisterCount[spriteIndex] -= 2
-                                    }
-                                } else {
-                                    if state.spriteSequencerData[spriteIndex] & 0x800000 != 0 {
-                                        currentSpritePixel = Int(state.m_c[spriteIndex])
-                                    }
-                                    if state.spriteShiftRegisterShouldShift[spriteIndex] {
-                                        state.spriteSequencerData[spriteIndex] <<= 1
-                                        state.spriteShiftRegisterCount[spriteIndex] -= 1
-                                    }
-                                }
-                                if currentSpritePixel != nil {
-                                    spriteCollisions |= UInt8(1 << spriteIndex)
-                                    spritePixel = currentSpritePixel
-                                    topSprite = spriteIndex
-                                }
-                            }
-                        }
-                    }
-                    if spriteCollisions > 0 && (spriteCollisions & (spriteCollisions - 1) != 0) { // Check if more than 2 bits are set
-                        state.mm |= spriteCollisions
-                        state.ir |= 0x04
-                        updateIRQLine()
-                    }
-                    if spriteCollisions > 0 && foregroundPixel != nil {
-                        state.md |= spriteCollisions
-                        state.ir |= 0x02
-                        updateIRQLine()
-                    }
-                    if let spritePixel = spritePixel, let topSprite = topSprite, (state.mdp & UInt8(1 << topSprite) == 0 || foregroundPixel == nil) {
-                        state.screenBuffer[state.bufferPosition] = colors[spritePixel]
-                    } else if let foregroundPixel = foregroundPixel {
-                        state.screenBuffer[state.bufferPosition] = colors[foregroundPixel]
-                    }
-                } else if let foregroundPixel = foregroundPixel {
-                    state.screenBuffer[state.bufferPosition] = colors[foregroundPixel]
-                }
-                if state.pipe.mainBorder {
-                    state.screenBuffer[state.bufferPosition] = colors[Int(state.ec)]
-                }
-                state.bufferPosition += 1
             }
-            state.rasterX += 1
-            if state.rasterX == configuration.xLimits.last {
-                state.rasterX = 0
+            state.graphicsShiftRegister <<= 1
+        } else {
+            switch (state.graphicsShiftRegister & 0xC0) >> 6 {
+            case 0:
+                state.screenBuffer[state.bufferPosition] = colors[Int(state.b0c)]
+            case 1:
+                state.screenBuffer[state.bufferPosition] = colors[Int(state.b1c)]
+            case 2:
+                graphicsPixel = Int(state.b2c)
+            case 3:
+                graphicsPixel = Int(state.pipe.graphicsColorLine) & 0x07
+            default:
+                break
+            }
+            if i % 2 == 1 {
+                state.graphicsShiftRegister <<= 2
             }
         }
-        state.pipe = state.nextPipe
+        return graphicsPixel
+    }
+    
+    @inline(__always) private func drawSpritePixel(_ i: Int) -> (spritePixel: Int?, topSprite: Int?, spriteCollisions: UInt8) {
+        var spritePixel: Int? = nil
+        var topSprite: Int? = nil
+        var spriteCollisions: UInt8 = 0
+        if state.anySpriteDisplaying {
+            for spriteIndex in (0...7).reversed() {
+                if state.spriteDisplay[spriteIndex] {
+                    let previousCycleRasterX = state.rasterX >= 8 ? state.rasterX - 8 : configuration.xLimits.last + state.rasterX - 8
+                    if state.pipe.m_x[spriteIndex] == previousCycleRasterX {
+                        state.spriteShiftRegisterCount[spriteIndex] = 24
+                        state.spriteShiftRegisterPixelsPerShift[spriteIndex] = 0
+                    }
+                    if state.spriteShiftRegisterCount[spriteIndex] > 0 {
+                        let multicolor = state.mmc & UInt8(1 << spriteIndex) != 0
+                        let xExpansion = state.pipe.mxe & UInt8(1 << spriteIndex) != 0
+                        var currentSpritePixel: Int? = nil
+                        if multicolor {
+                            switch (state.spriteSequencerData[spriteIndex] >> 22) & 0x03 {
+                            case 1:
+                                currentSpritePixel = Int(state.mm0)
+                            case 2:
+                                currentSpritePixel = Int(state.m_c[spriteIndex])
+                            case 3:
+                                currentSpritePixel = Int(state.mm1)
+                            default:
+                                break
+                            }
+                        } else {
+                            if state.spriteSequencerData[spriteIndex] & 0x800000 != 0 {
+                                currentSpritePixel = Int(state.m_c[spriteIndex])
+                            }
+                        }
+                        state.spriteShiftRegisterPixelsPerShift[spriteIndex] += 1
+                        let multicolorCount = multicolor ? 2 : 1
+                        if state.spriteShiftRegisterPixelsPerShift[spriteIndex] >= (xExpansion ? multicolorCount << 1 : multicolorCount) {
+                            if multicolor {
+                                state.spriteSequencerData[spriteIndex] <<= 2
+                                state.spriteShiftRegisterCount[spriteIndex] -= 2
+                            } else {
+                                state.spriteSequencerData[spriteIndex] <<= 1
+                                state.spriteShiftRegisterCount[spriteIndex] -= 1
+                            }
+                            state.spriteShiftRegisterPixelsPerShift[spriteIndex] = 0
+                        }
+                        if currentSpritePixel != nil {
+                            spriteCollisions |= UInt8(1 << spriteIndex)
+                            spritePixel = currentSpritePixel
+                            topSprite = spriteIndex
+                        }
+                    }
+                }
+            }
+            if spriteCollisions > 0 && (spriteCollisions & (spriteCollisions - 1) != 0) { // Check if more than 2 bits are set
+                state.mm |= spriteCollisions
+                state.ir |= 0x04
+                updateIRQLine()
+            }
+        }
+        return (spritePixel, topSprite, spriteCollisions)
     }
     
 }
