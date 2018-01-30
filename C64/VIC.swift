@@ -710,6 +710,11 @@ final internal class VIC: Component, LineComponent {
         // MXE has a shorter delay (6 px), so handle it separately here...
         state.pipe.mxe = state.nextPipe.mxe
         drawPixel(6)
+        if !state.pipe.mcm && state.nextPipe.mcm {
+            state.graphicsMulticolorFlipFlop = false
+        }
+        // MCM delay takes full effect after 7 pixels, more info below
+        state.pipe.mcm = state.nextPipe.mcm
         drawPixel(7)
         state.pipe = state.nextPipe
     }
@@ -755,15 +760,24 @@ final internal class VIC: Component, LineComponent {
     
     @inline(__always) private func drawGraphicsPixel(_ i: Int) -> Int? {
         var graphicsPixel: Int? = nil
+        // After 4 pixels, MCM changes start appearing, during pixel 5-7 it's a weird superposition where pixel data is interpreted in the next graphic mode,
+        // but looks like the value is fetched as the old mode (eg. if MCM goes from 0 -> 1, pixel data is 1 bit as in non-MCM mode, but interpreted as a 2 bit MCM value)
+        let mcm = i > 3 ? state.nextPipe.mcm : state.pipe.mcm
         if state.pipe.mcm && state.pipe.graphicsColorLine & 0x08 != 0 {
             if state.graphicsMulticolorFlipFlop {
                 state.graphicsPixelData = state.graphicsShiftRegister >> 6
+                if !mcm {
+                    state.graphicsPixelData >>= 1
+                }
             }
         } else {
             state.graphicsPixelData = state.graphicsShiftRegister >> 7
+            if mcm {
+                state.graphicsPixelData <<= 1
+            }
         }
         
-        switch (state.ecm, state.bmm, state.pipe.mcm) {
+        switch (state.ecm, state.bmm, mcm) {
         case (false, false, false): // Standard text mode (ECM/BMM/MCM=0/0/0)
             if state.graphicsPixelData != 0 {
                 graphicsPixel = Int(state.pipe.graphicsColorLine)
