@@ -54,6 +54,7 @@ private struct VICPipeline: BinaryConvertible {
     
     //MARK: Registers
     fileprivate var m_x: [UInt16] = [UInt16](repeating: 0, count: 8) // X Coordinate Sprite
+    fileprivate var mcm = false // Multi Color Mode
     fileprivate var mxe: UInt8 = 0 // Sprite X expansion
     //MARK: -
     
@@ -66,7 +67,7 @@ private struct VICPipeline: BinaryConvertible {
     fileprivate var xScroll: UInt8 = 0
 
     static func extract(_ binaryDump: BinaryDump) -> VICPipeline {
-        return VICPipeline(m_x: binaryDump.next(8), mxe: binaryDump.next(), graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next(), xScroll: binaryDump.next())
+        return VICPipeline(m_x: binaryDump.next(8), mcm: binaryDump.next(), mxe: binaryDump.next(), graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next(), xScroll: binaryDump.next())
     }
     
 }
@@ -112,9 +113,7 @@ internal struct VICState: ComponentState {
     fileprivate var ecm = false // Extended Color Mode
     fileprivate var raster: UInt16 = 0 // Raster Counter
     fileprivate var me: UInt8 = 0 // Sprite Enabled
-    fileprivate var xScroll: UInt8 = 0 // X Scroll
     fileprivate var csel = true // (Columns selection)?
-    fileprivate var mcm = false // Multi Color Mode
     fileprivate var mye: UInt8 = 0 // Sprite Y Expansion
     fileprivate var vm: UInt8 = 0 // Video matrix base address
     fileprivate var cb: UInt8 = 0 // Character base address
@@ -167,13 +166,15 @@ internal struct VICState: ComponentState {
     fileprivate var spriteShiftRegisterCount: [Int] = [Int](repeating: 0, count: 8)
     fileprivate var spriteShiftRegisterPixelsPerShift: [Int] = [Int](repeating: 0, count: 8)
     fileprivate var graphicsShiftRegister: UInt8 = 0
+    fileprivate var graphicsPixelData: UInt8 = 0
+    fileprivate var graphicsMulticolorFlipFlop: Bool = false
     //MARK: -
     
     static func extract(_ binaryDump: BinaryDump) -> VICState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
         let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
-        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), xScroll: binaryDump.next(), csel:binaryDump.next(), mcm: binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), colorPipe: binaryDump.next(), nextColorPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), spriteShiftRegisterPixelsPerShift: binaryDump.next(8), graphicsShiftRegister: binaryDump.next())
+        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), colorPipe: binaryDump.next(), nextColorPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), spriteShiftRegisterPixelsPerShift: binaryDump.next(8), graphicsShiftRegister: binaryDump.next(), graphicsPixelData: binaryDump.next(), graphicsMulticolorFlipFlop: binaryDump.next())
     }
     
     var description: String {
@@ -265,7 +266,7 @@ final internal class VIC: Component, LineComponent {
         case 0x15:
             return state.me
         case 0x16:
-            return state.xScroll | (state.csel ? 0x08 : 0) | (state.mcm ? 0x10 : 0) | 0xC0
+            return state.nextPipe.xScroll | (state.csel ? 0x08 : 0) | (state.nextPipe.mcm ? 0x10 : 0) | 0xC0
         case 0x17:
             return state.mye
         case 0x18:
@@ -354,12 +355,11 @@ final internal class VIC: Component, LineComponent {
         case 0x15:
             state.me = byte
         case 0x16:
-            state.xScroll = byte & 0x07
-            state.nextPipe.xScroll = state.xScroll
+            state.nextPipe.xScroll = byte & 0x07
             state.csel = byte & 0x08 != 0
             borderComparison.left = state.csel ? 24 : 31
             borderComparison.right = state.csel ? 344 : 335
-            state.mcm = byte & 0x10 != 0
+            state.nextPipe.mcm = byte & 0x10 != 0
         case 0x17:
             state.mye = byte
             for i in 0...7 {
@@ -728,6 +728,7 @@ final internal class VIC: Component, LineComponent {
             }
             if state.currentCycle >= 18 && state.currentCycle <= 57 && i == state.pipe.xScroll {
                 state.graphicsShiftRegister = state.pipe.graphicsData
+                state.graphicsMulticolorFlipFlop = true
             }
             let graphicsPixel = drawGraphicsPixel(i)
             let (spritePixel, topSprite, spriteCollisions) = drawSpritePixel(i)
@@ -754,70 +755,109 @@ final internal class VIC: Component, LineComponent {
     
     @inline(__always) private func drawGraphicsPixel(_ i: Int) -> Int? {
         var graphicsPixel: Int? = nil
-        if state.bmm {
-            if state.mcm {
-                switch (state.graphicsShiftRegister & 0xC0) >> 6 {
+        if state.pipe.mcm && state.pipe.graphicsColorLine & 0x08 != 0 {
+            if state.graphicsMulticolorFlipFlop {
+                state.graphicsPixelData = state.graphicsShiftRegister >> 6
+            }
+        } else {
+            state.graphicsPixelData = state.graphicsShiftRegister >> 7
+        }
+        
+        switch (state.ecm, state.bmm, state.pipe.mcm) {
+        case (false, false, false): // Standard text mode (ECM/BMM/MCM=0/0/0)
+            if state.graphicsPixelData != 0 {
+                graphicsPixel = Int(state.pipe.graphicsColorLine)
+            } else {
+                state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b0c)]
+            }
+        case (false, false, true): // Multicolor text mode (ECM/BMM/MCM=0/0/1)
+            if state.pipe.graphicsColorLine & 0x08 == 0 {
+                if state.graphicsPixelData != 0 {
+                    graphicsPixel = Int(state.pipe.graphicsColorLine)
+                } else {
+                    state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b0c)]
+                }
+            } else {
+                switch state.graphicsPixelData {
                 case 0:
                     state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b0c)]
                 case 1:
-                    state.screenBuffer[state.bufferPosition] = colors[Int((state.pipe.graphicsVideoMatrix & 0xF0) >> 4)]
+                    state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b1c)]
                 case 2:
-                    graphicsPixel = Int(state.pipe.graphicsVideoMatrix & 0x0F)
+                    graphicsPixel = Int(state.colorPipe.b2c)
                 case 3:
-                    graphicsPixel = Int(state.pipe.graphicsColorLine)
+                    graphicsPixel = Int(state.pipe.graphicsColorLine) & 0x07
                 default:
                     break
                 }
-                if i % 2 == 1 {
-                    state.graphicsShiftRegister <<= 2
-                }
-            } else {
-                if state.graphicsShiftRegister >> 7 == 0 {
-                    state.screenBuffer[state.bufferPosition] = colors[Int(state.pipe.graphicsVideoMatrix & 0x0F)]
-                } else {
-                    graphicsPixel = Int((state.pipe.graphicsVideoMatrix & 0xF0) >> 4)
-                }
-                state.graphicsShiftRegister <<= 1
             }
-        } else if (!state.mcm && !state.bmm) || (state.mcm && state.pipe.graphicsColorLine & 0x08 == 0) {
-            if state.graphicsShiftRegister >> 7 != 0 {
-                graphicsPixel = Int(state.pipe.graphicsColorLine)
+        case (false, true, false): // Standard bitmap mode (ECM/BMM/MCM=0/1/0)
+            if state.graphicsPixelData != 0 {
+                graphicsPixel = Int((state.pipe.graphicsVideoMatrix & 0xF0) >> 4)
             } else {
-                if state.ecm {
-                    switch (state.pipe.graphicsVideoMatrix & 0xC0) >> 6 {
-                    case 0:
-                        state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b0c)]
-                    case 1:
-                        state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b1c)]
-                    case 2:
-                        state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b2c)]
-                    case 3:
-                        state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b3c)]
-                    default:
-                        break
-                    }
-                } else {
-                    state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b0c)]
-                }
+                state.screenBuffer[state.bufferPosition] = colors[Int(state.pipe.graphicsVideoMatrix & 0x0F)]
             }
-            state.graphicsShiftRegister <<= 1
-        } else {
-            switch (state.graphicsShiftRegister & 0xC0) >> 6 {
+        case (false, true, true): // Multicolor bitmap mode (ECM/BMM/MCM=0/1/1)
+            switch state.graphicsPixelData {
             case 0:
                 state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b0c)]
             case 1:
-                state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b1c)]
+                state.screenBuffer[state.bufferPosition] = colors[Int((state.pipe.graphicsVideoMatrix & 0xF0) >> 4)]
             case 2:
-                graphicsPixel = Int(state.colorPipe.b2c)
+                graphicsPixel = Int(state.pipe.graphicsVideoMatrix & 0x0F)
             case 3:
-                graphicsPixel = Int(state.pipe.graphicsColorLine) & 0x07
+                graphicsPixel = Int(state.pipe.graphicsColorLine)
             default:
                 break
             }
-            if i % 2 == 1 {
-                state.graphicsShiftRegister <<= 2
+        case (true, false, false): // ECM text mode (ECM/BMM/MCM=1/0/0)
+            if state.graphicsPixelData != 0 {
+                graphicsPixel = Int(state.pipe.graphicsColorLine)
+            } else {
+                switch state.pipe.graphicsVideoMatrix >> 6 {
+                case 0:
+                    state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b0c)]
+                case 1:
+                    state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b1c)]
+                case 2:
+                    state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b2c)]
+                case 3:
+                    state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.b3c)]
+                default:
+                    break
+                }
+            }
+        case (true, false, true): // Invalid text mode (ECM/BMM/MCM=1/0/1)
+            if state.pipe.graphicsColorLine & 0x08 == 0 {
+                if state.graphicsPixelData != 0 {
+                    graphicsPixel = 0
+                } else {
+                    state.screenBuffer[state.bufferPosition] = colors[0]
+                }
+            } else {
+                if state.graphicsPixelData > 1 {
+                    graphicsPixel = 0
+                } else {
+                    state.screenBuffer[state.bufferPosition] = colors[0]
+                }
+            }
+        case (true, true, false): // Invalid bitmap mode 1 (ECM/BMM/MCM=1/1/0)
+            if state.graphicsPixelData != 0 {
+                graphicsPixel = 0
+            } else {
+                state.screenBuffer[state.bufferPosition] = colors[0]
+            }
+        case (true, true, true): // Invalid bitmap mode 2 (ECM/BMM/MCM=1/1/1)
+            if state.graphicsPixelData > 1 {
+                graphicsPixel = 0
+            } else {
+                state.screenBuffer[state.bufferPosition] = colors[0]
             }
         }
+        
+        state.graphicsShiftRegister <<= 1
+        state.graphicsMulticolorFlipFlop = !state.graphicsMulticolorFlipFlop
+        
         return graphicsPixel
     }
     
