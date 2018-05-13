@@ -74,7 +74,7 @@ extension BinaryConvertible {
     
     var binarySize: UInt {
         let m = Mirror(reflecting: self)
-        return m.children.flatMap {
+        return m.children.compactMap {
             $0.value as? BinaryDumpable
             }.map {
                 $0.binarySize
@@ -86,11 +86,11 @@ extension BinaryConvertible {
 extension Array: BinaryDumpable {
     
     func dump() -> [UInt8] {
-        return flatMap { $0 as? BinaryDumpable }.flatMap { $0.dump() }
+        return compactMap { $0 as? BinaryDumpable }.flatMap { $0.dump() }
     }
     
     var binarySize: UInt {
-        return flatMap { $0 as? BinaryDumpable }.reduce(0) { $0 + $1.binarySize }
+        return compactMap { $0 as? BinaryDumpable }.reduce(0) { $0 + $1.binarySize }
     }
     
 }

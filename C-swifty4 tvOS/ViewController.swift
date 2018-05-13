@@ -115,6 +115,8 @@ extension ViewController: C64Delegate {
         }
     }
     
+    func C64DidRun(_ c64: C64) {}
+    
     func C64DidBreak(_ c64: C64) {}
     
     func C64DidCrash(_ c64: C64) {}

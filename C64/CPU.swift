@@ -1214,7 +1214,7 @@ final internal class CPU: Component, LineComponent {
             case 0x46: return String(format: "LSR %02x", self.memory.readByte(state.pc))
             case 0x56: return String(format: "LSR %02x,X", self.memory.readByte(state.pc))
             case 0x4E: return String(format: "LSR %04x", self.memory.readWord(state.pc))
-            case 0x1E: return String(format: "LSR %04x,X", self.memory.readWord(state.pc))
+            case 0x5E: return String(format: "LSR %04x,X", self.memory.readWord(state.pc))
             case 0xAB: return String(format: "LXA* #%02x", self.memory.readByte(state.pc))
             case 0xEA: return "NOP"
             case 0x1A, 0x3A, 0x5A, 0x7A, 0xDA, 0xFA: return "NOP*"
