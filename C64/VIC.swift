@@ -166,6 +166,7 @@ internal struct VICState: ComponentState {
     fileprivate var spriteShiftRegisterCount: [Int] = [Int](repeating: 0, count: 8)
     fileprivate var spriteShiftRegisterPixelsPerShift: [Int] = [Int](repeating: 0, count: 8)
     fileprivate var graphicsShiftRegister: UInt8 = 0
+    fileprivate var graphicsShiftRegisterRemainingBits: UInt8 = 0
     fileprivate var graphicsPixelData: UInt8 = 0
     fileprivate var graphicsMulticolorFlipFlop: Bool = false
     //MARK: -
@@ -174,7 +175,7 @@ internal struct VICState: ComponentState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
         let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
-        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), colorPipe: binaryDump.next(), nextColorPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), spriteShiftRegisterPixelsPerShift: binaryDump.next(8), graphicsShiftRegister: binaryDump.next(), graphicsPixelData: binaryDump.next(), graphicsMulticolorFlipFlop: binaryDump.next())
+        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), colorPipe: binaryDump.next(), nextColorPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), spriteShiftRegisterPixelsPerShift: binaryDump.next(8), graphicsShiftRegister: binaryDump.next(), graphicsShiftRegisterRemainingBits: binaryDump.next(), graphicsPixelData: binaryDump.next(), graphicsMulticolorFlipFlop: binaryDump.next())
     }
     
     var description: String {
@@ -734,6 +735,12 @@ final internal class VIC: Component, LineComponent {
             if state.currentCycle >= 18 && state.currentCycle <= 57 && i == state.pipe.xScroll {
                 state.graphicsShiftRegister = state.pipe.graphicsData
                 state.graphicsMulticolorFlipFlop = true
+                state.graphicsShiftRegisterRemainingBits = 8
+            }
+            // Clear any outstanding multicolor bit that shouldn't actually be drawn
+            // TODO: VICE doesn't use a counter for this, but doesn't have the same issue, figure out what magic they are doing
+            if state.graphicsShiftRegisterRemainingBits == 0 {
+                state.graphicsPixelData = 0
             }
             let graphicsPixel = drawGraphicsPixel(i)
             let (spritePixel, topSprite, spriteCollisions) = drawSpritePixel(i)
@@ -871,6 +878,7 @@ final internal class VIC: Component, LineComponent {
         
         state.graphicsShiftRegister <<= 1
         state.graphicsMulticolorFlipFlop = !state.graphicsMulticolorFlipFlop
+        state.graphicsShiftRegisterRemainingBits = state.graphicsShiftRegisterRemainingBits &- 1
         
         return graphicsPixel
     }
