@@ -35,31 +35,34 @@ final class iOSViewController: UIViewController {
         graphicsView.setTextureSize(CGSize(width: resolution.width, height: resolution.height),
                                     safeArea: c64.configuration.vic.safeArea)
 
-        becomeFirstResponder()
+//        becomeFirstResponder()
 
         c64.delegate = self
         c64.run()
     }
 
-    override var canBecomeFirstResponder: Bool {
-        return true
-    }
+//    override var canBecomeFirstResponder: Bool {
+//        return true
+//    }
 
 }
 
 extension iOSViewController: C64Delegate {
 
     func C64VideoFrameReady(_ c64: C64) {
-        graphicsView.setData(c64.screenBuffer())
+        let buffer = c64.screenBuffer()
+        graphicsView.setData(buffer)
         frames += 1
         if frames == 60 {
             let newTime = CACurrentMediaTime()
-            let time = newTime - startTime
+            let time: CFTimeInterval = newTime - startTime
             fpsLabel.text = "\(Int(60 / time))"
             startTime = newTime
             frames = 0
         }
     }
+    
+    func C64DidRun(_ c64: C64) {}
 
     func C64DidBreak(_ c64: C64) {
         dump(c64.debugInfo())

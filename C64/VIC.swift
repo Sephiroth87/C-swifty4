@@ -453,7 +453,7 @@ final internal class VIC: Component, LineComponent {
     }
     
     private func updateAnySpriteDisplaying() {
-        if state.spriteDisplay.index(of: true) == nil && state.spriteDma.index(of: true) == nil {
+        if state.spriteDisplay.firstIndex(of: true) == nil && state.spriteDma.firstIndex(of: true) == nil {
             state.anySpriteDisplaying = false
         } else {
             state.anySpriteDisplaying = true

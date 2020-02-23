@@ -24,7 +24,7 @@ class FakeMetalView: UIView {
         
         layer.actions = ["contents": NSNull()]
         
-        CADisplayLink(target: self, selector: #selector(update)).add(to: .current, forMode: .defaultRunLoopMode)
+        CADisplayLink(target: self, selector: #selector(update)).add(to: .current, forMode: RunLoop.Mode.default)
     }
     
     func setTextureSize(_ size: CGSize, safeArea: (top: Int, left: Int, bottom: Int, right: Int)) {
