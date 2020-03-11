@@ -17,8 +17,6 @@
 		E5065F291A6311AC00CECED1 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = E5065F271A6311AC00CECED1 /* LaunchScreen.xib */; };
 		E5065F3D1A63125700CECED1 /* ContextBackedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5065F3C1A63125700CECED1 /* ContextBackedView.swift */; };
 		E525EF2D1A64163D0000B7D3 /* ContextBackedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E525EF2C1A64163D0000B7D3 /* ContextBackedView.swift */; };
-		E52FEA921A9B9C4200851C83 /* ROM in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B11A8D0EC000CF079D /* ROM */; };
-		E52FEA931A9BA0F700851C83 /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
 		E53254331FBF1C4E00D23856 /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5B5F7841FB5CE1C00083C24 /* MetalView.swift */; };
 		E53254341FBF1C4E00D23856 /* ScaleFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F209A71FBDBF8D001DD664 /* ScaleFilter.swift */; };
 		E53254351FBF1C4E00D23856 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = E53378B31FB5D74000694679 /* Shaders.metal */; };
@@ -27,9 +25,6 @@
 		E53254391FBF1CC600D23856 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = E53378B31FB5D74000694679 /* Shaders.metal */; };
 		E532543B1FBF23BF00D23856 /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E53378B41FB5D74000694679 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = E53378B31FB5D74000694679 /* Shaders.metal */; };
-		E53411BA1DD49E3000CC04A0 /* BaseTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53411B91DD49E3000CC04A0 /* BaseTest.swift */; };
-		E53411BC1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53411BB1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift */; };
-		E55B345D1DDDF47A0001DBDA /* PerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55B345C1DDDF47A0001DBDA /* PerformanceTests.swift */; };
 		E567E4B31A8D0EC000CF079D /* ROM in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B11A8D0EC000CF079D /* ROM */; };
 		E567E4B41A8D0EC000CF079D /* ROM in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B11A8D0EC000CF079D /* ROM */; };
 		E567E4B81A8D17C200CF079D /* Programs in Resources */ = {isa = PBXBuildFile; fileRef = E567E4B71A8D17C200CF079D /* Programs */; };
@@ -50,12 +45,9 @@
 		E5C186B11FE03AE400B7899A /* Emulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C186B01FE03AE400B7899A /* Emulator.swift */; };
 		E5C552751D9C6542004DE54C /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E5C552761D9C6589004DE54C /* C64.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		E5DEFB9A1A9CE60E00A76AE3 /* Resources in Resources */ = {isa = PBXBuildFile; fileRef = E5DEFB991A9CE60E00A76AE3 /* Resources */; };
-		E5DEFB9C1A9CE63500A76AE3 /* LorenzTestSuite.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DEFB9B1A9CE63500A76AE3 /* LorenzTestSuite.swift */; };
 		E5E3B4EF1DAEB69B0093B01C /* iOSViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E3B4EE1DAEB69A0093B01C /* iOSViewController.swift */; };
 		E5EE30731BF8EAF600404BE0 /* C64.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; };
 		E5EE30761BF8EB9700404BE0 /* C64.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; };
-		E5EE30A51BF8F32500404BE0 /* C64.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E5EE30541BF8E63900404BE0 /* C64.framework */; };
 		E5EE30CB1BF917A300404BE0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30CA1BF917A300404BE0 /* AppDelegate.swift */; };
 		E5EE30CD1BF917A300404BE0 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30CC1BF917A300404BE0 /* ViewController.swift */; };
 		E5EE30D01BF917A300404BE0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E5EE30CE1BF917A300404BE0 /* Main.storyboard */; };
@@ -68,6 +60,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		E5BD5DE824197A39003CBC44 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E5EE304F1BF8E63900404BE0 /* C64.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E5BD5DDA24197A14003CBC44;
+			remoteInfo = Tests;
+		};
 		E5EE30531BF8E63900404BE0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E5EE304F1BF8E63900404BE0 /* C64.xcodeproj */;
@@ -83,13 +82,6 @@
 			remoteInfo = C64;
 		};
 		E5EE30741BF8EB9200404BE0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E5EE304F1BF8E63900404BE0 /* C64.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = E5EE30431BF8E5CD00404BE0;
-			remoteInfo = C64;
-		};
-		E5EE30A31BF8F32000404BE0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E5EE304F1BF8E63900404BE0 /* C64.xcodeproj */;
 			proxyType = 1;
@@ -156,13 +148,8 @@
 		E5065F281A6311AC00CECED1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		E5065F3C1A63125700CECED1 /* ContextBackedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextBackedView.swift; sourceTree = "<group>"; };
 		E525EF2C1A64163D0000B7D3 /* ContextBackedView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextBackedView.swift; sourceTree = "<group>"; };
-		E52FEA861A9B996700851C83 /* C-swifty4 Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "C-swifty4 Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		E52FEA891A9B996700851C83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E53378B31FB5D74000694679 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
-		E53411B91DD49E3000CC04A0 /* BaseTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseTest.swift; sourceTree = "<group>"; };
-		E53411BB1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestprogsCIACiavarious.swift; sourceTree = "<group>"; };
 		E55AC12E1C17311B000017F1 /* C-swifty4.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "C-swifty4.entitlements"; sourceTree = "<group>"; };
-		E55B345C1DDDF47A0001DBDA /* PerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerformanceTests.swift; sourceTree = "<group>"; };
 		E567E4B11A8D0EC000CF079D /* ROM */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ROM; sourceTree = "<group>"; };
 		E567E4B71A8D17C200CF079D /* Programs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Programs; sourceTree = "<group>"; };
 		E59588D51F9E41CC0020A941 /* DropView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropView.swift; sourceTree = "<group>"; };
@@ -179,8 +166,6 @@
 		E5BAF50D1FC3278E00B9186C /* MetalPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalPipeline.swift; sourceTree = "<group>"; };
 		E5C186AE1FE0396500B7899A /* DebugViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugViewController.swift; sourceTree = "<group>"; };
 		E5C186B01FE03AE400B7899A /* Emulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Emulator.swift; sourceTree = "<group>"; };
-		E5DEFB991A9CE60E00A76AE3 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
-		E5DEFB9B1A9CE63500A76AE3 /* LorenzTestSuite.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LorenzTestSuite.swift; sourceTree = "<group>"; };
 		E5E3B4EE1DAEB69A0093B01C /* iOSViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = iOSViewController.swift; sourceTree = "<group>"; };
 		E5EE304F1BF8E63900404BE0 /* C64.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = C64.xcodeproj; sourceTree = "<group>"; };
 		E5EE30C81BF917A300404BE0 /* C-swifty4 tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "C-swifty4 tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -210,14 +195,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E52FEA831A9B996700851C83 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E5EE30A51BF8F32500404BE0 /* C64.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		E5BAEFD21FC595E900915C7A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -243,7 +220,6 @@
 				E5065E501A63028F00CECED1 /* C-swifty4 Mac */,
 				E5EE30C91BF917A300404BE0 /* C-swifty4 tvOS */,
 				E53254361FBF1CA200D23856 /* Common */,
-				E52FEA871A9B996700851C83 /* C-swifty4 Tests */,
 				E5BAEFD61FC595E900915C7A /* C-swifty4 Remote */,
 				E5EE304F1BF8E63900404BE0 /* C64.xcodeproj */,
 				E567E4B11A8D0EC000CF079D /* ROM */,
@@ -257,7 +233,6 @@
 			children = (
 				E5065E4F1A63028F00CECED1 /* C-swifty4.app */,
 				E5065F1A1A6311AC00CECED1 /* C-swifty4.app */,
-				E52FEA861A9B996700851C83 /* C-swifty4 Tests.xctest */,
 				E5EE30C81BF917A300404BE0 /* C-swifty4 tvOS.app */,
 				E5BAEFD51FC595E900915C7A /* C-swifty4 Remote.app */,
 			);
@@ -312,27 +287,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		E52FEA871A9B996700851C83 /* C-swifty4 Tests */ = {
-			isa = PBXGroup;
-			children = (
-				E53411B91DD49E3000CC04A0 /* BaseTest.swift */,
-				E55B345C1DDDF47A0001DBDA /* PerformanceTests.swift */,
-				E5DEFB9B1A9CE63500A76AE3 /* LorenzTestSuite.swift */,
-				E53411BB1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift */,
-				E5DEFB991A9CE60E00A76AE3 /* Resources */,
-				E52FEA881A9B996700851C83 /* Supporting Files */,
-			);
-			path = "C-swifty4 Tests";
-			sourceTree = "<group>";
-		};
-		E52FEA881A9B996700851C83 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				E52FEA891A9B996700851C83 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		E53254361FBF1CA200D23856 /* Common */ = {
 			isa = PBXGroup;
 			children = (
@@ -361,6 +315,7 @@
 			isa = PBXGroup;
 			children = (
 				E5EE30541BF8E63900404BE0 /* C64.framework */,
+				E5BD5DE924197A39003CBC44 /* Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -419,24 +374,6 @@
 			productName = "C-swifty4 iOS";
 			productReference = E5065F1A1A6311AC00CECED1 /* C-swifty4.app */;
 			productType = "com.apple.product-type.application";
-		};
-		E52FEA851A9B996700851C83 /* C-swifty4 Tests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = E52FEA911A9B996700851C83 /* Build configuration list for PBXNativeTarget "C-swifty4 Tests" */;
-			buildPhases = (
-				E52FEA821A9B996700851C83 /* Sources */,
-				E52FEA831A9B996700851C83 /* Frameworks */,
-				E52FEA841A9B996700851C83 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				E5EE30A41BF8F32000404BE0 /* PBXTargetDependency */,
-			);
-			name = "C-swifty4 Tests";
-			productName = "C-swifty4 Tests";
-			productReference = E52FEA861A9B996700851C83 /* C-swifty4 Tests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		E5BAEFD41FC595E900915C7A /* C-swifty4 Remote */ = {
 			isa = PBXNativeTarget;
@@ -502,10 +439,6 @@
 						LastSwiftMigration = 1130;
 						ProvisioningStyle = Automatic;
 					};
-					E52FEA851A9B996700851C83 = {
-						CreatedOnToolsVersion = 6.3;
-						LastSwiftMigration = 0800;
-					};
 					E5BAEFD41FC595E900915C7A = {
 						CreatedOnToolsVersion = 9.1;
 						DevelopmentTeam = 4P257ZBPT9;
@@ -542,13 +475,19 @@
 				E5065F191A6311AC00CECED1 /* C-swifty4 iOS */,
 				E5065E4E1A63028F00CECED1 /* C-swifty4 Mac */,
 				E5EE30C71BF917A300404BE0 /* C-swifty4 tvOS */,
-				E52FEA851A9B996700851C83 /* C-swifty4 Tests */,
 				E5BAEFD41FC595E900915C7A /* C-swifty4 Remote */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		E5BD5DE924197A39003CBC44 /* Tests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = Tests.xctest;
+			remoteRef = E5BD5DE824197A39003CBC44 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		E5EE30541BF8E63900404BE0 /* C64.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -579,16 +518,6 @@
 				E567E4B31A8D0EC000CF079D /* ROM in Resources */,
 				E5065F291A6311AC00CECED1 /* LaunchScreen.xib in Resources */,
 				E5065F261A6311AC00CECED1 /* Images.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E52FEA841A9B996700851C83 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E52FEA921A9B9C4200851C83 /* ROM in Resources */,
-				E52FEA931A9BA0F700851C83 /* Programs in Resources */,
-				E5DEFB9A1A9CE60E00A76AE3 /* Resources in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -648,17 +577,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E52FEA821A9B996700851C83 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E53411BA1DD49E3000CC04A0 /* BaseTest.swift in Sources */,
-				E53411BC1DD4A0EA00CC04A0 /* TestprogsCIACiavarious.swift in Sources */,
-				E55B345D1DDDF47A0001DBDA /* PerformanceTests.swift in Sources */,
-				E5DEFB9C1A9CE63500A76AE3 /* LorenzTestSuite.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		E5BAEFD11FC595E900915C7A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -695,11 +613,6 @@
 			isa = PBXTargetDependency;
 			name = C64;
 			targetProxy = E5EE30741BF8EB9200404BE0 /* PBXContainerItemProxy */;
-		};
-		E5EE30A41BF8F32000404BE0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = C64;
-			targetProxy = E5EE30A31BF8F32000404BE0 /* PBXContainerItemProxy */;
 		};
 		E5EE30DC1BF918D800404BE0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1035,102 +948,6 @@
 			};
 			name = Release;
 		};
-		E52FEA8F1A9B996700851C83 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = "C-swifty4 Tests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.orangeinaday.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
-			};
-			name = Debug;
-		};
-		E52FEA901A9B996700851C83 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = "C-swifty4 Tests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.orangeinaday.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 4.0;
-			};
-			name = Release;
-		};
 		E53411BF1DD4A74800CC04A0 /* Test */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1324,57 +1141,6 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
 				TVOS_DEPLOYMENT_TARGET = 9.0;
-			};
-			name = Test;
-		};
-		E53411C31DD4A74800CC04A0 /* Test */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = "C-swifty4 Tests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.orangeinaday.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
 			};
 			name = Test;
 		};
@@ -1623,16 +1389,6 @@
 				E5065F371A6311AD00CECED1 /* Debug */,
 				E53411C01DD4A74800CC04A0 /* Test */,
 				E5065F381A6311AD00CECED1 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		E52FEA911A9B996700851C83 /* Build configuration list for PBXNativeTarget "C-swifty4 Tests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				E52FEA8F1A9B996700851C83 /* Debug */,
-				E53411C31DD4A74800CC04A0 /* Test */,
-				E52FEA901A9B996700851C83 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -41,16 +41,11 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E52FEA851A9B996700851C83"
-               BuildableName = "C-swifty4 Tests.xctest"
-               BlueprintName = "C-swifty4 Tests"
-               ReferencedContainer = "container:C-swifty4.xcodeproj">
+               BlueprintIdentifier = "E5BD5DD924197A14003CBC44"
+               BuildableName = "Tests.xctest"
+               BlueprintName = "Tests"
+               ReferencedContainer = "container:C64.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "BaseTest">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>
