@@ -53,7 +53,7 @@ public struct VICConfiguration {
 private struct VICPipeline: BinaryConvertible {
     
     //MARK: Registers
-    fileprivate var m_x: [UInt16] = [UInt16](repeating: 0, count: 8) // X Coordinate Sprite
+    fileprivate var m_x = FixedArray8<UInt16>(repeating: 0) // X Coordinate Sprite
     fileprivate var mcm = false // Multi Color Mode
     fileprivate var mxe: UInt8 = 0 // Sprite X expansion
     //MARK: -
@@ -67,7 +67,7 @@ private struct VICPipeline: BinaryConvertible {
     fileprivate var xScroll: UInt8 = 0
 
     static func extract(_ binaryDump: BinaryDump) -> VICPipeline {
-        return VICPipeline(m_x: binaryDump.next(8), mcm: binaryDump.next(), mxe: binaryDump.next(), graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next(), xScroll: binaryDump.next())
+        return VICPipeline(m_x: binaryDump.next(), mcm: binaryDump.next(), mxe: binaryDump.next(), graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next(), xScroll: binaryDump.next())
     }
     
 }
@@ -82,11 +82,11 @@ private struct VICColorPipeline: BinaryConvertible {
     fileprivate var b3c: UInt8 = 0 // Background Color 3
     fileprivate var mm0: UInt8 = 0 // Sprite Multicolor 0
     fileprivate var mm1: UInt8 = 0 // Sprite Multicolor 1
-    fileprivate var m_c: [UInt8] = [UInt8](repeating: 0, count: 8) // Color Sprite
+    fileprivate var m_c = FixedArray8<UInt8>(repeating: 0) // Color Sprite
     //MARK: -
 
     static func extract(_ binaryDump: BinaryDump) -> VICColorPipeline {
-        return VICColorPipeline(ec: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next(8))
+        return VICColorPipeline(ec: binaryDump.next(), b0c: binaryDump.next(), b1c: binaryDump.next(), b2c: binaryDump.next(), b3c: binaryDump.next(), mm0: binaryDump.next(), mm1: binaryDump.next(), m_c: binaryDump.next())
     }
     
 }
@@ -94,9 +94,8 @@ private struct VICColorPipeline: BinaryConvertible {
 internal struct VICState: ComponentState {
     
     //MARK: Memory
-    fileprivate var ioMemory: [UInt8] = [UInt8](repeating: 0, count: 64)
-    fileprivate var videoMatrix: [UInt8] = [UInt8](repeating: 0, count: 40)
-    fileprivate var colorLine: [UInt8] = [UInt8](repeating: 0, count: 40)
+    fileprivate var videoMatrix = FixedArray40<UInt8>(repeating: 0)
+    fileprivate var colorLine = FixedArray40<UInt8>(repeating: 0)
     fileprivate var mp: UInt8 = 0 // Sprite Pointer
     fileprivate var screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: nil, count: 0)
     //MARK: -
@@ -105,7 +104,7 @@ internal struct VICState: ComponentState {
     fileprivate var currentLine: UInt16 = 0
     
     //MARK: Registers
-    fileprivate var m_y: [UInt8] = [UInt8](repeating: 0, count: 8) // Y Coordinate Sprite
+    fileprivate var m_y = FixedArray8<UInt8>(repeating: 0) // Y Coordinate Sprite
     fileprivate var yScroll: UInt8 = 0 // Y Scroll
     fileprivate var rsel = true // (Rows selection)?
     fileprivate var den = true // Display Enable
@@ -134,9 +133,9 @@ internal struct VICState: ComponentState {
     fileprivate var rasterX: UInt16 = 0
     fileprivate var rasterInterruptLine: UInt16 = 0
     fileprivate var ref: UInt8 = 0
-    fileprivate var mc: [UInt8] = [UInt8](repeating: 0, count: 8)
-    fileprivate var mcbase: [UInt8] = [UInt8](repeating: 0, count: 8)
-    fileprivate var yExpansion: [Bool] = [Bool](repeating: true, count: 8)
+    fileprivate var mc = FixedArray8<UInt8>(repeating: 0)
+    fileprivate var mcbase = FixedArray8<UInt8>(repeating: 0)
+    fileprivate var yExpansion = FixedArray8<Bool>(repeating: true)
     //MARK: -
     
     //MARK: Pipeline
@@ -159,12 +158,12 @@ internal struct VICState: ComponentState {
     fileprivate var baPin = true
     fileprivate var baLowCount = 0
     fileprivate var currentSprite: UInt8 = 3
-    fileprivate var spriteDma: [Bool] = [Bool](repeating: false, count: 8)
-    fileprivate var spriteDisplay: [Bool] = [Bool](repeating: false, count: 8)
+    fileprivate var spriteDma = FixedArray8<Bool>(repeating: false)
+    fileprivate var spriteDisplay = FixedArray8<Bool>(repeating: false)
     fileprivate var anySpriteDisplaying = false
-    fileprivate var spriteSequencerData: [UInt32] = [UInt32](repeating: 0, count: 8)
-    fileprivate var spriteShiftRegisterCount: [Int] = [Int](repeating: 0, count: 8)
-    fileprivate var spriteShiftRegisterPixelsPerShift: [Int] = [Int](repeating: 0, count: 8)
+    fileprivate var spriteSequencerData = FixedArray8<UInt32>(repeating: 0)
+    fileprivate var spriteShiftRegisterCount = FixedArray8<Int>(repeating: 0)
+    fileprivate var spriteShiftRegisterPixelsPerShift = FixedArray8<Int>(repeating: 0)
     fileprivate var graphicsShiftRegister: UInt8 = 0
     fileprivate var graphicsShiftRegisterRemainingBits: UInt8 = 0
     fileprivate var graphicsPixelData: UInt8 = 0
@@ -175,9 +174,9 @@ internal struct VICState: ComponentState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
         let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
-        return VICState(ioMemory: binaryDump.next(64), videoMatrix: binaryDump.next(40), colorLine: binaryDump.next(40), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(8), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(8), mcbase: binaryDump.next(8), yExpansion: binaryDump.next(8), pipe: binaryDump.next(), nextPipe: binaryDump.next(), colorPipe: binaryDump.next(), nextColorPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(8), spriteDisplay: binaryDump.next(8), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(8), spriteShiftRegisterCount: binaryDump.next(8), spriteShiftRegisterPixelsPerShift: binaryDump.next(8), graphicsShiftRegister: binaryDump.next(), graphicsShiftRegisterRemainingBits: binaryDump.next(), graphicsPixelData: binaryDump.next(), graphicsMulticolorFlipFlop: binaryDump.next())
+        return VICState(videoMatrix: binaryDump.next(), colorLine: binaryDump.next(), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(), mcbase: binaryDump.next(), yExpansion: binaryDump.next(), pipe: binaryDump.next(), nextPipe: binaryDump.next(), colorPipe: binaryDump.next(), nextColorPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(), spriteDisplay: binaryDump.next(), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(), spriteShiftRegisterCount: binaryDump.next(), spriteShiftRegisterPixelsPerShift: binaryDump.next(), graphicsShiftRegister: binaryDump.next(), graphicsShiftRegisterRemainingBits: binaryDump.next(), graphicsPixelData: binaryDump.next(), graphicsMulticolorFlipFlop: binaryDump.next())
     }
-    
+
     var description: String {
         return "🎨 (\(rasterX), \(raster)) - \(currentCycle)"
     }
@@ -405,7 +404,6 @@ final internal class VIC: Component, LineComponent {
         default:
             break
         }
-        state.ioMemory[Int(position)] = byte
     }
     
     internal func setMemoryBank(_ bankNumber: UInt8) {

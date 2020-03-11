@@ -199,3 +199,42 @@ extension Bool: BinaryConvertible {
     
 }
 
+extension FixedArray8: BinaryDumpable where T: BinaryDumpable {
+
+    func dump() -> [UInt8] {
+        return flatMap { $0.dump() }
+    }
+    
+    var binarySize: UInt {
+        return reduce(0) { $0 + $1.binarySize }
+    }
+    
+}
+
+extension FixedArray8: BinaryConvertible where T: BinaryConvertible {
+
+    static func extract(_ binaryDump: BinaryDump) -> FixedArray8<T> {
+        return FixedArray8<T>(values: (binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next()))
+    }
+    
+}
+
+extension FixedArray40: BinaryDumpable where T: BinaryDumpable {
+
+    func dump() -> [UInt8] {
+        return flatMap { $0.dump() }
+    }
+    
+    var binarySize: UInt {
+        return reduce(0) { $0 + $1.binarySize }
+    }
+    
+}
+
+extension FixedArray40: BinaryConvertible where T: BinaryConvertible {
+
+    static func extract(_ binaryDump: BinaryDump) -> FixedArray40<T> {
+        return FixedArray40<T>(values: (binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next(), binaryDump.next()))
+    }
+    
+}

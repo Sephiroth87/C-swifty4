@@ -12,6 +12,7 @@
 		E53A2CA11D077FF100C52B93 /* SaveState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E53A2CA01D077FF100C52B93 /* SaveState.swift */; };
 		E58F36FA1D0627A300AE4DEC /* BinaryConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = E58F36F91D0627A300AE4DEC /* BinaryConvertible.swift */; };
 		E58F4D8B1C110070000F3976 /* Component.swift in Sources */ = {isa = PBXBuildFile; fileRef = E58F4D8A1C110070000F3976 /* Component.swift */; };
+		E5BD5DD5241945A6003CBC44 /* FixedArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BD5DD4241945A6003CBC44 /* FixedArray.swift */; };
 		E5DFEDAB1C0D06E5003AA5B9 /* CircularBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */; };
 		E5E0E3CD1C2AF6750062E0DD /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E0E3CC1C2AF6750062E0DD /* Line.swift */; };
 		E5EE30641BF8E8AE00404BE0 /* C1541.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EE30561BF8E8AE00404BE0 /* C1541.swift */; };
@@ -35,6 +36,7 @@
 		E53A2CA01D077FF100C52B93 /* SaveState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveState.swift; sourceTree = "<group>"; };
 		E58F36F91D0627A300AE4DEC /* BinaryConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryConvertible.swift; sourceTree = "<group>"; };
 		E58F4D8A1C110070000F3976 /* Component.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Component.swift; sourceTree = "<group>"; };
+		E5BD5DD4241945A6003CBC44 /* FixedArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedArray.swift; sourceTree = "<group>"; };
 		E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularBuffer.swift; sourceTree = "<group>"; };
 		E5E0E3CC1C2AF6750062E0DD /* Line.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		E5EE30441BF8E5CD00404BE0 /* C64.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = C64.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -82,6 +84,7 @@
 				E58F36F91D0627A300AE4DEC /* BinaryConvertible.swift */,
 				E5E0E3CC1C2AF6750062E0DD /* Line.swift */,
 				E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */,
+				E5BD5DD4241945A6003CBC44 /* FixedArray.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -227,6 +230,7 @@
 				E5EE306D1BF8E8AE00404BE0 /* VIC.swift in Sources */,
 				E58F36FA1D0627A300AE4DEC /* BinaryConvertible.swift in Sources */,
 				E5EE306E1BF8E8AE00404BE0 /* Keyboard.swift in Sources */,
+				E5BD5DD5241945A6003CBC44 /* FixedArray.swift in Sources */,
 				E5EE30671BF8E8AE00404BE0 /* C64.swift in Sources */,
 				E513FB0B1E088A7900AB3365 /* CPU+Opcodes.swift in Sources */,
 				E5EE30681BF8E8AE00404BE0 /* CPU.swift in Sources */,
