@@ -152,6 +152,28 @@ class ViewController: NSViewController {
         }
     }
     
+    @IBAction func screenshot(_ sender: AnyObject) {
+        c64.pause()
+        let panel = NSSavePanel()
+        panel.allowedFileTypes = ["png"]
+        panel.title = "Save screenshot"
+        panel.isExtensionHidden = false
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMddHHmmss"
+        panel.nameFieldStringValue = "C-swifty4 " + formatter.string(from: Date()) + ".png"
+        panel.beginSheetModal(for: view.window!) { result in
+            defer { self.c64.run() }
+            guard let url = panel.url , result.rawValue == NSFileHandlingPanelOKButton else { return }
+            let size = self.c64.configuration.vic.resolution
+            let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: Int(size.width) * 4, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+            memcpy(context.data, self.c64.screenBuffer(), Int(size.width) * Int(size.height) * 4)
+            guard let cgImage = context.makeImage() else { return }
+            guard let destination = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil) else { return }
+            CGImageDestinationAddImage(destination, cgImage, nil)
+            CGImageDestinationFinalize(destination)
+        }
+    }
+    
     override func keyDown(with theEvent: NSEvent) {
         switch theEvent.keyCode {
         case 36:
