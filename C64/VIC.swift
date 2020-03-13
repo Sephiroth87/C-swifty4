@@ -55,6 +55,7 @@ private struct VICPipeline: BinaryConvertible {
     //MARK: Registers
     fileprivate var m_x = FixedArray8<UInt16>(repeating: 0) // X Coordinate Sprite
     fileprivate var bmm = false // Bit Map Mode
+    fileprivate var ecm = false // Extended Color Mode
     fileprivate var mcm = false // Multi Color Mode
     fileprivate var mxe: UInt8 = 0 // Sprite X expansion
     //MARK: -
@@ -68,7 +69,7 @@ private struct VICPipeline: BinaryConvertible {
     fileprivate var xScroll: UInt8 = 0
 
     static func extract(_ binaryDump: BinaryDump) -> VICPipeline {
-        return VICPipeline(m_x: binaryDump.next(), bmm: binaryDump.next(), mcm: binaryDump.next(), mxe: binaryDump.next(), graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next(), xScroll: binaryDump.next())
+        return VICPipeline(m_x: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), mcm: binaryDump.next(), mxe: binaryDump.next(), graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next(), xScroll: binaryDump.next())
     }
     
 }
@@ -109,7 +110,6 @@ internal struct VICState: ComponentState {
     fileprivate var yScroll: UInt8 = 0 // Y Scroll
     fileprivate var rsel = true // (Rows selection)?
     fileprivate var den = true // Display Enable
-    fileprivate var ecm = false // Extended Color Mode
     fileprivate var raster: UInt16 = 0 // Raster Counter
     fileprivate var me: UInt8 = 0 // Sprite Enabled
     fileprivate var csel = true // (Columns selection)?
@@ -174,7 +174,7 @@ internal struct VICState: ComponentState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
         let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
-        return VICState(videoMatrix: binaryDump.next(), colorLine: binaryDump.next(), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), ecm: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(), mcbase: binaryDump.next(), yExpansion: binaryDump.next(), pipe: binaryDump.next(), nextPipe: binaryDump.next(), colorPipe: binaryDump.next(), nextColorPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(), spriteDisplay: binaryDump.next(), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(), spriteShiftRegisterCount: binaryDump.next(), spriteShiftRegisterPixelsPerShift: binaryDump.next(), graphicsShiftRegister: binaryDump.next(), graphicsShiftRegisterRemainingBits: binaryDump.next(), graphicsPixelData: binaryDump.next(), graphicsMulticolorFlipFlop: binaryDump.next())
+        return VICState(videoMatrix: binaryDump.next(), colorLine: binaryDump.next(), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(), mcbase: binaryDump.next(), yExpansion: binaryDump.next(), pipe: binaryDump.next(), nextPipe: binaryDump.next(), colorPipe: binaryDump.next(), nextColorPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(), spriteDisplay: binaryDump.next(), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(), spriteShiftRegisterCount: binaryDump.next(), spriteShiftRegisterPixelsPerShift: binaryDump.next(), graphicsShiftRegister: binaryDump.next(), graphicsShiftRegisterRemainingBits: binaryDump.next(), graphicsPixelData: binaryDump.next(), graphicsMulticolorFlipFlop: binaryDump.next())
     }
 
     var description: String {
@@ -260,7 +260,7 @@ final internal class VIC: Component, LineComponent {
             value |= (state.nextPipe.m_x[7] & 0xFF00) >> 1
             return UInt8(truncatingIfNeeded: value)
         case 0x11:
-            return (state.yScroll & 0x07) | (state.rsel ? 0x08 : 0) | (state.den ? 0x10 : 0) | (state.nextPipe.bmm ? 0x20 : 0) | (state.ecm ? 0x40 : 0) | UInt8((state.raster & 0x100) >> 1)
+            return (state.yScroll & 0x07) | (state.rsel ? 0x08 : 0) | (state.den ? 0x10 : 0) | (state.nextPipe.bmm ? 0x20 : 0) | (state.nextPipe.ecm ? 0x40 : 0) | UInt8((state.raster & 0x100) >> 1)
         case 0x12:
             return UInt8(truncatingIfNeeded: state.raster)
         case 0x15:
@@ -332,7 +332,7 @@ final internal class VIC: Component, LineComponent {
             borderComparison.bottom = state.rsel ? 251 : 247
             state.den = byte & 0x10 != 0
             state.nextPipe.bmm = byte & 0x20 != 0
-            state.ecm = byte & 0x40 != 0
+            state.nextPipe.ecm = byte & 0x40 != 0
             if case let newRasterInterruptLine = UInt16(byte & 0x80) << 1 | (state.rasterInterruptLine & 0x00FF), newRasterInterruptLine != state.rasterInterruptLine {
                 state.rasterInterruptLine = newRasterInterruptLine
                 if state.raster == state.rasterInterruptLine {
@@ -655,14 +655,14 @@ final internal class VIC: Component, LineComponent {
             if state.nextPipe.bmm || state.pipe.bmm {
                 state.nextPipe.graphicsData = memoryAccess(UInt16(state.cb & 0x04) << 11 | state.vc << 3 | UInt16(state.rc))
             } else {
-                state.nextPipe.graphicsData = memoryAccess(UInt16(state.cb) << 11 | (UInt16(state.videoMatrix[Int(state.vmli)]) & (state.ecm ? 0x3F : 0xFF)) << 3 | UInt16(state.rc))
+                state.nextPipe.graphicsData = memoryAccess(UInt16(state.cb) << 11 | (UInt16(state.videoMatrix[Int(state.vmli)]) & (state.nextPipe.ecm ? 0x3F : 0xFF)) << 3 | UInt16(state.rc))
             }
             state.nextPipe.graphicsVideoMatrix = state.videoMatrix[Int(state.vmli)]
             state.nextPipe.graphicsColorLine = state.colorLine[Int(state.vmli)]
             state.vc = (state.vc + 1) & 0x3FF
             state.vmli = (state.vmli + 1) & 0x3F
         } else {
-            state.nextPipe.graphicsData = state.ecm ? memoryAccess(0x39FF) : memoryAccess(0x3FFF)
+            state.nextPipe.graphicsData = state.nextPipe.ecm ? memoryAccess(0x39FF) : memoryAccess(0x3FFF)
             state.nextPipe.graphicsVideoMatrix = 0
             state.nextPipe.graphicsColorLine = 0
         }
@@ -787,10 +787,11 @@ final internal class VIC: Component, LineComponent {
                 state.graphicsPixelData <<= 1
             }
         }
-        // BMM changes start appearing after 4 pixels when rising, 6 when falling
+        // BMM/ECM changes start appearing after 4 pixels when rising, 6 when falling
         let bmm = !state.nextPipe.bmm && state.pipe.bmm ? i < 6 : (i > 3 ? state.nextPipe.bmm : state.pipe.bmm)
+        let ecm = !state.nextPipe.ecm && state.pipe.ecm ? i < 6 : (i > 3 ? state.nextPipe.ecm : state.pipe.ecm)
         
-        switch (state.ecm, bmm, mcm) {
+        switch (ecm, bmm, mcm) {
         case (false, false, false): // Standard text mode (ECM/BMM/MCM=0/0/0)
             if state.graphicsPixelData != 0 {
                 graphicsPixel = Int(state.pipe.graphicsColorLine)
