@@ -61,7 +61,7 @@
 		E5BD5DEB24197A3A003CBC44 /* PerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerformanceTests.swift; sourceTree = "<group>"; };
 		E5BD5DEC24197A3A003CBC44 /* LorenzTestSuite.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LorenzTestSuite.swift; sourceTree = "<group>"; };
 		E5BD5DF124197A66003CBC44 /* Resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Resources; sourceTree = "<group>"; };
-		E5BD5DF324197B53003CBC44 /* ROM */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ROM; sourceTree = "<group>"; };
+		E5BD5DF324197B53003CBC44 /* ROM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ROM; path = ../ROM; sourceTree = "<group>"; };
 		E5DFEDAA1C0D06E5003AA5B9 /* CircularBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularBuffer.swift; sourceTree = "<group>"; };
 		E5E0E3CC1C2AF6750062E0DD /* Line.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		E5EE30441BF8E5CD00404BE0 /* C64.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = C64.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -117,6 +117,7 @@
 				E5BD5DEC24197A3A003CBC44 /* LorenzTestSuite.swift */,
 				E5BD5DEA24197A3A003CBC44 /* TestprogsCIACiavarious.swift */,
 				E5BD5DDE24197A14003CBC44 /* Info.plist */,
+				E5BD5DF324197B53003CBC44 /* ROM */,
 				E5BD5DF124197A66003CBC44 /* Resources */,
 			);
 			path = Tests;
@@ -138,7 +139,6 @@
 		E5EE303A1BF8E5CD00404BE0 = {
 			isa = PBXGroup;
 			children = (
-				E5BD5DF324197B53003CBC44 /* ROM */,
 				E5EE30461BF8E5CD00404BE0 /* C64 */,
 				E5BD5DDB24197A14003CBC44 /* Tests */,
 				E5EE30451BF8E5CD00404BE0 /* Products */,
