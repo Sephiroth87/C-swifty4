@@ -63,13 +63,12 @@ private struct VICPipeline: BinaryConvertible {
     fileprivate var graphicsData: UInt8 = 0
     fileprivate var graphicsVideoMatrix: UInt8 = 0
     fileprivate var graphicsColorLine: UInt8 = 0
-    fileprivate var mainBorder = false
     fileprivate var verticalBorder = false
     fileprivate var initialRasterX: UInt16 = 0
     fileprivate var xScroll: UInt8 = 0
 
     static func extract(_ binaryDump: BinaryDump) -> VICPipeline {
-        return VICPipeline(m_x: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), mcm: binaryDump.next(), mxe: binaryDump.next(), graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), mainBorder: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next(), xScroll: binaryDump.next())
+        return VICPipeline(m_x: binaryDump.next(), bmm: binaryDump.next(), ecm: binaryDump.next(), mcm: binaryDump.next(), mxe: binaryDump.next(), graphicsData: binaryDump.next(), graphicsVideoMatrix: binaryDump.next(), graphicsColorLine: binaryDump.next(), verticalBorder: binaryDump.next(), initialRasterX: binaryDump.next(), xScroll: binaryDump.next())
     }
     
 }
@@ -132,6 +131,7 @@ internal struct VICState: ComponentState {
     fileprivate var displayState = false
     fileprivate var rasterX: UInt16 = 0
     fileprivate var rasterInterruptLine: UInt16 = 0
+    fileprivate var mainBorder = false
     fileprivate var ref: UInt8 = 0
     fileprivate var mc = FixedArray8<UInt8>(repeating: 0)
     fileprivate var mcbase = FixedArray8<UInt8>(repeating: 0)
@@ -174,7 +174,7 @@ internal struct VICState: ComponentState {
         //TODO: this will cause the next 2 frames to be skipped, as the actual buffers are in VIC, figure this later
         //      Good enough for now
         let screenBuffer = UnsafeMutableBufferPointer<UInt32>(start: calloc(512 * 512, MemoryLayout<UInt32>.size).assumingMemoryBound(to: UInt32.self), count: 512 * 512)
-        return VICState(videoMatrix: binaryDump.next(), colorLine: binaryDump.next(), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(), mcbase: binaryDump.next(), yExpansion: binaryDump.next(), pipe: binaryDump.next(), nextPipe: binaryDump.next(), colorPipe: binaryDump.next(), nextColorPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(), spriteDisplay: binaryDump.next(), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(), spriteShiftRegisterCount: binaryDump.next(), spriteShiftRegisterPixelsPerShift: binaryDump.next(), graphicsShiftRegister: binaryDump.next(), graphicsShiftRegisterRemainingBits: binaryDump.next(), graphicsPixelData: binaryDump.next(), graphicsMulticolorFlipFlop: binaryDump.next())
+        return VICState(videoMatrix: binaryDump.next(), colorLine: binaryDump.next(), mp: binaryDump.next(), screenBuffer: screenBuffer, currentCycle: binaryDump.next(), currentLine: binaryDump.next(), m_y: binaryDump.next(), yScroll: binaryDump.next(), rsel: binaryDump.next(), den: binaryDump.next(), raster: binaryDump.next(), me: binaryDump.next(), csel:binaryDump.next(), mye: binaryDump.next(), vm: binaryDump.next(), cb: binaryDump.next(), ir: binaryDump.next(), ier: binaryDump.next(), mdp: binaryDump.next(), mmc: binaryDump.next(), mm: binaryDump.next(), md: binaryDump.next(), vc: binaryDump.next(), vcbase: binaryDump.next(), rc: binaryDump.next(), vmli: binaryDump.next(), displayState: binaryDump.next(), rasterX: binaryDump.next(), rasterInterruptLine: binaryDump.next(), mainBorder: binaryDump.next(), ref: binaryDump.next(), mc: binaryDump.next(), mcbase: binaryDump.next(), yExpansion: binaryDump.next(), pipe: binaryDump.next(), nextPipe: binaryDump.next(), colorPipe: binaryDump.next(), nextColorPipe: binaryDump.next(), addressBus: binaryDump.next(), dataBus: binaryDump.next(), memoryBankAddress: binaryDump.next(), bufferPosition: binaryDump.next(), badLinesEnabled: binaryDump.next(), isBadLine: binaryDump.next(), baPin: binaryDump.next(), baLowCount: binaryDump.next(), currentSprite: binaryDump.next(), spriteDma: binaryDump.next(), spriteDisplay: binaryDump.next(), anySpriteDisplaying: binaryDump.next(), spriteSequencerData: binaryDump.next(), spriteShiftRegisterCount: binaryDump.next(), spriteShiftRegisterPixelsPerShift: binaryDump.next(), graphicsShiftRegister: binaryDump.next(), graphicsShiftRegisterRemainingBits: binaryDump.next(), graphicsPixelData: binaryDump.next(), graphicsMulticolorFlipFlop: binaryDump.next())
     }
 
     var description: String {
@@ -355,6 +355,7 @@ final internal class VIC: Component, LineComponent {
         case 0x15:
             state.me = byte
         case 0x16:
+            updateSideBorder()
             state.nextPipe.xScroll = byte & 0x07
             state.csel = byte & 0x08 != 0
             borderComparison.left = state.csel ? 24 : 31
@@ -455,6 +456,17 @@ final internal class VIC: Component, LineComponent {
             state.anySpriteDisplaying = false
         } else {
             state.anySpriteDisplaying = true
+        }
+    }
+    
+    @inline(__always) private func updateSideBorder() {
+        let actualRaster = state.rasterX &- UInt16(8)
+        if actualRaster == borderComparison.right {
+            state.mainBorder = true
+        } else if actualRaster == borderComparison.left {
+            if !state.pipe.verticalBorder {
+                state.mainBorder = false
+            }
         }
     }
 
@@ -676,7 +688,7 @@ final internal class VIC: Component, LineComponent {
     // Sprite data access
     private func sAccess(_ accessNumber: Int) {
         let data = memoryAccess(UInt16(state.mp) << 6 | UInt16(state.mc[Int(state.currentSprite)]))
-        state.spriteSequencerData[Int(state.currentSprite)] |= UInt32(data) << UInt32(8 * (2 - accessNumber))
+        state.spriteSequencerData[Int(state.currentSprite)] |= UInt32(data) << UInt32(8 &* (2 &- accessNumber))
         state.mc[Int(state.currentSprite)] = (state.mc[Int(state.currentSprite)] + 1) & 0x3F
     }
     
@@ -696,9 +708,12 @@ final internal class VIC: Component, LineComponent {
     private func draw() {
         // vic-ii.txt says Y coord is only checked two times per raster [3.9], but in practice it looks it's checked every cycle. this fixes all dentest tests
         if state.raster == borderComparison.bottom {
+//            state.pipe.verticalBorder = true
             state.nextPipe.verticalBorder = true
         } else if state.raster == borderComparison.top && state.den {
+//            state.pipe.verticalBorder = false
             state.nextPipe.verticalBorder = false
+            
         }
         state.nextPipe.initialRasterX = state.rasterX
         drawPixel(0)
@@ -728,14 +743,8 @@ final internal class VIC: Component, LineComponent {
     // Subfunction are always inlined for performance
     private func drawPixel(_ i: Int) {
         if (state.rasterX >= configuration.visibleX.first || state.rasterX < configuration.visibleX.last - 1) &&
-            (state.raster > configuration.vblankLines.last || state.raster < configuration.vblankLines.first) {
-            if state.rasterX == borderComparison.right {
-                state.nextPipe.mainBorder = true
-            } else if state.rasterX == borderComparison.left {
-                if !state.nextPipe.verticalBorder {
-                    state.nextPipe.mainBorder = false
-                }
-            }
+            (state.rasterX > configuration.vblankLines.last || state.rasterX < configuration.vblankLines.first) {
+            updateSideBorder()
             if state.currentCycle >= 18 && state.currentCycle <= 57 && i == state.pipe.xScroll {
                 state.graphicsShiftRegister = state.pipe.graphicsData
                 state.graphicsMulticolorFlipFlop = true
@@ -758,7 +767,7 @@ final internal class VIC: Component, LineComponent {
             } else if let graphicsPixel = graphicsPixel {
                 state.screenBuffer[state.bufferPosition] = colors[graphicsPixel]
             }
-            if state.pipe.mainBorder {
+            if state.mainBorder {
                 state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.ec)]
             }
             state.bufferPosition += 1
