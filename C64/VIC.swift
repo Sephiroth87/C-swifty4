@@ -770,7 +770,7 @@ final internal class VIC: Component, LineComponent {
             if state.mainBorder {
                 state.screenBuffer[state.bufferPosition] = colors[Int(state.colorPipe.ec)]
             }
-            state.bufferPosition += 1
+            state.bufferPosition &+= 1
         }
         state.rasterX += 1
         if state.rasterX == configuration.xLimits.last {
@@ -931,15 +931,15 @@ final internal class VIC: Component, LineComponent {
                                 currentSpritePixel = Int(state.colorPipe.m_c[spriteIndex])
                             }
                         }
-                        state.spriteShiftRegisterPixelsPerShift[spriteIndex] += 1
+                        state.spriteShiftRegisterPixelsPerShift[spriteIndex] &+= 1
                         let multicolorCount = multicolor ? 2 : 1
                         if state.spriteShiftRegisterPixelsPerShift[spriteIndex] >= (xExpansion ? multicolorCount << 1 : multicolorCount) {
                             if multicolor {
                                 state.spriteSequencerData[spriteIndex] <<= 2
-                                state.spriteShiftRegisterCount[spriteIndex] -= 2
+                                state.spriteShiftRegisterCount[spriteIndex] &-= 2
                             } else {
                                 state.spriteSequencerData[spriteIndex] <<= 1
-                                state.spriteShiftRegisterCount[spriteIndex] -= 1
+                                state.spriteShiftRegisterCount[spriteIndex] &-= 1
                             }
                             state.spriteShiftRegisterPixelsPerShift[spriteIndex] = 0
                         }
