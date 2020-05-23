@@ -1,9 +1,9 @@
-#Lorenz Test Suite 2.15
+# Lorenz Test Suite 2.15
 262/273
 All except tests for new CIA, trap17
-#VICE testprogs
-##CIA
-#####ciavarious
+# VICE testprogs
+## CIA
+#### ciavarious
 - [x] cia1.prg
 - [x] cia2.prg
 - [ ] cia3.prg
@@ -20,14 +20,14 @@ All except tests for new CIA, trap17
 - [x] cia13.prg
 - [x] cia14.prg
 - [x] cia15.prg
-#####reload0
+#### reload0
 - [x] reload0a.prg
 - [x] reload0b.prg
-#####timerbasics
+#### timerbasics
 - [x] test.prg
 - [x] timer_test1.prg
 - [x] timer.prg
-#####tod
+#### tod
 - [x] 0alarm.prg
 - [x] 1alarm.prg
 - [x] 4tod.prg
@@ -56,8 +56,10 @@ All except tests for new CIA, trap17
 - [ ] stability-ntsc.prg
 - [ ] stability.prg
 - [x] write-stop.prg
-##VICII
-####border
+## VICII
+#### banking
+-[x] banking.prg
+#### border
 -[x] border-250.prg
 -[] border-251.prg
 -[x] border-252.prg
@@ -67,11 +69,11 @@ All except tests for new CIA, trap17
 -[] border-mcbm.prg
 -[x] vborder.prg (border opening pass, but yellow line is slightly different)
 -[x] vborder2.prg (same as above)
-####colorram
+#### colorram
 -[x] test.prg
-####D011Test
+#### D011Test
 -[x] disable-bad.prg
-####dentest
+#### dentest
 -[x] den01-48-0.prg
 -[x] den01-48-1.prg
 -[x] den01-48-2.prg
@@ -93,28 +95,28 @@ All except tests for new CIA, trap17
 -[x] denrsel-s1.prg
 -[x] denrsel-s2.prg
 -[x] denrsel55.prg
-####dmadelay
+#### dmadelay
 -[x]test1.prg
 -[x]test2.prg
 -[x]test3.prg
 -[]test4.prg
-####gfxfetch
+#### gfxfetch
 -[x] gfxfetch.prg
-####phi1timing
+#### phi1timing
 -[x] phi1timing.prg
-####screenpos
+#### screenpos
 -[x] screenpos.prg
-####spritecollisions
+#### spritecollisions
 -[x] sprite-gfx-collision-cycle
 -[x] sprite-sprite-collision-cycle.prg
 -[x] sprite-sprite.prg
-####spriteenable
+#### spriteenable
 -[x] spriteenable1.prg
 -[] spriteenable2.prg
 -[x] spriteenable3.prg
 -[x] spriteenable4.prg
 -[] spriteenable5.prg
-####spritepriorities
+#### spritepriorities
 -[x] test1.prg
-####spritesteal
+#### spritesteal
 -[x] spritesteal.prg

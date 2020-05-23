@@ -284,7 +284,7 @@ internal class CIA: Component, LineComponent {
     internal func writeByte(_ position: UInt8, byte: UInt8) {
         switch position {
         case 0x01:
-            state.prb = byte | ~state.ddrb
+            state.prb = byte
         case 0x02:
             state.ddra = byte
         case 0x03:
@@ -518,7 +518,7 @@ final internal class CIA1: CIA {
     internal override func writeByte(_ position: UInt8, byte: UInt8) {
         switch position {
         case 0x00:
-            state.pra = byte | ~state.ddra
+            state.pra = byte
             return
         default:
             super.writeByte(position, byte: byte)
@@ -548,10 +548,10 @@ final internal class CIA1: CIA {
             if joystick2.button == .pressed {
                 joystick &= ~UInt8(0x10)
             }
-            return state.pra & joystick
+            return (state.pra | ~state.ddra) & joystick
         case 0x01:
             //TODO: Actually read from 0x00 because of joystick that might change bits
-            var result = keyboard.readMatrix(state.pra) & (state.prb | ~state.ddrb)
+            var result = keyboard.readMatrix(state.pra | ~state.ddra) & (state.prb | ~state.ddrb)
             if state.cra & 0x02 != 0 {
                 if (state.cra & 0x04 == 0 && state.pb6Pulse) || (state.cra & 0x04 != 0 && state.pb6Toggle) {
                     result |= 0x40
@@ -599,11 +599,20 @@ final internal class CIA2: CIA, IECDevice {
     internal override func writeByte(_ position: UInt8, byte: UInt8) {
         switch position {
         case 0x00:
-            state.pra = byte | ~state.ddra
-            vic.setMemoryBank(state.pra & 0x3)
-            state.atnPin = state.pra & 0x08 == 0
-            state.clkPin = state.pra & 0x10 == 0
-            state.dataPin = state.pra & 0x20 == 0
+            state.pra = byte
+            let pra = state.pra | ~state.ddra
+            vic.setMemoryBank(pra & 0x3)
+            state.atnPin = pra & 0x08 == 0
+            state.clkPin = pra & 0x10 == 0
+            state.dataPin = pra & 0x20 == 0
+            iec.updatePins(self)
+        case 0x02:
+            state.ddra = byte
+            let pra = state.pra | ~state.ddra
+            vic.setMemoryBank(pra & 0x3)
+            state.atnPin = pra & 0x08 == 0
+            state.clkPin = pra & 0x10 == 0
+            state.dataPin = pra & 0x20 == 0
             iec.updatePins(self)
         default:
             super.writeByte(position, byte: byte)
